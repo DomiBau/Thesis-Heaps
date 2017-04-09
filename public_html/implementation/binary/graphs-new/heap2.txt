@@ -1,0 +1,12 @@
+% Graph 4: corman page 726
+n 1
+n 3
+n 2
+n 5
+n 4
+n 6
+e 1 2
+e 1 3
+e 2 4
+e 2 5
+e 3 6

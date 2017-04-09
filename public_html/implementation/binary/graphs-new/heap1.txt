@@ -1,0 +1,8 @@
+% Graph 5: ahuja page 227
+n 0
+n 1
+n 2
+n 5
+e 1 2
+e 1 3
+e 2 4

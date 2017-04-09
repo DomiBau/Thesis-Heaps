@@ -1,0 +1,16 @@
+% Graph saved at Sat Jul 18 2015 12:50:28 GMT+0200 (CEST)
+n 0
+n 1
+n 3
+n 5
+n 9
+n 4
+n 6
+n 13
+n 11
+n 23
+n 31
+n 19
+n 46
+n 17
+n 50

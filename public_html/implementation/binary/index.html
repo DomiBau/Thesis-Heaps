@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8">
+    <meta name="description" content="This applet demonstrates the binary heap" />
+    <meta name="keywords" content="binary, heap, datastructure, TUM, Technische Universität München, applet">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="author" content="Dominique Bau">
+
+<!--     the whole page layout style -->
+    <link rel="stylesheet" type="text/css" href="../library/css/style.css" />
+
+    <link rel="stylesheet" type="text/css" href="../library/css/tum-theme2/jquery-ui-1.10.1.custom.min.css" />
+ <!--   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"> -->
+
+<!-- LOCAL -->
+
+    <script src="../library/js/jquery-1.9.1.min.js"></script>
+    <script src="../library/js/jquery-ui-1.10.1.custom.min.js"></script>
+    <link type="text/css" href="../library/css/mmenu/jquery.mmenu.all.css" rel="stylesheet" />
+    <script src="../library/js/mmenu/jquery.mmenu.min.all.js"></script>
+    <script src="../library/js/mathjax/MathJax.js?config=TeX-AMS-MML_SVG.js&locale=en"></script>
+    <script src="../library/js/d3/d3.js"></script>
+
+<!-- CDN  -->
+<!--     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/5.3.4/css/jquery.mmenu.all.min.css" rel="stylesheet" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/5.3.4/js/jquery.mmenu.min.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG.js&locale=en"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+ -->
+
+<!-- MathJax CDN fallback -->
+    <script>window.MathJax || document.write('<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG.js&locale=en">\x3C/script>')</script>
+
+<!--     d3 related library code -->
+    <script src="../library-d3-svg/js/Graph.js"></script>
+    <script src="../library-d3-svg/js/GraphDrawer.js"></script>
+    <script src="../library-d3-svg/js/GraphEditor.js"></script>
+    <script src="../library-d3-svg/js/Logger.js"></script>
+    <script src="../library-d3-svg/js/Tab.js"></script>
+    <!-- <script src="../library-d3-svg/js/AlgorithmTab.js"></script> -->
+    <script src="../library-d3-svg/js/GraphEditorTab.js"></script>
+    <script src="../library-d3-svg/js/siteAnimation.js"></script>
+
+    <link id="graph-style" rel="stylesheet" type="text/css" href="../library-d3-svg/css/graph-style.css" />
+    <link rel="stylesheet" type="text/css" href="../library-d3-svg/css/style.css" />
+
+<!--     Files used only for this applet -->
+    <script src="js/ResidualEdge.js" type="text/javascript"></script>
+    <script src="js/GoldbergTarjanPushRelabelAlgorithm.js" type="text/javascript"></script>
+    <script src="js/ResidualGraphDrawer.js" type="text/javascript"></script>
+
+    <title>Binary-Heaps</title>
+</head>
+<body>
+    <div>
+    
+    <header>
+        <img src="img/heap-working.svg"/>
+        <span class="mainheader">Binary Heap</span>
+        <img style="position:absolute; right:0px" src="../library/img/TUMLogo.png" alt="Technische Universität München">
+    </header>
+
+    <div id="tabs">
+        <ul>
+            <li><a href="#tab_te"><span>Introduction</span></a></li>
+            <li><a href="#tab_tg"><span>Test the datastructure</span></a></li>
+            <li><a href="#tab_ti"><span>Description of the operations</span></a></li>
+            <li><a href="#tab_tw"><span>More</span></a></li>
+        </ul>
+
+        <!-- TAB Einführung -->
+        <div id="tab_te">
+            <div id="te_div_Einfuehrungstext">
+
+                <div id="te_div_beispiel1Container">
+                    <img id="te_img_beispiel1" src="img/UnderConst.PNG" width="350" height="300" alt="const">
+                <p>Maybe a little example?</p></div>
+                
+                <h1>Binary heap datastructure</h1>
+                <h3>Get your attention with this:</h3>
+                <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.<br><br>Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                <br>
+                <div id ="te_div_Entscheidung">
+                    <h2>What do you want to do first?</h2>
+                    <button id="te_button_gotoDrawGraph">Test the datastructure!</button> <button id="te_button_gotoIdee">Read detailed description of the operations</button>
+                </div>
+                <p></p>
+                <br style="clear: both;" />
+            </div>
+        </div>
+
+        <!-- TAB Graph Erstellen -->
+        <div id="tab_tg">
+            <div>
+                <div class="canvasWrapper">
+                   <table class="algoTable">
+                    <tr>
+                     <td class="svgContainer">
+                      <svg class="graphCanvas" id="tg_canvas_graph" width="700" height="500"></svg>
+                      <a class="svgDownloader" download="heap.svg" href="data:text/plain,test">Heap.svg</a>
+                      <div id="DeleteMenu">
+                          <h2 class="DeleteHeader">Delete or Decrease?</h2>
+                          <button class="onNodeButtons" id="deleteButton">Delete</button>
+                          <button class="onNodeButtons" id="decreaseButton">Decrease-Key</button>
+                          <input type="number" id="decreaseNum" min="-100" max="100">
+                      </div>
+                      <div class="Legende">
+                          <h2 class="LegendeHeader"><button class="LegendeMin"></button> Legende</h2>
+                          <div class="LegendeText">
+                              <table>
+                                  <tr>
+                                      <td class="LegendeTabelle"><img src="img/legend-editor/node.svg" alt="node" class="LegendeIcon"></td>
+                                      <td><span>Element</span></td>
+                                  </tr>
+                                  <tr>
+                                      <td class="LegendeTabelle"><img src="img/legend-editor/edge.svg" alt="edge" class="LegendeIcon"></td>
+                                      <td><span>Vater-Kind Beziehung</span></td>
+                                  </tr>
+                              </table>
+                          </div>
+                      </div>
+                      </td>
+                     </tr>
+                    </table>
+                </div>
+                <div id="tg_div_statusWindow" class="buttonWindow">
+                    
+                    <h2>Here you can (re)start with an example heap:</h2>
+                    <h3>Select 
+                    <select name="graphSelector" id="tg_select_GraphSelector">
+                        <option selected label="Heap 1">heap1</option>
+                        <option label="Heap 2">heap2</option>
+                        <option label="Heap 3">heap3</option>
+                    </select></h3><br><br>
+                    <h2>Which operation do you want to perform?</h2>
+                    <button class="windowButton" id="insertButton">Insert</button>
+                    <input type="number" id="insertNum" min="-100" max="100"><br>
+                    <button class="windowButton" id="deleteMinButton">Delete-Min</button><br>
+                    <button class="windowButton" id="buildButton">Build</button>
+                    [<input type="text" id="buildInput">]
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB Algorithmus ausführen vorerst entfernt-->
+        
+
+        <!-- TAB Beschreibung des Algorithmus -->
+        <div id="tab_ti" style="display: none;">
+            <div id="ti_div_Einfuehrungstext">
+                <div class="BeispielbildContainer">
+                    <img src="img/ahuja_init.svg"/>
+                    <p>Graph \(G=(V,E)\) with capacities \(c(e)\geq0 \forall e\in E\)</p>
+                </div>
+                <h1>Maximum Flows</h1>
+                <p>In many applications one wants to know how much flow of a certain resource can simultaneously be transferred over a network from a to b.
+                Depending on the context, flow can mean different things: The amount of water in a water pipe system in your city or the bandwidth of a computer network.
+                However, the links in the network on paths from a to b can only handle flow up to their maximum capacity. One now seeks an assignemt of flow values to edges that fulfills all the capacity constraints of the edges and the flow conservation property on all the inner nodes, meaning we don't want leaks in our pipe system.
+                </p>
+                <p><strong>In general we speak of a flow</strong>.
+                Therefore one assigns a flow value to each edge in our network, the graph</p>
+                <p>The Push-Relabel Algorithm of Goldberg and Tarjan computes the maximum s-t flow on a graph</p>
+               
+               <h2>Flow in graphs</h2>
+               <p>digraph \(G = (V, E)\)</p>
+                <div>A flow network \( N=(G,c,s,t) \)<br>
+                    <ul>
+                        <li>capacity \(\forall e \in E: c(e) \geq 0 \)</li>
+                        <li>source and sink \( s,t \in V \)</li>
+                    </ul>
+                </div>
+
+                <div>A flow on N: \( f : E \rightarrow \mathbb{R}_o^+ \)
+                    <ol>
+                        <li>feasability / capacity constraints: \( \forall e \in E : f(e) \leq c(e) \) </li>
+                        <li>flow conservation: \( \forall u \in V \setminus \{s,t\} : \sum_{v \in V} f(u,v) = \sum_{v \in V} f(v,u)\)</li>
+                    </ol>
+                </div>
+
+
+
+               <h2>The residual network</h2>
+                <div class="BeispielbildContainer">
+                    <img width="200" src="img/residual-network.png"/>
+                    <p>create the residual network</p>
+                </div>
+For a (not necessarily feasible) flow \(f : E \rightarrow \mathbb{R}\) in \(G = (V,E) \) we can construct the so called residual network \(G' = (V, E') \):
+Create the graph G0 from G by copying all nodes of G and adding edges to G0 under the following rules.
+
+
+               <h1>Idea of the algorithm</h1>
+
+               <h2>preflow</h2>
+
+
+			 preflow:
+				\( \forall u \in V \setminus\{s,t\}: e(u) \geq 0\)
+
+               <h2>height function</h2>
+               height \( h(u), u \in V \)
+
+               <h2>excess</h2>
+
+               </div>
+        </div>
+
+       
+        <!-- TAB Weiteres -->
+<div id="tab_tw" style="display: none;">
+<div id="tw_Accordion">
+<h3>What is the pseudocode of the algorithm?</h3>
+<div>
+<pre><code>
+Input:  a directed graph G=(V,E) with source node s, target node t.
+        edge capacities c(e)>=0 for all edges
+Output: A feasible maximum s-t flow f(e) satisfying:
+        capacity constraints : 0<=f(e)<=c(e) for all edges
+        flow conservation : f(u,v) == f(v,u) for all nodes except s,t
+        The flow value of f(e) is maximized along all feasible flows
+</code></pre><!-- , which fulfills the capacity constraints f(e) leq c(e) for all edges, flow conservation at all inner nodes and maximises the flow value over all feasible flows. -->
+<hr>
+<!-- <pre><code id=tw_div_statusPseudocode>
+</code></pre> -->
+<div id=tw_div_statusPseudocode>
+</div>
+</div>
+<h3>How fast is the algorithm?</h3>
+<div>
+
+The running time of the generic Goldberg and Tarjan's push relabel algorithm (1988) is \( O(|V|^2|E|) \).
+<p>
+This is the same asymptotical performance as that of Dinic's algorithm (1970), itself a tuned version of Edmonds–Karp algorithm \( O(|V||E|^2) \).
+These two classical maximum flow algorithms, emerging from the Ford-Fulkerson method (1956) are based on augmenting s-t paths and preserve the flow conservation property at inner nodes (e.g no excess) even during the course of the algorithm.
+</p><p>
+So why did we even need another method if it is not asymptotically faster than the existing ones and adds additional complexity?
+It turns out that we can further tune the generic algorithm by specifiing the order in which we choose the active nodes which we apply push and relabel operations to.
+</p><p>
+In particular, the variant implemented in this applet chooses the FIFO rule when selecting active nodes from the queue Q, which has a running time of  \( O(|V|^3) \), which is better than the previous bound, especially on dense graphs (it is actually independend on the number of edges).
+</p><p>
+Certain modifications of the generic algorithm  are among the fastest algorithms known today to solve maximum flow problems. For a comparison, please refer to this <a href="https://en.wikipedia.org/wiki/Maximum_flow_problem#Solutions">table</a>.
+</p>
+</div>
+<h3>When does the algorithm terminate?</h3>
+<div>
+The algorithm terminates when the queue containing the active nodes is empty. When that happens, the preflow is also a 
+feasible maximum flow since the residual network doesn’t contain augmenting pathes from s to t (since d(s) = |V|). 
+</div>
+
+<h3>Goldberg and Tarjan about the History of Efficient Maximum Flow Algorithms algorithms (video)</h3>
+<div>
+<iframe src="https://player.vimeo.com/video/100774435" width="640" height="360" frameborder="0"></iframe>
+<p><a href="https://vimeo.com/100774435">Efficient Maximum Flow Algorithms</a> from <a href="https://vimeo.com/user4730653">CACM</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+source: [GT2014]
+</div>
+
+
+<h3>References</h3>
+<div>
+<h4>Literature</h4>
+<dl>
+
+<dt>[GT88] (primary)</dt>
+<dd>Andrew V. Goldberg und Robert E. Tarjan. „A new approach to the maximum-flow problem“. 
+In: J. Assoc. Comput. Mach. 35.4 (1988), S. 921–940. issn: 0004-5411. doi: 10.1145/48014.61051. 
+url: <a href="http://dx.doi.org/10.1145/48014.61051">http://dx.doi.org/10.1145/48014.61051</a>.
+</dd>
+<br>
+
+<dt>[GT2014]</dt>
+<dd>Andrew V. Goldberg and Robert E. Tarjan. 2014. Efficient maximum flow algorithms. Commun. ACM 57, 8 (August 2014), 82-89. 
+DOI=<a href="http://dx.doi.org/10.1145/2628036">http://dx.doi.org/10.1145/2628036</a>.
+</dd>
+<br>
+
+<dt>[AMO93]</dt>
+<dd>Ravindra K. Ahuja, Thomas L. Magnanti und James B. Orlin. Network flows. Theory, algorithms, and applications. 
+Prentice Hall, Inc., Englewood Cliffs, NJ, 1993, S. xvi+846. isbn: 0-13-617549-X.</dd>
+<dd>
+<ul>
+7: MAXIMUM FLOWS: POLYNOMIAL ALGORITHM
+<ul>
+  <li>7.6: Generic Preflow-Push Algorithm </li>
+  <li>7.7: FIFO Preflow-Push Algorithm</li>
+  <li>7.8: Highest-Label Preflow-Push Algorithm</li>
+  <li>7.9: Excess Scaling Algorithm</li>
+
+</ul>
+</ul>
+</dd>
+
+
+<dt>[Jun13]</dt>
+<dd>Dieter Jungnickel. Graphs, networks and algorithms. Fourth. Bd. 5. Algorithms and Com- putation in Mathematics. 
+Springer, Heidelberg, 2013, S. xx+675. isbn: 978-3-642-32277-8; 978-3-642-32278-5. doi: 10.1007/978-3-642-32278-5. 
+url: <a href="http://dx.doi.org/10.1007/978-3-642-32278-5">http://dx.doi.org/10.1007/978-3-642-32278-5</a>.</dd>
+<dd>
+<ul>
+6: Flows
+<ul>
+  <li>6.6: The Algorithm of Goldberg and Tarjan </li>
+  <ul>
+    <li>Algorithm 6.6.1 (generic)</li>
+    <li>Algorithm 6.6.14 (FIFO preflow push algorithm)</li>
+    <li>Algorithm 6.6.16 (Highest label preflow push algorithm)</li>
+  </ul>
+</ul>
+</ul>
+</dd>
+
+
+<dt>[Cor09]</dt>
+<dd>Thomas H. Cormen. Introduction to algorithms. MIT press, 2009.</dd>
+<dd>
+<ul>
+VI: Graph Algorithms
+<ul>
+  <li>26: Maximum Flow</li>
+  <ul>
+    <li>26.4: Push-relabel algorithms</li>
+    <li>26.5: The relabel-to-front algorithm</li>
+  </ul>
+</ul>
+</ul>
+<dd>
+
+</dl>
+
+<h4>Web resources</h4>
+                <ol>
+<!--            <li>Goldberg, Andrew V., and Robert E. Tarjan. "A new approach to the maximum-flow problem." Journal of the ACM (JACM) 35.4 (1988): 921-940.</li>
+                <li>Ahuja, Ravindra K., Thomas L. Magnanti, and James B. Orlin. "Network flows. 1993." Pg 39: 193-196.</li>
+                <li>Ahuja, Ravindra K., Thomas L. Magnanti, and James B. Orlin. Network flows. No. MIT-WP-2059-88. ALFRED P SLOAN SCHOOL OF MANAGEMENT CAMBRIDGE MA, 1988.</li>
+                <li>Jungnickel, Dieter. Graphs, networks and algorithms. Heidelberg: Springer, 2008.</li>
+                <li>Cormen, Thomas H. Introduction to algorithms. MIT press, 2009.</li> -->
+                <li><a href="http://wwwmayr.in.tum.de/lehre/2013WS/algoprak/uebung/tutorial6.english.pdf">Mayr algoprak tutorial</a></li>
+                <li><a href="http://people.mpi-inf.mpg.de/~mehlhorn/DatAlg/Maxflow.pdf">Mehlhorn Maxflow slides</a></li>
+                <li><a href="https://people.orie.cornell.edu/dpw/orie633/LectureNotes/lecture5.pdf">Network flows lecture notes</a></li>
+                <li>Boost
+                <a href="http://www.boost.org/doc/libs/1_61_0/libs/graph/doc/graph_theory_review.html#sec:network-flow-algorithms">Network flows Intro</a>
+                <a href="http://www.boost.org/doc/libs/1_61_0/libs/graph/doc/push_relabel_max_flow.html">push_relabel_max_flow</a>
+                </li>
+                <li>Wikipedia
+                <a href="https://en.wikipedia.org/wiki/Maximum_flow_problem">Maximum flow problem</a>
+                <a href="https://en.wikipedia.org/wiki/Push–relabel_maximum_flow_algorithm">Push-relabel maximum flow algorithm</a>
+                </li>
+                <li><a href="https://lucatrevisan.wordpress.com/2011/02/04/cs261-lecture-9-maximum-flow/">blog entry</a></li>
+                <li><a href="https://www.topcoder.com/community/data-science/data-science-tutorials/maximum-flow-section-1/">topcoder tutorial</a></li>
+                </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p class="Disclaimer">
+            Bachelor thesis of Dominique Bau at Chair M9 of Technische Universität München. <span id="year">2017</span> | <a href="http://www-m9.ma.tum.de/Allgemeines/Rechtliches">Terms of use</a> | <a href="http://www-m9.ma.tum.de/Allgemeines/Impressum">About Us</a> | <a href="mailto&#58;m&#46;ritter&#64;ma&#46;tum&#46;de&#63;subject&#61;M9&#45;Web&#45;Feedback">Suggestions</a>
+        </p>
+    </footer>
+</body>

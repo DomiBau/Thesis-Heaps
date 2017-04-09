@@ -1,0 +1,92 @@
+text {
+  font-family:Arial,Helvetica;
+  font-size: 12px;
+}
+
+/* .unselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.resource {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+} */
+
+input.tooltip {
+  position: absolute;
+  text-align: center;
+  width : 30px;
+  padding: 2px;
+}
+
+.excessBar {
+  fill: lightblue;
+  stroke: black;
+  stroke-width: 1px;
+}
+
+
+.flow {
+  stroke: lightblue;
+  stroke-width: 1.5px;
+}
+
+
+.cap {
+  stroke: #ccc;
+  stroke-width: 1.5px;
+}
+
+circle.selected{
+  stroke: rgba(174,219,33, 0.7);
+  stroke-width: 7px;
+}
+
+.excess{
+  stroke: #a00;
+}
+
+.height{
+  stroke: #0a0;
+} 
+
+
+.timewindow {
+  fill: rgb(152, 198, 234);
+  fill-opacity: 1.0;
+  stroke-width: 4;
+  stroke: rgb(0, 101, 189);
+}
+
+#testArc {
+  stroke: #ccc;
+  stroke-width: 1.5px;
+  fill: none;
+}
+
+#testArc.hidden {
+  display: none;
+}
+
+.axis {
+  shape-rendering: crispEdges;
+}
+
+.axis .minor line {
+  stroke: #777;
+  stroke-dasharray: 2,2;
+}
+
+.axis line, .axis path {
+  fill: none;
+  stroke: #000;
+}
