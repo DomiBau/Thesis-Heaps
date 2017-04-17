@@ -3,7 +3,7 @@
  * This file contains just our basic graph model, 
  * together with methods to parse and sequentialize the graph.
  *
- * @author Adrian Haarbach
+ * @author Dominique Bau
  *
  * @requires d3.map, an associative array similar to new Object() / {}
  */
@@ -50,7 +50,7 @@ Graph.Node = function (x, y, id, ele) {
     //since we call JSON.stringify on this object in order
     //to implement the replay functionality.
     this.state = {};
-}
+};
 
 Graph.Node.prototype.initResources = function (wantedResourceSize) {
     var toAdd = 0;
@@ -86,7 +86,6 @@ Graph.Node.prototype.toString = function (full, f) {
     var str = "";
     if (full)
         str += this.id + " ";
-    str += Graph.styleResources(this.resources, "[", "]", f);
     return str;
 };
 
@@ -112,9 +111,8 @@ Graph.Edge.prototype.toString = function (full, f) {
     var str = "";
     if (full)
         str += this.start.id + "->" + this.end.id + " ";
-    str += Graph.styleResources(this.resources, "(", ")", f);
     return str;
-}
+};
 
 /**
  * Returns an alternative string representation of this edge
@@ -122,7 +120,7 @@ Graph.Edge.prototype.toString = function (full, f) {
 Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
     var str = "e=(" + nodeLabel(this.start) + "," + nodeLabel(this.end) + ")";
     return str;
-}
+};
 
 
 
@@ -131,22 +129,35 @@ Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
 
 /**
  * add a node to the graph
- * @param {Number|String} x coordinate
- * @param {Number|String} y coordinate
+ * @param ele {Number|String} new element to be inserted
  */
 Graph.prototype.addNode = function (ele) {
-    if (this.nodeIds >= 32)
+    if (!ele) {
+        ele = Math.ceil(Math.random() * 100);
+    }
+    if (this.nodeIds >= 32)//32 is max capacity for nodes
         return;
     var node = new Graph.Node(0, 0, this.nodeIds++, ele);
     node.setCoor();
     this.nodes.set(node.id, node);
-    //this.addEdgeToParent(node);
     node = this.sift(node);
     return node;
 };
 
+Graph.prototype.addLast = function (ele) {
+    if (!ele) {
+        ele = Math.ceil(Math.random() * 100);
+    }
+    var node = new Graph.Node(0,0,this.nodeIds++, ele);
+    node.setCoor();
+    this.nodes.set(node.id, node);
+    this.addEdgeToParent(node);
+    return node;
+};
 
-Graph.prototype.getMin = function(){
+
+Graph.prototype.getMin = function () {
+    if(this.nodeIds===1)return null;
     var node = this.nodes.get(1);
     return node;
 };
@@ -157,12 +168,12 @@ Graph.prototype.addNodeDirectly = function (node) {
     node.initResources(this.getNodeResourcesSize());
     this.nodes.set(node.id, node);
     return node;
-}
+};
 
 /**
  * Add an edge to the graph
- * @param {Number|String} id of start node
- * @param {Number|String} id of end node
+ * @param startId {Number|String} id of start node
+ * @param endId {Number|String} id of end node
  */
 Graph.prototype.addEdge = function (startId, endId) {
     var s = this.nodes.get(startId);
@@ -218,25 +229,47 @@ Graph.prototype.recoverEdges = function (node) {
 Graph.prototype.recoverAllEdges = function () {
     var count = 1;
     while (count < this.nodeIds) {
-        this.recoverEdges(this.nodes.get(count));
+        this.addEdgeToParent(this.nodes.get(count));
         count++;
     }
 };
 
 Graph.prototype.removeNode = function (id) {
     this.nodeIds--;
+    if (this.nodeIds === 1) {
+        this.nodes.remove(id);
+        return;
+    }
     if (id !== this.nodeIds) {
         this.swapNodes(id, this.nodeIds);
     }
     var node = this.nodes.get(this.nodeIds);
     var that = this;
-    this.removeAllEdges(that, node);
+    this.removeAllEdges(node);
     this.nodes.remove(node.id);
-    node = this.sift(this.nodes.get(id));
+    if(id!== this.nodeIds){
+        node = this.sift(this.nodes.get(id));
+    }
     return node;
 };
 
-Graph.prototype.removeAllEdges = function (that, node) {
+Graph.prototype.getNextId = function(){
+    return this.nodeIds;
+};
+
+Graph.prototype.inkrIds = function(){
+    this.nodeIds++;
+    return this.nodeIds;
+};
+
+Graph.prototype.dekrIds = function(){
+    this.nodeIds--;
+    return this.nodeIds;
+};
+
+
+Graph.prototype.removeAllEdges = function (node) {
+    var that = this;
     node.outEdges.forEach(function (key) {
         that.removeEdge(key);
     });
@@ -258,10 +291,9 @@ Graph.prototype.swapNodes = function (id1, id2) {
     this.nodes.set(nodeOne.id, nodeOne);
     nodeOne.setCoor();
     nodeTwo.setCoor();
-    var that = this;
-    this.removeAllEdges(that, nodeOne);
+    this.removeAllEdges(nodeOne);
     this.recoverEdges(nodeOne);
-    this.removeAllEdges(that, nodeTwo);
+    this.removeAllEdges(nodeTwo);
     this.recoverEdges(nodeTwo);
     return nodeOne;
 };
@@ -358,7 +390,7 @@ Graph.prototype.getState = function () {
         savedState.edges[key] = JSON.stringify(edge.state);
     });
     return savedState;
-}
+};
 
 Graph.prototype.setState = function (savedState) {
     this.nodes.forEach(function (key, node) {
@@ -367,7 +399,7 @@ Graph.prototype.setState = function (savedState) {
     this.edges.forEach(function (key, edge) {
         edge.state = JSON.parse(savedState.edges[key]);
     });
-}
+};
 
 /////////////////
 //STATICS
@@ -378,13 +410,13 @@ Graph.prototype.setState = function (savedState) {
  */
 Graph.styleResources = function (resources, left, right, f) {
     var f = f || function (d) {
-        return d
+        return d;
     };
     var str = resources.map(f).join(",");
     if (resources.length > 1)
         str = left + str + right;
     return str;
-}
+};
 
 /**
  * Graph serializer static method
@@ -414,45 +446,52 @@ Graph.stringify = function (graph) {
 
     var text = lines.join("\n");
     return text;
-}
+};
 
 /**
  * Graph parser static factory method
  * constructs a Graph object from a textuatl representation of the graph.
  * @static
  * @param {String} text - sequentialized Graph
+ * @param {boolean} animated - if the build should be animated or not
  * @return {Graph} - parsed Graph object
  */
-Graph.parse = function (text) {
-    var lines = text.split("\n");
+Graph.parse = function (text, animated) {
 
     var graph = new Graph();
-
+    var lines = text.split("\n");
     // Nach Zeilen aufteilen
-    for (var line in lines) {
-        var s = lines[line].split(" ");
-        // Nach Parametern aufteilen
-        if (s[0] == "%") { //comment
-            continue;
+    if (lines[0].split(" ")[0] === "%") {//files
+        for (var line in lines) {
+            var s = lines[line].split(" ");
+            // Nach Parametern aufteilen
+            if (s[0] === "%") { //comment
+                continue;
+            }
+            //x y r1 r2 ...
+            if (s[0] === "n") {
+                var node = graph.addNode(s[1]);
+            }
+            //s t r1 r2 ... 
+            if (s[0] === "e") {
+                //graph.addEdge(s[1], s[2]);
+            }
         }
-        //x y r1 r2 ...
-        if (s[0] == "n") {
-            var node = graph.addNode(s[1]);
+    } else {//Build
+        var nums = lines[0].split(",");
+        for (var num in nums) {
+            if(animated){
+                graph.addLast(nums[num]);
+            }else{
+                graph.addNode(nums[num]);
+            }
         }
-        //s t r1 r2 ... 
-        if (s[0] == "e") {
-            //graph.addEdge(s[1], s[2]);
-        }
-        ;
     }
-
-    if (graph.nodeIds == 0 && graph.edgeIds == 0) {
-        window.alert("Whut?");
+    if (graph.nodeIds === 0 && graph.edgeIds === 0) {
         throw "parse error";
     }
-
     return graph;
-}
+};
 
 /**
  * Singleton to have just one Graph instance per app.
@@ -464,23 +503,24 @@ Graph.instance = null;
  */
 Graph.addChangeListener = function (callbackFp) {
     Graph.onLoadedCbFP.push(callbackFp);
-}
+};
 Graph.onLoadedCbFP = [];
 
 /**
  * Replace the current graph singleton instance and call the defined callback functions.
  * This function is both called asyncronically from within ajax loading of graphs from servers and from local file uploads.
  */
-Graph.setInstance = function (error, text, filename, exceptionFp) {
-    if (error != null) {
+Graph.setInstance = function (error, text, filename, exceptionFp, animated) {
+    if (error !== null) {
         exceptionFp ? exceptionFp(error, text, filename) : console.log(error, text, filename);
         return;
     }
     ;
     var noErrors = false;
     try {
-        Graph.instance = Graph.parse(text);
+        Graph.instance = Graph.parse(text, animated);
         Graph.instance.recoverAllEdges();
+        document.getElementById("ArrayPre").innerHTML = "Führe eine Operation durch um die Arraydarstelung zu sehen.";
         noErrors = true;
     } catch (ex) {
         if (exceptionFp)
@@ -490,21 +530,25 @@ Graph.setInstance = function (error, text, filename, exceptionFp) {
     }
     if (noErrors)
         Graph.onLoadedCbFP.forEach(function (fp) {
-            fp()
+            fp();
         });
-}
+};
 
 /**
  * Ajax graph file loading from a server
  * using d3.text instead of raw ajax calls
  * calls setInstance async.
  */
-Graph.loadInstance = function (filename, exceptionFp) {
+Graph.loadInstance = function (filename, exceptionFp, animated) {
     d3.text(filename, function (error, text) {
-        Graph.setInstance(error, text, filename, exceptionFp)
+        Graph.setInstance(error, text, filename, exceptionFp, animated);
     });
-}
+};
 
+
+Graph.buildInstance = function (text, animated) {
+    Graph.setInstance(null, text, "build", null, animated);
+};
 
 /**
  * Upload graph file from a local computer
@@ -534,7 +578,6 @@ Graph.handleFileSelect = function (evt, exceptionFp) {
                 Graph.setInstance(error, text, filename, exceptionFp)
             };
         })(f);
-
         // Read in the image file as a data URL.
         reader.readAsText(f);
     }
@@ -668,10 +711,10 @@ Graph.Node.prototype.setCoor = function () {
             nx = 678, 125;
             ny = 150;
             break;
-        default:
+        default://should not happen
             nx = -100;
             ny = -50;
     }
     this.x = nx;
     this.y = ny;
-}
+};

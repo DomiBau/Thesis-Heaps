@@ -1,279 +1,171 @@
-/**
- * @fileOverview
- * This file contains a basic binary heap model.
- *
- * @author Dominique Bau
- *
- * @requires d3.map, an associative array similar to new Object() / {}
- */
+var BinaryHeap = function (svgOrigin) {
+    GraphDrawer.call(this, svgOrigin, null, 0);
 
+    this.type = "GraphEditor";
 
-/*
- * @constructor
- */
-function BinaryHeap(){
-    this.nodeIds=0;
-    this.edgeIds=0;
+    this.svgOrigin
+            .on("mousedown", mousedown)
+            .on("contextmenu", function (d) {
+                d3.event.stopPropagation();
+                d3.event.preventDefault()
+            });
+
+    this.onNodesEntered = function (selection) {
+        selection
+                .on("mousedown", mousedownNode)
+                .on("mouseup", mouseupNode);
+    };
+
+    this.onNodesUpdated = function (selection) {
+        selection
+                .style("cursor", "pointer")
+                .selectAll("circle")
+                .style("stroke", function (d) {
+                    if (d === selectedNode) {
+                        return const_Colors.NodeBorderHighlight;
+                    } else {
+                        return global_NodeLayout['borderColor'];
+                    }
+                });
+    };
+
+    this.onEdgesEntered = function (selection) {
+        
+    };
+
+    this.onEdgesUpdated = function (selection) {
+        
+    };
+
+    this.doUpdate = function () {
+        that.update();
+    };
+
+    this.removeSelected = function () {
+        var d = selectedNode;
+        deselectNode();
+        /*if(animated){
+            var ids = Graph.instance.dekrIds();
+            if(ids === 1){
+                Graph.instance.getNodes().remove(ids);
+                that.update();
+            }else{
+                var lastNode = d.id === ids;
+                if(!lastNode){
+                    
+                }
+            }
+        }else{*/
+            Graph.instance.removeNode(d.id);
+            that.update();
+        //}
+    };
     
-    this.nodes=d3.map();
-    this.edges=d3.map();
-}
-
-BinaryHeap.Node = function(x,y,id,ele){
-    this.x=x;
-    this.y=y;
-    this.id=id;
-    this.ele=ele;
+    /*this.swapNodes = function(id1,id2) {
+        var g = Graph.instance;
+        var nodes = g.getNodes();
+        var nodeOne = nodes.get(id1);
+        var nodeTwo = nodes.get(id2);
+        nodes.remove(nodeOne.id);
+        nodes.remove(nodeTwo.id);
+        var temp = nodeOne.id;
+        nodeOne.id = nodeTwo.id;
+        nodeTwo.id = temp;
+        nodes.set(nodeTwo.id, nodeTwo);
+        nodes.set(nodeOne.id, nodeOne);
+        nodeOne.setCoor();
+        nodeTwo.setCoor();
+        g.removeAllEdges(g, nodeOne);
+        g.recoverEdges(nodeOne);
+        g.removeAllEdges(g, nodeTwo);
+        g.recoverEdges(nodeTwo);
+        that.update();
+        return nodeOne;
+    };
     
-    //outgoing and incoming edges are saved to facilitate handling of vertices in algorithms
-    this.outEdges=d3.map();
-    this.inEdges=d3.map();
-}
+    this.sift = function() {
+        
+    };
+    
+    this.siftDown = function() {
+        
+    };
+    
+    this.siftUp = function() {
+        
+    };*/
 
-/**
- * Incoming edges of the node.
- * @return [BinaryHeap.Edge]
- */
-BinaryHeap.Node.prototype.getInEdges = function(){
-  return this.inEdges.values();
-};
+    this.removeMin = function () {
+        deselectNode();
+        selectNode(Graph.instance.getMin());
+        this.removeSelected();
+    };
 
-/**
- * Outgoing edges of the node.
- * @return [BinaryHeap.Edge]
- */
-BinaryHeap.Node.prototype.getOutEdges = function(){
-  return this.outEdges.values();
-};
-
-/**
- * Represents an edge
- * @constructor
- */
-BinaryHeap.Edge = function(s,t,id){
-  this.start=s;
-  this.end=t;
-  this.id=id;
-};
+    var that = this;
 
 
-
-BinaryHeap.prototype.addNode = function(ele){
-  var node = new BinaryHeap.Node(x,y,this.nodeIds++,ele);
-  this.nodes.set(node.id,node);
-  setCoor(node);
-  return node;
-};
-
-/**
- * Add callback functions to be executed after a graph was loaded asynchronically, e.g. to initialize the application
- */
-BinaryHeap.addChangeListener = function(callbackFp){
-  BinaryHeap.onLoadedCbFP.push(callbackFp);
-}
-BinaryHeap.onLoadedCbFP = [];
+    /**
+     * Der aktuell ausgewählte Knoten
+     */
+    var selectedNode = null;
+    this.getSelectedNode = function () {
+        return selectedNode;
+    };
 
 
-BinaryHeap.prototype.addNodeDirectly = function(node){
-  node.id = this.nodeIds++;
-  this.nodes.set(node.id,node);
-  setCoor(node);
-  return node;
-};
+    var deselectNode = function () {
+        if (selectedNode !== null) {
+            selectedNode = null;
+        }
+        that.svgOrigin.style("cursor", "default");
+        that.update();
+        $("#DeleteMenu").css({'display': "none"});
+    };
 
+    var selectNode = function (selection) {
+        selectedNode = selection;
+        var x = selectedNode.x + "px";
+        var y = selectedNode.y + "px";
+        $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"});
+    };
 
-BinaryHeap.prototype.addEdge = function(startId,endId){
-  var s = this.nodes.get(startId);
-  var t = this.nodes.get(endId);
-  var edge = new BinaryHeap.Edge(s,t,this.edgeIds++);
-  edge.start.outEdges.set(edge.id,edge);
-  edge.end.inEdges.set(edge.id,edge);
-  this.edges.set(edge.id,edge);
-  return edge;
-};
-
-
-BinaryHeap.prototype.addEdgeDirectly = function(edge){
-  edge.id = this.edgeIds++;
-  edge.start.outEdges.set(edge.id,edge);
-  edge.end.inEdges.set(edge.id,edge);
-  this.edges.set(edge.id,edge);
-  return edge;
-};
-
-
-BinaryHeap.prototype.removeNode = function(id){
-    if(id!==this.nodeIds){
-        var delNode = this.nodes.get(id);
-        var lastNode = this.nodes.get(this.nodeIds);
-        this.nodes.remove(delNode.id);
-        this.nodes.remove(lastNode.id);
-        var temp = delNode.id;
-        delNode.id=lastNode.id;
-        lastNode.id = temp;
-        this.nodes.set(lastNode.id,lastNode);
-        this.nodes.set(delNode.id,delNode);
+    /**
+     * End of mouseclick on a node
+     * @method
+     */
+    function mouseupNode() {
+        if (selectedNode) {
+            svgOrigin.create();
+        }
+        hasDragged = false;
+        d3.event.stopPropagation(); //we dont want svg to receive the event
+        that.updateNodes();
     }
-    //TODO!!
-    this.nodeIds--;
-};
 
-BinaryHeap.instance = null;
-
-BinaryHeap.prototype.removeEdge = function(id){
-    return this.edges.remove(id);
-};
-
-
-BinaryHeap.prototype.getNodes = function(){
-  return this.nodes.values();
-};
-
-BinaryHeap.prototype.getEdges = function(){
-  return this.edges.values();
-};
-
-BinaryHeap.prototype.replace = function(oldGraph){
-  this.nodeIds = oldGraph.nodeIds;
-  this.edgeIds = oldGraph.edgeIds;
-  this.nodes = oldGraph.nodes;
-  this.edges = oldGraph.edges;
-};
-
-BinaryHeap.prototype.toString = function(){
-    
-}
-
-
-
-var setCoor = function(node){
-    var nx=0;
-    var ny=0;
-    switch(node.id){
-        case 1:
-            nx=350;
-            ny=550;
-            break;
-        case 2:
-            nx=175;
-            ny=450;
-            break;
-        case 3:
-            nx=525;
-            ny=450;
-            break;
-        case 4:
-            nx=87,5;
-            ny=350;
-            break;
-        case 5:
-            nx=262,5;
-            ny=350;
-            break;
-        case 6:
-            nx=437,5;
-            ny=350;
-            break;
-        case 7:
-            nx=612,5;
-            ny=350;
-            break;
-        case 8:
-            nx=43,75;
-            ny=250;
-            break;
-        case 9:
-            nx=131,25;
-            ny=250;
-            break;
-        case 10:
-            nx=218,75;
-            ny=250;
-            break;
-        case 11:
-            nx=306,25;
-            ny=250;
-            break;
-        case 12:
-            nx=393,75;
-            ny=250;
-            break;
-        case 13:
-            nx=481,25;
-            ny=250;
-            break;
-        case 14:
-            nx=568,75;
-            ny=250;
-            break;
-        case 15:
-            nx=656,25;
-            ny=250;
-            break;
-        case 16:
-            nx=21,875;
-            ny=150;
-            break;
-        case 17:
-            nx=65,625;
-            ny=150;
-            break;
-        case 18:
-            nx=109,375;
-            ny=150;
-            break;
-        case 19:
-            nx=153,125;
-            ny=150;
-            break;
-        case 20:
-            nx=196,875;
-            ny=150;
-            break;
-        case 21:
-            nx=240,625;
-            ny=150;
-            break;
-        case 22:
-            nx=284,375;
-            ny=150;
-            break;
-        case 23:
-            nx=328,125;
-            ny=150;
-            break;
-        case 24:
-            nx=371,875;
-            ny=150;
-            break;
-        case 25:
-            nx=415,625;
-            ny=150;
-            break;
-        case 26:
-            nx=459,375;
-            ny=150;
-            break;
-        case 27:
-            nx=503,125;
-            ny=150;
-            break;
-        case 28:
-            nx=546,875;
-            ny=150;
-            break;
-        case 29:
-            nx=590,625;
-            ny=150;
-            break;
-        case 30:
-            nx=634,375;
-            ny=150;
-            break;
-        case 31:
-            nx=678,125;
-            ny=150;
+    function mousedownNode(d, id) {
+        if (selectedNode === d) {// Falls wir wieder auf den selben Knoten geklickt haben, hebe Auswahl auf.
+            deselectNode();
+        } else if (selectedNode === null) { // Falls wir nichts ausgewählt hatten, wähle den Knoten aus
+            selectNode(d);
+        } else {
+            deselectNode();
+            selectNode(d);
+            that.updateEdges();
+        }
+        that.update();
+        d3.event.stopPropagation(); //we dont want svg to receive the event
     }
-    node.x=nx;
-    node.y=ny;
-}
+    //oder ein neuer erstellt (wenn grade kante gezeichnet wird),
+// Wir haben nicht auf einem Knoten gestoppt 
+// -> Falls etwas ausgewählt war, erstelle Knoten und zeichne Kante
+    function mousedown(a, b, c) {
+        if (selectedNode !== null) {
+            deselectNode();
+            that.updateNodes();
+        }
+    }
+};
+
+//inheritance
+BinaryHeap.prototype = Object.create(GraphDrawer.prototype);
+BinaryHeap.prototype.constructor = BinaryHeap;

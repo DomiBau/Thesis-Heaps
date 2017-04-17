@@ -36,17 +36,11 @@ var global_KnotenRadius = 15;
  * @type Object
  */
 var global_Edgelayout = {
-    //'arrowAngle' : Math.PI/8,	         // Winkel des Pfeilkopfs relativ zum Pfeilkörper
-    //'arrowHeadLength' : 15,             // Länge des Pfeilkopfs
     'lineColor' : "black",		         // Farbe des Pfeils
     'lineWidth' : 2,		             // Dicke des Pfeils
     'font'	: 'Arial',		             // Schrifart 
     'fontSize' : 14,		             // Schriftgrösse in Pixeln
-    'isHighlighted': false,             // Ob die Kante eine besondere Markierung haben soll
-    //'progressArrow': false,             // Zusätzlicher Animationspfeil 
-    //'progressArrowPosition': 0.0,       // Position des Animationspfeils
-    //'progressArrowSource': null,        // Animationspfeil Source Knoten
-    //'progressArrowTarget': null         // Animationspfeil Target Knoten
+    'isHighlighted': false             // Ob die Kante eine besondere Markierung haben soll
 };
                         
 /**
@@ -88,7 +82,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
     var id = svgOrigin.attr("id");
     GraphAlgos.set(id,this);
 
-    var transTime = (transTime!=null) ? transTime : 250;
+    var transTime = 250 //(transTime!=null) ? transTime : 250;
 
     var extraMargin = extraMargin || {};
 
@@ -101,7 +95,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
         right: global_KnotenRadius+wS,
         bottom: global_KnotenRadius+wS+15,//extra for legende and svg downloader
         left: global_KnotenRadius+wS +(extraMargin.left || 0)
-    }
+    };
 
     var width = xRange - margin.left - margin.right;
     var height = yRange - margin.top - margin.bottom;
@@ -135,7 +129,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
         .domain([0,yRange]);
 
     var transform = function(d){
-        return translate(this.x(this. nodeX(d)),this.y(this.nodeY(d)));
+        return translate(this.x(this.nodeX(d)),this.y(this.nodeY(d)));
     }.bind(this);
 
     //fit the graph extend in a smaller window. needed for algorithm tab 
@@ -148,7 +142,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
             this.x.domain(d3.extent(nodes, function(d) { return d.x; }));
             this.y.domain(d3.extent(nodes, function(d) { return d.y; }));
         }
-    }
+    };
 
     var xfun = function(d){
         return this.x(this.nodeX(Graph.instance.nodes.get(d.id) || d));
@@ -193,7 +187,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
 
     this.screenPosToTransform = function(pos){
         return "translate(" + (pos[0]-margin.left) + "," + (pos[1]-margin.top) + ")";
-    }
+    };
 
     /**
      * D3's Data Join of node data with their visualization (circles)
@@ -220,17 +214,17 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
                 .attr("r", radius)
                 .style("fill",global_NodeLayout['fillStyle'])
                 .style("stroke-width",global_NodeLayout['borderWidth'])
-                .style("stroke",global_NodeLayout['borderColor'])
+                .style("stroke",global_NodeLayout['borderColor']);
 
             enterSelection.append("text")
                 .attr("class","label unselectable")
                 .attr("dy", ".35em")           // set offset y position
-                .attr("text-anchor", "middle")
+                .attr("text-anchor", "middle");
 
             enterSelection.append("text")
                 .attr("class","resource unselectable")
                 .attr("dy",-global_KnotenRadius+"px")           // set offset y position
-                .attr("text-anchor", "middle")
+                .attr("text-anchor", "middle");
 
 
         // ENTER + UPDATE
@@ -251,7 +245,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
             selection.selectAll("text.label")
                  .text(this.nodeLabel);
 
-            var res = selection.selectAll("text.resource")
+            var res = selection.selectAll("text.resource");
             
             if(this.nodeHtml){
               res.html(this.nodeHtml);
@@ -268,7 +262,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
     } //end updateNodes()
 
 
-    /**
+    /*
      * D3's Data Join of edge data with their visualization (lines)
      */
     this.updateEdges = function(){
@@ -291,7 +285,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
             .attr("class","arrow")
         //    .style("marker-end", "url(#arrowhead2)")
             .style("stroke","black")
-            .style("stroke-width",global_Edgelayout['lineWidth'])
+            .style("stroke-width",global_Edgelayout['lineWidth']);
 
         //enterSelection.append("text")
 //             .style("text-anchor", "middle")
@@ -306,7 +300,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
     //ENTER + UPDATE
         var selt = selection;//.transition().duration(1000);
         selt.selectAll("line")
-            .each(lineAttribs)
+            .each(lineAttribs);
 //             .style("opacity",1e-6)
 //             .transition()
 //             .duration(750)
@@ -332,13 +326,13 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
             .each(textAttribs)
             */
 
-        selection.call(this.onEdgesUpdated)
+        selection.call(this.onEdgesUpdated);
 
     //EXIT
-        var exitSelection = selection.exit()
+        var exitSelection = selection.exit();
         exitSelection.remove();
 
-    }
+    };
 
     //initialize //TODO: is called twice when we init both tabs at the same time
     if(Graph.instance===null){
@@ -350,61 +344,63 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
            console.log("error loading graph instance "+error + " from " + filename +" text: "+text);
        });
     }
-} //end constructor GraphDrawer
+}; //end constructor GraphDrawer
 
-/**
+/*
  * The main function which triggers updates to node and edge selections. 
  */
 GraphDrawer.prototype.update= function(){
   this.updateNodes();
   this.updateEdges();
-}
+};
+
+
 
 /**
  * Called when new nodes are entering
  */
 GraphDrawer.prototype.onNodesEntered = function(selection) {
 //     console.log(selection[0].length + " nodes entered")
-}
+};
 /**
  * Called when exisitng nodes are updated
  */
 GraphDrawer.prototype.onNodesUpdated = function(selection) {
 //     console.log(selection[0].length + " nodes updated")
-}
+};
 /**
  * Called when new edges are entering
  */
 GraphDrawer.prototype.onEdgesEntered = function(selection) {
 //     console.log(selection[0].length + " edges entered")
-}
+};
 /**
  * Called when exisitng edges are updated
  */
 GraphDrawer.prototype.onEdgesUpdated = function(selection) {
 //     console.log(selection[0].length + " edges entered")
-}
+};
 
 /**
  * Displays in the middle of the edge (typically cost/resource vectors or capacity/flow)
  */
 GraphDrawer.prototype.edgeText = function(d){
     return d.toString();
-}
+};
 
 /**
  * Displays on top of a node (typically constraints or state variables)
  */
 GraphDrawer.prototype.nodeText = function(d){
     return d.toString();   
-}
+};
 
 /**
  * Displays inside of a node (typically its id)
  */
 GraphDrawer.prototype.nodeLabel = function(d){
     return d.ele;
-}
+};
 
 /**
  * X Position of a node
@@ -423,4 +419,4 @@ GraphDrawer.prototype.nodePos = function(d){
     obj.x = this.x(this.nodeX(d));
     obj.y = this.y(this.nodeY(d));
     return obj;
-}
+};

@@ -236,12 +236,13 @@ function initializeSiteLayout(){
     $("#tw_Accordion").accordion({heightStyle: "content"});
     
     
-    graphEditor = new GraphEditor(d3.select("#tg_canvas_graph"));
-    graphEditorTab = new GraphEditorTab(graphEditor,$("#tab_tg"));
+    binaryHeap = new GraphEditor(d3.select("#tg_canvas_graph"));
+    graphEditorTab = new GraphEditorTab(binaryHeap,$("#tab_tg"));
     graphEditorTab.init();
     
     //algorithmTab = new AlgorithmTab(new GraphAlgorithm(d3.select("#ta_canvas_graph"),d3.select("#ta_canvas_graph2")),$("#tab_ta"));
     //algorithmTab.init();
+  
   
     $("#tabs").tabs({
         beforeActivate: function(event, ui) {
@@ -264,45 +265,66 @@ function initializeSiteLayout(){
     
     
     $("#decreaseButton").click(function(){
-        var decreaseNode = graphEditor.getSelectedNode();
+        var decreaseNode = binaryHeap.getSelectedNode();
         var input = document.getElementById('decreaseNum');
         input.setAttribute("type","number");
         if(input.value&&+input.value<+decreaseNode.ele){
             Graph.instance.decreaseKey(decreaseNode,input);
-            graphEditor.doUpdate();
+            binaryHeap.doUpdate();
+            binaryHeap.updateArray();
         }
     });
+    
+    
     
     var buildBut = document.getElementById('buildButton');
     buildBut.onclick = function() {
         var input = document.getElementById('buildInput');
-        
-    }
+        input.setAttribute("type","string");
+        binaryHeap.buildHeap(input.value);
+        input.value="";
+        binaryHeap.updateArray();
+    };
     
     
     var insertBut = document.getElementById('insertButton');
     insertBut.onclick = function() {
         var input = document.getElementById('insertNum');
         input.setAttribute("type","number");
-        if(input.value){
-            var insNode = Graph.instance.addNode(input.value);
-            Graph.instance.addEdgeToParent(insNode);
-            graphEditor.doUpdate();
+        if(!input.value){
+            input.value=Math.ceil(Math.random()*100);
         }
-   }
+        binaryHeap.insertNode(input.value);
+        input.value="";
+        binaryHeap.updateArray();
+   };
    
    var delMinBut = document.getElementById('deleteMinButton');
    delMinBut.onclick = function() {
-       graphEditor.removeMin();
-   }
+       binaryHeap.removeMin();
+       binaryHeap.updateArray();
+   };
    
    var delBut = document.getElementById('deleteButton');
    delBut.onclick = function(){
-       graphEditor.removeSelected();
-   }
+       binaryHeap.removeSelected();
+       binaryHeap.updateArray();
+   };
+   
+   $('#animationCheckBox').change(function (){
+       binaryHeap.changeAnimated();
+   });
+   
+   $("#nextButton").click(function(){
+       binaryHeap.nextOperation();
+       binaryHeap.updateArray();
+   });
+   
    svgHack();
    svgGraphCanvasDownloadable();
+   binaryHeap.updateArray();
 }
+
 
 
 //http://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-get-parameters

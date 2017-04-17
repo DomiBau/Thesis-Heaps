@@ -1,289 +1,332 @@
-var GraphEditor = function(svgOrigin){
-  GraphDrawer.call(this,svgOrigin,null,0);
+var status = 0;
+var REMOVE_LAST = 1;
+var SIFT_UP = 2;
+var SIFT_DOWN = 3;
+var SIFT_DOWN_ALL = 10;
+var FINISHED = 20;
+var nextIdToSift;
+var siftNode = null;
+var animated = false;
 
-  this.type="GraphEditor";
+var GraphEditor = function (svgOrigin) {
+    GraphDrawer.call(this, svgOrigin, null, 0);
 
-  this.svgOrigin
-    //.on("dblclick",dblclick) //for adding new nodes
-    //.on("mousemove",mousemove)
-    .on("mousedown",mousedown)
-    .on("contextmenu", function(d){d3.event.stopPropagation();d3.event.preventDefault()});
+    this.type = "GraphEditor";
 
-  this.onNodesEntered = function(selection) {
-    
-    selection
-      .on("mousedown", mousedownNode)
-      .on("mouseup", mouseupNode)
-      //.on("contextmenu", contextmenuNode)
-      .on("dblclick",dblclickResource);
-//       .style("cursor","move") //crosshair pointer move
+    this.svgOrigin
+            .on("mousedown", mousedown)
+            .on("contextmenu", function (d) {
+                d3.event.stopPropagation();
+                d3.event.preventDefault()
+            });
 
-  }
+    this.onNodesEntered = function (selection) {
+        selection
+                .on("mousedown", mousedownNode)
+                .on("mouseup", mouseupNode);
+    };
 
-  this.onNodesUpdated = function(selection){
-      selection
-        .style("cursor","pointer")
-       /*.style("cursor",function(d){
-        return (dragging && d == selectedNode) ? "move" : "pointer"
-      })*/
-      .selectAll("circle")
-       .style("stroke", function(d){
-        if(d===selectedNode){
-          return const_Colors.NodeBorderHighlight;
-        }else{
-          return global_NodeLayout['borderColor'];
+    this.onNodesUpdated = function (selection) {
+        selection
+                .style("cursor", "pointer")
+                .selectAll("circle")
+                .style("stroke", function (d) {
+                    if (d === selectedNode) {
+                        return const_Colors.NodeBorderHighlight;
+                    } else {
+                        return global_NodeLayout['borderColor'];
+                    }
+                });
+    };
+
+    this.onEdgesEntered = function (selection) {
+
+    };
+
+    this.onEdgesUpdated = function (selection) {
+
+    };
+
+    this.doUpdate = function () {
+        that.update();
+    };
+
+    this.removeSelected = function () {
+        var d = selectedNode;
+        var oldId = d.id;
+        deselectNode();
+        if (animated) {//animated
+            var ids = Graph.instance.dekrIds();
+            var nodes = Graph.instance.nodes;
+            if (ids === 1) {
+                nodes.remove(ids);
+                that.update();
+            } else {
+                var lastNode = oldId === ids;
+                if (!lastNode)this.swapNodes(oldId,ids);
+                var node = nodes.get(oldId);
+                that.update();
+                siftNode = node;
+                this.changeDescriptWindow(REMOVE_LAST);
+                $('#describtionOfOperation').css({'display': "block"});
+                $('#tg_div_statusWindow').css({'display': "none"});
+            }
+        } else {
+            Graph.instance.removeNode(oldId);
+            that.update();
         }
-      })
-
-  }
-
-  this.onEdgesEntered = function(selection) {
-//     console.log("onEdgesEntered in GraphEditor");
+    };
     
-    selection
-//       .on("dblclick",dblclickEdge)
-      .on("contextmenu", contextmenuEdge)
-      .style("cursor","pointer") //crosshair pointer move
+    this.insertNode = function(ele) {
+        if(animated){
+            siftNode = Graph.instance.addLast(ele);
+            this.changeDescriptWindow(SIFT_UP);
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
+        } else {
+            var insNode = Graph.instance.addNode(ele);
+            Graph.instance.addEdgeToParent(insNode);
+        }
+        that.update();
+    };
     
-    //var all =selection.on("dblclick",dblclickResource);
-
-
-//     GraphDrawer.prototype.onEdgesEntered.call(this,selection);
-  }
-
-  this.onEdgesUpdated = function(selection) {
-//     console.log("onEdgesEntered in GraphEditor");
+    this.decreaseKey = function(input){
+        var d = selectedNode;
+        d.ele = input.value;
+        $('#describtionOfOperation').css({'display': "block"});
+        $('#tg_div_statusWindow').css({'display': "none"});
+        this.changeDescriptWindow(SIFT_UP);
+    };
     
-    selection
-      .style("cursor",function(d){
-        return (d === unfinishedEdge) ? "crosshair" : "pointer";
-      }) //crosshair pointer move
+    this.removeLastNode = function(){//nodeIds is already decreased (number of stil existing nodes)
+        var node = Graph.instance.nodes.get(Graph.instance.nodeIds);
+        Graph.instance.removeAllEdges(node);
+        Graph.instance.nodes.remove(node.id);
+        this.changeDescriptWindow(SIFT_DOWN);
+    };
+    
+    this.nextOperation = function() {
+        switch(+status){
+            case +FINISHED:
+                $('#describtionOfOperation').css({'display': "none"});
+                $('#tg_div_statusWindow').css({'display': "block"});
+                break;
+            case +REMOVE_LAST:
+                this.removeLastNode();
+                break;
+            case +SIFT_UP:
+                siftNode = this.siftUp(siftNode);
+                break;
+            case +SIFT_DOWN:
+                siftNode = this.siftDown(siftNode);
+                break;
+            case +SIFT_DOWN_ALL:
+                siftNode = this.siftDown(siftNode);
+                if(+status===+FINISHED&&nextIdToSift!==1){
+                    nextIdToSift--;
+                    siftNode=Graph.instance.nodes.get(nextIdToSift);
+                    this.changeDescriptWindow(SIFT_DOWN_ALL);
+                }
+                break;
+        }
+        that.update();
+    };
+    
+    
+    this.changeAnimated = function(){
+        animated = !animated;
+    };
+    
+    this.buildHeap = function (text){
+        Graph.buildInstance(text,animated);
+        if(animated){
+            var nextId = Math.floor((Graph.instance.nodeIds-1)/2);
+            siftNode = Graph.instance.nodes.get(nextId);
+            nextIdToSift = nextId;
+            this.changeDescriptWindow(SIFT_DOWN_ALL);
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
+        }
+        that.update();
+    };
+    
+    
+    
+    this.changeDescriptWindow = function (newStatus) {
+        switch (newStatus){
+            case FINISHED:
+                $('#firstTest').css({'display': "none"});
+                $('#fourthTest').css({'display': "block"});
+                break;
+            case SIFT_UP:
+                $('#firstTest').css({'display': "none"});
+                $('#secondTest').css({'display': "block"});
+                break;
+            case SIFT_DOWN:
+                break;
+            case REMOVE_LAST:
+                break;
+            case SIFT_DOWN_ALL:
+                break;
+            /*case :
+                break;
+            case :
+                break;
+            case :
+                break;
+            */
+        }
+        status = newStatus;
+    };
 
-//     GraphDrawer.prototype.onEdgesEntered.call(this,selection);
-  }
-  
-  this.doUpdate = function(){
-      that.update();
-  }
-  
-  this.removeSelected = function(){
-    var d = selectedNode;
-    deselectNode();
-    Graph.instance.removeNode(d.id);
-    that.update();
-  }
-  
-  this.removeMin = function(){
-      deselectNode();
-      selectNode(Graph.instance.getMin());
-      this.removeSelected();
-  };
+    this.swapNodes = function (id1, id2) {
+        var nodes = Graph.instance.nodes;
+        var nodeOne = nodes.get(id1);
+        var nodeTwo = nodes.get(id2);
+        nodes.remove(nodeOne.id);
+        nodes.remove(nodeTwo.id);
+        var temp = nodeOne.id;
+        nodeOne.id = nodeTwo.id;
+        nodeTwo.id = temp;
+        nodes.set(nodeTwo.id, nodeTwo);
+        nodes.set(nodeOne.id, nodeOne);
+        nodeOne.setCoor();
+        nodeTwo.setCoor();
+        Graph.instance.removeAllEdges(nodeOne);
+        Graph.instance.recoverEdges(nodeOne);
+        Graph.instance.removeAllEdges(nodeTwo);
+        Graph.instance.recoverEdges(nodeTwo);
+        return nodeOne;
+    };
+
+    this.siftUp = function (node) {
+        if(node.id === 1){
+            this.changeDescriptWindow(FINISHED);
+            return node;
+        }
+        var parentId;
+        if (node.id % 2 === 0)parentId = node.id / 2; 
+        else parentId = (node.id - 1) / 2;
+        var parent = Graph.instance.nodes.get(parentId);
+        if (+node.ele < +parent.ele) {
+            node = this.swapNodes(node.id, parent.id);
+        }else{
+            this.changeDescriptWindow(FINISHED);
+        }
+        return node;
+    };
+
+    this.siftDown = function (node) {
+        var nodes = Graph.instance.nodes;
+        if (node.id * 2 + 1 < +Graph.instance.nodeIds) {
+            var lefChild = nodes.get(node.id * 2);
+            var rigChild = nodes.get(node.id * 2 + 1);
+            if (+lefChild.ele <= +rigChild.ele && +lefChild.ele < +node.ele) {
+                node = this.swapNodes(node.id, lefChild.id);
+            } else if (+rigChild.ele <= +lefChild.ele && +rigChild.ele < +node.ele) {
+                node = this.swapNodes(node.id, rigChild.id);
+            }else{
+                this.changeDescriptWindow(FINISHED);
+            }
+        } else if (node.id * 2 < +this.nodeIds) {
+            var child = nodes.get(node.id * 2);
+            if (+child.ele < +node.ele) {
+                node = this.swapNodes(node.id, child.id);
+            }
+            this.changeDescriptWindow(FINISHED);
+        }else{
+            this.changeDescriptWindow(FINISHED);
+        }
+        return node;
+    };
+
+
+    this.removeMin = function () {
+        var node = Graph.instance.getMin();
+        if(node===null)return;
+        selectNode(node);
+        this.removeSelected();
+    };
+    
+    this.updateArray = function(){
+        var str = "[";
+        var nodes = Graph.instance.nodes;
+        var ids = Graph.instance.nodeIds;
+        if(ids>1)str = str + nodes.get(1).ele;
+        for(i = 2; i<ids; i++){
+            str = str + ", " + nodes.get(i).ele;
+        }
+        /*for(i = ids; i<31; i++){
+            str = str + ",";
+        }*/
+        str = str + "]";
+        document.getElementById("ArrayPre").innerHTML = str;
+    };
 
     var that = this;
 
-    /**
-     * Zeigt an, ob wir im Moment die Maus bei gedrücktem Mauszeiger verschieben
-     * (Drag and Drop)
-     * @type Boolean
-     */
-    var dragging = false;
-
-    /**
-     * Zeigt an, ob wir beim letzten Event noch verschoben haben
-     * (dann wir der aktuell ausgewählte Knoten abgewählt)
-     * @type Boolean
-     */
-    var hasDragged = false;
 
     /**
      * Der aktuell ausgewählte Knoten
      */
     var selectedNode = null;
-    this.getSelectedNode = function(){
+    this.getSelectedNode = function () {
         return selectedNode;
-    }
-    /**
-      * line that is beeing drawn
-      */
-    var unfinishedEdge = null;
+    };
 
 
-    var deselectNode = function(){
-      if(selectedNode !== null){
-//         selectedNode.style("stroke","black");
-        selectedNode = null;
-      }
-      unfinishedEdge = null;
-          that.svgOrigin.style("cursor","default");
+    var deselectNode = function () {
+        if (selectedNode !== null) {
+            selectedNode = null;
+        }
+        that.svgOrigin.style("cursor", "default");
+        that.update();
+        $("#DeleteMenu").css({'display': "none"});
+    };
 
-      blurResourceEditor();
-      that.update();
-      $("#DeleteMenu").css({'display':"none"});
-    }
-
-    var selectNode = function(selection){
-      selectedNode = selection;
-      var x = selectedNode.x+"px";
-      var y = selectedNode.y+"px";
-      //window.alert("Node: " + x + ", " + y);
-      $("#DeleteMenu").css({'bottom':y,'left':x,'display':"inline"});
-//       selectedNode.style("stroke","red");
-    }
+    var selectNode = function (selection) {
+        selectedNode = selection;
+        var x = selectedNode.x + "px";
+        var y = selectedNode.y + "px";
+        $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"});
+    };
 
     /**
      * End of mouseclick on a node
      * @method
      */
-    function mouseupNode(){
-      /*dragging = false;
-      if(hasDragged){
-        deselectNode();
-      }else */
-      if(selectedNode){//open delete Menu
-        svgOrigin.create();
-        //var endNode = new Graph.Node(selectedNode.x, selectedNode.y, "invisible");
-        //unfinishedEdge = new Graph.Edge(selectedNode,endNode,"unfinished");
-        //Graph.instance.addEdgeDirectly(unfinishedEdge);
-        //svgOrigin.style("cursor","crosshair") //crosshair
-      }
-      hasDragged = false;
-      d3.event.stopPropagation(); //we dont want svg to receive the event
-      that.updateNodes();
+    function mouseupNode() {
+        if (selectedNode) {
+            svgOrigin.create();
+        }
+        hasDragged = false;
+        d3.event.stopPropagation(); //we dont want svg to receive the event
+        that.updateNodes();
     }
 
-    /**
-      * moving a mouse on the svgOrigin
-      */
-    function mousemove(){
-      if(selectedNode != null){
-          var pos = d3.mouse(this);
-          var xy = that.screenPosToNodePos(pos);
-          //moving a node
-          if(dragging){
-//             d3.select(this).style("cursor","move");
-            selectedNode.x = xy.x; //.datum()
-            selectedNode.y = xy.y;
-            hasDragged = true;
-            that.update();
-          }
-          //drawing an edge
-          else{
-            unfinishedEdge.end.x = xy.x;
-            unfinishedEdge.end.y = xy.y;
+    function mousedownNode(d, id) {
+        if (selectedNode === d) {// Falls wir wieder auf den selben Knoten geklickt haben, hebe Auswahl auf.
+            deselectNode();
+        } else if (selectedNode === null) { // Falls wir nichts ausgewählt hatten, wähle den Knoten aus
+            selectNode(d);
+        } else {
+            deselectNode();
+            selectNode(d);
             that.updateEdges();
-          }
-
-       }
+        }
+        that.update();
+        d3.event.stopPropagation(); //we dont want svg to receive the event
     }
-    
-    
-    
-
-/*function dblclick(){
-  d3.event.preventDefault();d3.event.stopPropagation();
-  var pos = d3.mouse(this);
-  addNode(pos);
-  
-}*/
-
-//Es wird entweder die Auswahl aufgehoben, ein Knoten ausgewählt oder eine Kante zwischen vorhandenen Knoten erstellt.
-function mousedownNode(d,id){
-  if(selectedNode === d){// Falls wir wieder auf den selben Knoten geklickt haben, hebe Auswahl auf.
-      //if(unfinishedEdge) Graph.instance.removeEdge(unfinishedEdge.id);
-      deselectNode();
-  }else if(selectedNode === null) { // Falls wir nichts ausgewählt hatten, wähle den Knoten aus
-      dragging = true;
-      selectNode(d);
-  }else {// Füge Kante hinzu
-//       graph.addEdge(selectedNode.id,d.id);
-      //unfinishedEdge.end=d; //throw away temporary end node;
-      deselectNode();
-      selectNode(d);
-      that.updateEdges();
-  }
-
-  that.update();
-
-  blurResourceEditor();
-
-  d3.event.stopPropagation(); //we dont want svg to receive the event
-}
- //oder ein neuer erstellt (wenn grade kante gezeichnet wird),
+    //oder ein neuer erstellt (wenn grade kante gezeichnet wird),
 // Wir haben nicht auf einem Knoten gestoppt 
 // -> Falls etwas ausgewählt war, erstelle Knoten und zeichne Kante
-function mousedown(a,b,c){
-  if(selectedNode!==null){
-    deselectNode();
-    that.updateNodes();
-  }
-
-  //blurResourceEditor();
-}
-
-function blurResourceEditor(){
-  updateResources([]);
-//   if(!myDiv) return;
-//     myDiv
-// //     .style("opacity",1e-6)
-// //     .style("left", "0px")
-// //     .style("top", "0px");
-}
-
-var myDiv = d3.select("body");//.append("div")
-
-function updateResources(data){
-      var selection = myDiv.selectAll("input.resourceEditor")
-    .data(data);
-
-  selection.enter().append("input")
-      .attr("type","number")
-      .attr("class", "tooltip resourceEditor")
-//       .style("opacity", 1)
-
-  selection
-  .attr("value",function(a,b,c){ 
-    return +a;
-  })
-  .on("input", function(a,b,c) {
-     data[b]=+this.value;
-     that.update()
-  })
-  .style("left", function(a,b,c){
-    return (d3.event.pageX - 30+40*b) + "px"
-  })
-  .style("top", function(a,b,c){return (d3.event.pageY)+ "px"})
-
-  selection.exit().remove();  
-}
-
-//<input type="number" min="0" max="360" step="5" value="0" id="nValue">
-function dblclickResource(d,i,all)
-{
-  d3.event.stopPropagation();d3.event.preventDefault();
-  updateResources(d.resources);  
-}
-
-function contextmenuNode(d){
-  deselectNode();
-  d3.event.stopPropagation();d3.event.preventDefault();
-  Graph.instance.removeNode(d.id);
-  that.update();
-}
-
-function contextmenuEdge(d){
-  deselectNode();
-  d3.event.stopPropagation();d3.event.preventDefault();
-  Graph.instance.removeEdge(d.id);
-  that.updateEdges();
-}
-
-function addNode(pos){
-  var xy = that.screenPosToNodePos(pos);
-  Graph.instance.addNode(xy.x, xy.y,Math.ceil(Math.random()*100));
-  that.update();
-//   return point;
-}
-}
+    function mousedown(a, b, c) {
+        if (selectedNode !== null) {
+            deselectNode();
+            that.updateNodes();
+        }
+    }
+};
 
 //inheritance
 GraphEditor.prototype = Object.create(GraphDrawer.prototype);
