@@ -105,7 +105,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
 
     this.margin = margin;
 
-    var radius = global_KnotenRadius;//20;
+    var radius = global_KnotenRadius;//15;
 
     svgOrigin
         .attr({version: '1.1' , xmlns:"http://www.w3.org/2000/svg"})
@@ -117,6 +117,13 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
 
     this.svg=svg;
 
+    /*var dashed = svg.append("g").attr("id", "mainLine");
+    var attr = { x1:0, y1:0, x2:200, y2:0}
+    dashed.attr("line")
+            .style("stroke","black")
+            .style("stroke-width",global_Edgelayout['lineWidth'])
+            .style("stroke-dasharray","5, 5")
+            .attr(attr);*/
     var svg_links=svg.append("g").attr("id", "edges");
     var svg_nodes=svg.append("g").attr("id", "nodes");
 

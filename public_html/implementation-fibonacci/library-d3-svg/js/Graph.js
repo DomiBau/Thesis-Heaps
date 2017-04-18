@@ -17,11 +17,15 @@
 function Graph() {
     //unique id counter for nodes and edges,
     //increased whenever a node or edge is added to the graph.
-    this.nodeIds = 1;
+    this.nodeIds = 0;
     this.edgeIds = 0;
     //associative arrays of nodes and edges
     this.nodes = d3.map();
     this.edges = d3.map();
+    this.mainNodes = d3.map();
+    this.curMinPointer = new MinPointer(0);
+    var edge = new Graph.Edge(new Graph.Node(0,0,-1,0,-1),new Graph.Node(0,0,-1,0,-1));
+    this.edges.set(-1,edge);
 }
 
 /**
@@ -31,35 +35,20 @@ function Graph() {
  * @param {number} y - the vertical position
  * @param {number} id - a unique id
  * @param {number} ele - the number representing the element (key)
+ * @param {number} parent - id of parentNode
  */
-Graph.Node = function (x, y, id, ele) {
+Graph.Node = function (x, y, id, ele, parent) {
     this.x = x;
     this.y = y;
     this.id = id;
     this.ele = ele;
-
-    //arbitrary number of resources or constraints, fixed during runtime
-    this.resources = [];
+    this.parent = parent;
 
     //outgoing and incoming edges are saved to facilitate handling of vertices in algorithms
     this.outEdges = d3.map();
     this.inEdges = d3.map();
-
-    //The state changes during algorithm runtime
-    //Should not contain cyclic object dependencies
-    //since we call JSON.stringify on this object in order
-    //to implement the replay functionality.
-    this.state = {};
 };
 
-Graph.Node.prototype.initResources = function (wantedResourceSize) {
-    var toAdd = 0;
-    for (var i = 0, toAdd = wantedResourceSize - this.resources.length; i < toAdd; i++) {
-        this.resources.push(Math.round(Math.random() * 100));
-    }
-    if (toAdd)
-        this.resources.sort(); //only if we added random resources, we sort them so that they become valid time windows e.g.
-};
 
 /**
  * Incoming edges of the node.
@@ -98,9 +87,6 @@ Graph.Edge = function (s, t, id) {
     this.start = s;
     this.end = t;
     this.id = id;
-    this.resources = [];
-
-    this.state = {}; //changes during algorithm runtime
 };
 
 /**
@@ -120,6 +106,12 @@ Graph.Edge.prototype.toString = function (full, f) {
 Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
     var str = "e=(" + nodeLabel(this.start) + "," + nodeLabel(this.end) + ")";
     return str;
+};
+
+Graph.MinPointer = function(id){
+    this.id = id;
+    this.x;
+    this.y;
 };
 
 
@@ -154,6 +146,7 @@ Graph.prototype.addLast = function (ele) {
     this.addEdgeToParent(node);
     return node;
 };
+
 
 
 Graph.prototype.getMin = function () {
@@ -581,140 +574,4 @@ Graph.handleFileSelect = function (evt, exceptionFp) {
         // Read in the image file as a data URL.
         reader.readAsText(f);
     }
-}
-
-Graph.Node.prototype.setCoor = function () {
-    var nx = 0;
-    var ny = 0;
-    switch (this.id) {
-        case 1:
-            nx = 350;
-            ny = 550;
-            break;
-        case 2:
-            nx = 175;
-            ny = 450;
-            break;
-        case 3:
-            nx = 525;
-            ny = 450;
-            break;
-        case 4:
-            nx = 87, 5;
-            ny = 350;
-            break;
-        case 5:
-            nx = 262, 5;
-            ny = 350;
-            break;
-        case 6:
-            nx = 437, 5;
-            ny = 350;
-            break;
-        case 7:
-            nx = 612, 5;
-            ny = 350;
-            break;
-        case 8:
-            nx = 43, 75;
-            ny = 250;
-            break;
-        case 9:
-            nx = 131, 25;
-            ny = 250;
-            break;
-        case 10:
-            nx = 218, 75;
-            ny = 250;
-            break;
-        case 11:
-            nx = 306, 25;
-            ny = 250;
-            break;
-        case 12:
-            nx = 393, 75;
-            ny = 250;
-            break;
-        case 13:
-            nx = 481, 25;
-            ny = 250;
-            break;
-        case 14:
-            nx = 568, 75;
-            ny = 250;
-            break;
-        case 15:
-            nx = 656, 25;
-            ny = 250;
-            break;
-        case 16:
-            nx = 21, 875;
-            ny = 150;
-            break;
-        case 17:
-            nx = 65, 625;
-            ny = 150;
-            break;
-        case 18:
-            nx = 109, 375;
-            ny = 150;
-            break;
-        case 19:
-            nx = 153, 125;
-            ny = 150;
-            break;
-        case 20:
-            nx = 196, 875;
-            ny = 150;
-            break;
-        case 21:
-            nx = 240, 625;
-            ny = 150;
-            break;
-        case 22:
-            nx = 284, 375;
-            ny = 150;
-            break;
-        case 23:
-            nx = 328, 125;
-            ny = 150;
-            break;
-        case 24:
-            nx = 371, 875;
-            ny = 150;
-            break;
-        case 25:
-            nx = 415, 625;
-            ny = 150;
-            break;
-        case 26:
-            nx = 459, 375;
-            ny = 150;
-            break;
-        case 27:
-            nx = 503, 125;
-            ny = 150;
-            break;
-        case 28:
-            nx = 546, 875;
-            ny = 150;
-            break;
-        case 29:
-            nx = 590, 625;
-            ny = 150;
-            break;
-        case 30:
-            nx = 634, 375;
-            ny = 150;
-            break;
-        case 31:
-            nx = 678, 125;
-            ny = 150;
-            break;
-        default://should not happen
-            nx = -100;
-            ny = -50;
-    }
-    this.x = nx;
-    this.y = ny;
 };

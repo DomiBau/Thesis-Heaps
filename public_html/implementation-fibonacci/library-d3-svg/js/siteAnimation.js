@@ -4,7 +4,7 @@ function svgHack(){
 //add arrowhead
     var defs = d3.select("body").append("svg")
         .attr("id","graph-defs")
-        .append("defs")
+        .append("defs");
 
      defs.append("marker")
         .attr("id", "arrowhead2")
@@ -28,6 +28,7 @@ function svgHack(){
         .append("path")
         .attr("d", "M 0,0 V 8 L12,4 Z"); //this is actual shape for arrowhead
 
+    //defs.append("line").attr("stroke-dasharray","5, 5").attr({x1:"0",y1:"0",x2:"700",y2:"0"});
 
 
     // TODO: regenerate SVG's with correctly embedded css so we don't need to 
@@ -320,7 +321,7 @@ function initializeSiteLayout(){
        binaryHeap.updateArray();
    });
    
-   svgHack();
+   //svgHack();
    svgGraphCanvasDownloadable();
    binaryHeap.updateArray();
 }
