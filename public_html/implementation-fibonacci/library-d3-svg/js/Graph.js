@@ -19,13 +19,13 @@ function Graph() {
     //increased whenever a node or edge is added to the graph.
     this.nodeIds = 0;
     this.edgeIds = 0;
+    
+    this.numMainNodes = 0;
+    this.mainNodes = d3.map();
+    
     //associative arrays of nodes and edges
     this.nodes = d3.map();
     this.edges = d3.map();
-    this.mainNodes = d3.map();
-    this.curMinPointer = new MinPointer(0);
-    var edge = new Graph.Edge(new Graph.Node(0,0,-1,0,-1),new Graph.Node(0,0,-1,0,-1));
-    this.edges.set(-1,edge);
 }
 
 /**
@@ -35,14 +35,16 @@ function Graph() {
  * @param {number} y - the vertical position
  * @param {number} id - a unique id
  * @param {number} ele - the number representing the element (key)
- * @param {number} parent - id of parentNode
  */
-Graph.Node = function (x, y, id, ele, parent) {
+Graph.Node = function (x, y, id, ele, parent, parentsChild, left, right) {
     this.x = x;
     this.y = y;
     this.id = id;
     this.ele = ele;
     this.parent = parent;
+    this.parentsChild = parentsChild;
+    this.left = left;
+    this.right = right;
 
     //outgoing and incoming edges are saved to facilitate handling of vertices in algorithms
     this.outEdges = d3.map();
@@ -87,6 +89,9 @@ Graph.Edge = function (s, t, id) {
     this.start = s;
     this.end = t;
     this.id = id;
+    this.resources = [];
+
+    this.state = {}; //changes during algorithm runtime
 };
 
 /**
@@ -108,12 +113,6 @@ Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
     return str;
 };
 
-Graph.MinPointer = function(id){
-    this.id = id;
-    this.x;
-    this.y;
-};
-
 
 
 /////////////////
@@ -129,10 +128,14 @@ Graph.prototype.addNode = function (ele) {
     }
     if (this.nodeIds >= 32)//32 is max capacity for nodes
         return;
-    var node = new Graph.Node(0, 0, this.nodeIds++, ele);
-    node.setCoor();
+    var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null, null);
+    this.numMainNodes++;
+    node.x = node.x + this.numMainNodes*100;
+    while(node.x>=700){
+        node.x = node.x-700;
+        node.y = node.y - 225;
+    }
     this.nodes.set(node.id, node);
-    node = this.sift(node);
     return node;
 };
 
@@ -146,7 +149,6 @@ Graph.prototype.addLast = function (ele) {
     this.addEdgeToParent(node);
     return node;
 };
-
 
 
 Graph.prototype.getMin = function () {
@@ -211,7 +213,6 @@ Graph.prototype.addEdgesToChildren = function (node) {
 
 Graph.prototype.decreaseKey = function (decreaseNode, input) {
     decreaseNode.ele = input.value;
-    this.sift(decreaseNode);
 };
 
 Graph.prototype.recoverEdges = function (node) {
@@ -241,7 +242,6 @@ Graph.prototype.removeNode = function (id) {
     this.removeAllEdges(node);
     this.nodes.remove(node.id);
     if(id!== this.nodeIds){
-        node = this.sift(this.nodes.get(id));
     }
     return node;
 };
@@ -291,51 +291,6 @@ Graph.prototype.swapNodes = function (id1, id2) {
     return nodeOne;
 };
 
-
-Graph.prototype.sift = function (node) {
-    node = this.siftUp(node);
-    node = this.siftDown(node);
-    return node;
-};
-
-Graph.prototype.siftUp = function (node) {
-    if (node.id === 1)
-        return node;
-    var parentId;
-    if (node.id % 2 === 0) {
-        parentId = node.id / 2;
-    } else {
-        parentId = (node.id - 1) / 2;
-    }
-    var parent = this.nodes.get(parentId);
-    if (+node.ele < +parent.ele) {
-        node = this.swapNodes(node.id, parent.id);
-        node = this.siftUp(node);
-    }
-    return node;
-};
-
-Graph.prototype.siftDown = function (node) {
-    if (node.id * 2 + 1 < +this.nodeIds) {
-        var lefChild = this.nodes.get(node.id * 2);
-        var rigChild = this.nodes.get(node.id * 2 + 1);
-        if (+lefChild.ele <= +rigChild.ele && +lefChild.ele < +node.ele) {
-            node = this.swapNodes(node.id, lefChild.id);
-            node = this.siftDown(node);
-        } else if (+rigChild.ele <= +lefChild.ele && +rigChild.ele < +node.ele) {
-            node = this.swapNodes(node.id, rigChild.id);
-            node = this.siftDown(node);
-        }
-    } else if (node.id * 2 < +this.nodeIds) {
-        var child = this.nodes.get(node.id * 2);
-        if (+child.ele < +node.ele) {
-            node = this.swapNodes(node.id, child.id);
-            //no need to continue because there is not even a right child
-        }
-    }
-    return node;
-};
-
 Graph.prototype.removeEdge = function (id) {
     return this.edges.remove(id);
 };
@@ -348,51 +303,6 @@ Graph.prototype.getEdges = function () {
     return this.edges.values();
 };
 
-/**
- * We allow arbitrary size of resources for each node.
- */
-Graph.prototype.getNodeResourcesSize = function () {
-    var max = 0;
-    this.nodes.forEach(function (key, node) {
-        max = Math.max(max, node.resources.length);
-    });
-    return max;
-};
-
-Graph.prototype.getEdgeResourcesSize = function () {
-    var max = 0;
-    this.edges.forEach(function (key, edge) {
-        max = Math.max(max, edge.resources.length);
-    });
-    return max;
-};
-
-Graph.prototype.replace = function (oldGraph) {
-    this.nodeIds = oldGraph.nodeIds;
-    this.edgeIds = oldGraph.edgeIds;
-    this.nodes = oldGraph.nodes;
-    this.edges = oldGraph.edges;
-};
-
-Graph.prototype.getState = function () {
-    var savedState = {nodes: {}, edges: {}};
-    this.nodes.forEach(function (key, node) {
-        savedState.nodes[key] = JSON.stringify(node.state);
-    });
-    this.edges.forEach(function (key, edge) {
-        savedState.edges[key] = JSON.stringify(edge.state);
-    });
-    return savedState;
-};
-
-Graph.prototype.setState = function (savedState) {
-    this.nodes.forEach(function (key, node) {
-        node.state = JSON.parse(savedState.nodes[key]);
-    });
-    this.edges.forEach(function (key, edge) {
-        edge.state = JSON.parse(savedState.edges[key]);
-    });
-};
 
 /////////////////
 //STATICS
@@ -512,7 +422,7 @@ Graph.setInstance = function (error, text, filename, exceptionFp, animated) {
     var noErrors = false;
     try {
         Graph.instance = Graph.parse(text, animated);
-        Graph.instance.recoverAllEdges();
+        //Graph.instance.recoverAllEdges();
         document.getElementById("ArrayPre").innerHTML = "Führe eine Operation durch um die Arraydarstelung zu sehen.";
         noErrors = true;
     } catch (ex) {
@@ -574,4 +484,151 @@ Graph.handleFileSelect = function (evt, exceptionFp) {
         // Read in the image file as a data URL.
         reader.readAsText(f);
     }
+}
+
+Graph.Node.prototype.setCoor = function (parentNode) {
+    
+    /*var nx = 0;
+    var ny = 0;
+    switch (this.id) {
+        case 1:
+            nx = 350;
+            ny = 550;
+            break;
+        case 2:
+            nx = 175;
+            ny = 450;
+            break;
+        case 3:
+            nx = 525;
+            ny = 450;
+            break;
+        case 4:
+            nx = 87, 5;
+            ny = 350;
+            break;
+        case 5:
+            nx = 262, 5;
+            ny = 350;
+            break;
+        case 6:
+            nx = 437, 5;
+            ny = 350;
+            break;
+        case 7:
+            nx = 612, 5;
+            ny = 350;
+            break;
+        case 8:
+            nx = 43, 75;
+            ny = 250;
+            break;
+        case 9:
+            nx = 131, 25;
+            ny = 250;
+            break;
+        case 10:
+            nx = 218, 75;
+            ny = 250;
+            break;
+        case 11:
+            nx = 306, 25;
+            ny = 250;
+            break;
+        case 12:
+            nx = 393, 75;
+            ny = 250;
+            break;
+        case 13:
+            nx = 481, 25;
+            ny = 250;
+            break;
+        case 14:
+            nx = 568, 75;
+            ny = 250;
+            break;
+        case 15:
+            nx = 656, 25;
+            ny = 250;
+            break;
+        case 16:
+            nx = 21, 875;
+            ny = 150;
+            break;
+        case 17:
+            nx = 65, 625;
+            ny = 150;
+            break;
+        case 18:
+            nx = 109, 375;
+            ny = 150;
+            break;
+        case 19:
+            nx = 153, 125;
+            ny = 150;
+            break;
+        case 20:
+            nx = 196, 875;
+            ny = 150;
+            break;
+        case 21:
+            nx = 240, 625;
+            ny = 150;
+            break;
+        case 22:
+            nx = 284, 375;
+            ny = 150;
+            break;
+        case 23:
+            nx = 328, 125;
+            ny = 150;
+            break;
+        case 24:
+            nx = 371, 875;
+            ny = 150;
+            break;
+        case 25:
+            nx = 415, 625;
+            ny = 150;
+            break;
+        case 26:
+            nx = 459, 375;
+            ny = 150;
+            break;
+        case 27:
+            nx = 503, 125;
+            ny = 150;
+            break;
+        case 28:
+            nx = 546, 875;
+            ny = 150;
+            break;
+        case 29:
+            nx = 590, 625;
+            ny = 150;
+            break;
+        case 30:
+            nx = 634, 375;
+            ny = 150;
+            break;
+        case 31:
+            nx = 678, 125;
+            ny = 150;
+            break;
+        default://should not happen
+            nx = 0;
+            ny = 0;
+    }
+    this.x = nx;
+    this.y = ny;*/
+    if(this.parent!==-1){
+        var offset = this.parentsChild*20;
+        if(parentNode){
+            this.x = parentNode.x - offset;
+            this.y = parentNode.y - 50;
+        }
+    }else{
+        
+    }
+    
 };

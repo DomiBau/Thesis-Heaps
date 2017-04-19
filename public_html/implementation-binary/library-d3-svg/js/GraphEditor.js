@@ -121,8 +121,9 @@ var GraphEditor = function (svgOrigin) {
                 siftNode = this.siftDown(siftNode);
                 break;
             case +SIFT_DOWN_ALL:
-                siftNode = this.siftDown(siftNode);
-                if(+status===+FINISHED&&nextIdToSift!==1){
+                if(siftNode)siftNode = this.siftDown(siftNode);
+                else this.changeDescriptWindow(FINISHED);
+                if(+status===+FINISHED&&+nextIdToSift>1){
                     nextIdToSift--;
                     siftNode=Graph.instance.nodes.get(nextIdToSift);
                     this.changeDescriptWindow(SIFT_DOWN_ALL);
@@ -228,7 +229,7 @@ var GraphEditor = function (svgOrigin) {
             }else{
                 this.changeDescriptWindow(FINISHED);
             }
-        } else if (node.id * 2 < +this.nodeIds) {
+        } else if (node.id * 2 < +Graph.instance.nodeIds) {
             var child = nodes.get(node.id * 2);
             if (+child.ele < +node.ele) {
                 node = this.swapNodes(node.id, child.id);

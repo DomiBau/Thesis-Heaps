@@ -85,7 +85,6 @@ var GraphEditor = function (svgOrigin) {
             $('#tg_div_statusWindow').css({'display': "none"});
         } else {
             var insNode = Graph.instance.addNode(ele);
-            Graph.instance.addEdgeToParent(insNode);
         }
         that.update();
     };
