@@ -55,16 +55,16 @@
 
             <header>
                 <img src="img/heap-working.svg"/>
-                <span class="mainheader">Fibonacci Heap</span>
+                <span class="mainheader">Fibonacci Heaps</span>
                 <img style="position:absolute; right:0px" src="../library/img/TUMLogo.png" alt="Technische Universität München">
             </header>
 
             <div id="tabs">
                 <ul>
-                    <li><a href="#tab_te"><span>Introduction</span></a></li>
-                    <li><a href="#tab_tg"><span>Test the datastructure</span></a></li>
-                    <li><a href="#tab_ti"><span>Description of the operations</span></a></li>
-                    <li><a href="#tab_tw"><span>More</span></a></li>
+                    <li><a href="#tab_te"><span>Einführung</span></a></li>
+                    <li><a href="#tab_tg"><span>Teste die Datenstruktur</span></a></li>
+                    <li><a href="#tab_ti"><span>Beschreibung der Operationen</span></a></li>
+                    <li><a href="#tab_tw"><span>Weiteres</span></a></li>
                 </ul>
 
                 <!-- TAB Einführung -->
@@ -75,13 +75,13 @@
                             <img id="te_img_beispiel1" src="img/UnderConst.PNG" width="350" height="300" alt="const">
                             <p>Maybe a little example?</p></div>
 
-                        <h1>Binary heap datastructure</h1>
+                        <h1>Die Fibonacci Heap Datenstruktur</h1>
                         <h3>Get your attention with this:</h3>
                         <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.<br><br>Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
                         <br>
                         <div id ="te_div_Entscheidung">
-                            <h2>What do you want to do first?</h2>
-                            <button id="te_button_gotoDrawGraph">Test the datastructure!</button> <button id="te_button_gotoIdee">Read detailed description of the operations</button>
+                            <h2>Was möchtest Du zuerst machen?</h2>
+                            <button id="te_button_gotoDrawGraph">Die Datenstruktur testen</button> <button id="te_button_gotoIdee">Detaillierte Beschreibungen der Operationen lesen</button>
                         </div>
                         <p></p>
                         <br style="clear: both;" />
@@ -96,10 +96,18 @@
                                 <tr>
                                     <td class="svgContainer">
                                         <svg class="graphCanvas" id="tg_canvas_graph" width="700" height="500">
+                                        <line stroke-dasharray="5, 5"              x1="0" y1="29" x2="700" y2="29" />
+                                        <line stroke-dasharray="5, 5"              x1="0" y1="238" x2="700" y2="238" />
+                                        <style><![CDATA[
+                                        line{
+                                            stroke: black;
+                                            stroke-width: 2;
+                                        }
+                                        ]]></style>
                                         </svg>
                                         <a class="svgDownloader" download="heap.svg" href="data:text/plain,test">Heap.svg</a>
                                         <div id="DeleteMenu">
-                                            <h2 class="DeleteHeader">Delete or Decrease?</h2>
+                                            <h2 class="DeleteHeader">Delete oder Decrease?</h2>
                                             <button class="onNodeButtons" id="deleteButton">Delete</button>
                                             <button class="onNodeButtons" id="decreaseButton">Decrease-Key</button>
                                             <input type="number" id="decreaseNum" min="-100" max="100">
@@ -116,6 +124,10 @@
                                                         <td class="LegendeTabelle"><img src="img/legend-editor/edge.svg" alt="edge" class="LegendeIcon"></td>
                                                         <td><span>Vater-Kind Beziehung</span></td>
                                                     </tr>
+                                                    <tr>
+                                                        <td class="LegendeTabelle"><img src="img/legend-editor/dashedEdge.svg" alt="edge" class="LegendeIcon"></td>
+                                                        <td><span>Verbindung der Heaps</span></td>
+                                                    </tr>
                                                 </table>
                                             </div>
                                         </div>
@@ -124,25 +136,24 @@
                             </table>
                         </div>
                         <div id="tg_div_statusWindow" class="buttonWindow">
-                            <h2>Here you can (re)start with an example heap:</h2>
-                            <h3>Select 
-                                <select name="graphSelector" id="tg_select_GraphSelector">
+                                <select name="graphSelector" id="tg_select_GraphSelector" style="display : none ">
                                     <option selected label="Heap 1">heap1</option>
-                                    <option label="Heap 2">heap2</option>
-                                    <option label="Heap 3">heap3</option>
-                                </select></h3>
-                                <h2>Animations and descriptions:</h2>
+                                </select>
+                                <h2>Animationen und Beschreibungen:</h2>
                                 <label class="switch">
                                     <input type="checkbox" id="animationCheckBox">
                                     <div class="slider round"></div>
                                 </label>
                                 <br>
-                            <h2>Which operation do you want to perform?</h2>
+                            <h2>Welche Operation möchtest Du durchführen?</h2>
+                            <strong>Insert</strong> fügt ein Element in die Datenstruktur mit dem gewünschten Schlüssel ein. Gibst Du keinen Schlüssel ein bekommt das Element einen zufälligen Schlüssel.<br>
                             <button class="windowButton" id="insertButton">Insert</button>
-                            <input type="number" id="insertNum" min="-100" max="100"><br>
-                            <button class="windowButton" id="deleteMinButton">Delete-Min</button><br>
-                            <button class="windowButton" id="buildButton">Build</button>
-                            [<input type="text" id="buildInput">]<br>
+                            <input type="number" id="insertNum" min="-100" max="100"><br><br>
+                            <strong>Delete-Min</strong> löscht das Element mit dem kleinsten Schlüssel aus der Datenstruktur.<br>
+                            <button class="windowButton" id="deleteMinButton">Delete-Min</button><br><br>
+                            <!--<button class="windowButton" id="buildButton">Merge?</button>
+                            [<input type="text" id="buildInput">]<br><br>-->
+                            Um ein beliebiges Element zu löschen (<strong>Delete</strong>) oder den Schlüssel eines Elementes zu veringern (<strong>Decrease-Key</strong>) drücke auf den gewünschten Knoten.
                         </div>
                         <div id="describtionOfOperation" class="buttonWindow" style="display: none">
                             <div id="firstTest" style="display: block">This is just a Test!</div>
@@ -164,8 +175,8 @@
                         <div class="BeispielbildContainer">
                             <p>Beispiel-Bild hier</p>
                         </div>
-                        <h1>Binary Heaps</h1>
-                        <p><strong>Beschreibung:</strong> was sind Binary Heaps
+                        <h1>Fibonacci Heaps</h1>
+                        <p><strong>Beschreibung:</strong> was sind Fibonacci Heaps
                         </p>
 
                         <h2>Die Operationen:</h2>
@@ -199,6 +210,11 @@
                         <div>
                             here?
                         </div>
+                        <h3>Binary Heaps</h3>
+                        <div>
+                            Hier kannst du dir auch Binary Heaps anschauen:
+                            ---- Link zu den Binary Heaps ----
+                        </div>
                         <h3>References</h3>
                         <div>
                             Related work?
@@ -208,7 +224,7 @@
             </div>
             <footer>
                 <p class="Disclaimer">
-                    Bachelor thesis of Dominique Bau at Chair M9 of Technische Universität München. <span id="year">2017</span> | <a href="http://www-m9.ma.tum.de/Allgemeines/Rechtliches">Terms of use</a> | <a href="http://www-m9.ma.tum.de/Allgemeines/Impressum">About Us</a> | <a href="mailto&#58;m&#46;ritter&#64;ma&#46;tum&#46;de&#63;subject&#61;M9&#45;Web&#45;Feedback">Suggestions</a>
+                    Bachelorarbeit von Dominique Bau am Lehrstuhl M9 der Technischen Universität München. <span id="year">2017</span> | <a href="http://www-m9.ma.tum.de/Allgemeines/Rechtliches">Terms of use</a> | <a href="http://www-m9.ma.tum.de/Allgemeines/Impressum">About Us</a> | <a href="mailto&#58;m&#46;ritter&#64;ma&#46;tum&#46;de&#63;subject&#61;M9&#45;Web&#45;Feedback">Suggestions</a>
                 </p>
             </footer>
         </div>

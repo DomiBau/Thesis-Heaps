@@ -236,12 +236,10 @@ function initializeSiteLayout(){
     $("#tw_Accordion").accordion({heightStyle: "content"});
     
     
-    binaryHeap = new GraphEditor(d3.select("#tg_canvas_graph"));
-    graphEditorTab = new GraphEditorTab(binaryHeap,$("#tab_tg"));
+    fibonacciHeap = new GraphEditor(d3.select("#tg_canvas_graph"));
+    graphEditorTab = new GraphEditorTab(fibonacciHeap,$("#tab_tg"));
     graphEditorTab.init();
     
-    //algorithmTab = new AlgorithmTab(new GraphAlgorithm(d3.select("#ta_canvas_graph"),d3.select("#ta_canvas_graph2")),$("#tab_ta"));
-    //algorithmTab.init();
   
   
     $("#tabs").tabs({
@@ -265,24 +263,24 @@ function initializeSiteLayout(){
     
     
     $("#decreaseButton").click(function(){
-        var decreaseNode = binaryHeap.getSelectedNode();
+        var decreaseNode = fibonacciHeap.getSelectedNode();
         var input = document.getElementById('decreaseNum');
         input.setAttribute("type","number");
         if(input.value&&+input.value<+decreaseNode.ele){
-            Graph.instance.decreaseKey(decreaseNode,input);
-            binaryHeap.doUpdate();
+            fibonacciHeap.decreaseKey(input);
         }
+        input.value="";
     });
     
     
     
-    var buildBut = document.getElementById('buildButton');
+    /*var buildBut = document.getElementById('buildButton');
     buildBut.onclick = function() {
         var input = document.getElementById('buildInput');
         input.setAttribute("type","string");
-        binaryHeap.buildHeap(input.value);
+        fibonacciHeap.buildHeap(input.value);
         input.value="";
-    };
+    };*/
     
     
     var insertBut = document.getElementById('insertButton');
@@ -292,34 +290,31 @@ function initializeSiteLayout(){
         if(!input.value){
             input.value=Math.ceil(Math.random()*100);
         }
-        binaryHeap.insertNode(input.value);
+        fibonacciHeap.insertNode(input.value);
         input.value="";
    };
    
    var delMinBut = document.getElementById('deleteMinButton');
    delMinBut.onclick = function() {
-       binaryHeap.removeMin();
-       binaryHeap.updateArray();
+       fibonacciHeap.removeMin();
    };
    
    var delBut = document.getElementById('deleteButton');
    delBut.onclick = function(){
-       binaryHeap.removeSelected();
-       binaryHeap.updateArray();
+       fibonacciHeap.removeSelected();
+       fibonacciHeap.updateArray();
    };
    
    $('#animationCheckBox').change(function (){
-       binaryHeap.changeAnimated();
+       fibonacciHeap.changeAnimated();
    });
    
    $("#nextButton").click(function(){
-       binaryHeap.nextOperation();
-       binaryHeap.updateArray();
+       fibonacciHeap.nextOperation();
    });
    
    svgHack();
    svgGraphCanvasDownloadable();
-   binaryHeap.updateArray();
 }
 
 

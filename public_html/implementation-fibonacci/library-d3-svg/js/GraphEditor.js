@@ -33,8 +33,17 @@ var GraphEditor = function (svgOrigin) {
                 .style("stroke", function (d) {
                     if (d === selectedNode) {
                         return const_Colors.NodeBorderHighlight;
-                    } else {
+                    }/*else if(d.marked){
+                        return 
+                    }*/else {
                         return global_NodeLayout['borderColor'];
+                    }
+                })
+                .style("fill", function(d) {
+                    if (d.marked){
+                      return const_Colors.NodeFillingHighlight;
+                    }else{
+                      return const_Colors.NodeFilling;
                     }
                 });
     };
@@ -84,24 +93,23 @@ var GraphEditor = function (svgOrigin) {
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
         } else {
-            var insNode = Graph.instance.addNode(ele);
+            Graph.instance.addNode(ele);
         }
         that.update();
     };
     
     this.decreaseKey = function(input){
         var d = selectedNode;
-        d.ele = input.value;
-        $('#describtionOfOperation').css({'display': "block"});
-        $('#tg_div_statusWindow').css({'display': "none"});
-        this.changeDescriptWindow(SIFT_UP);
-    };
-    
-    this.removeLastNode = function(){//nodeIds is already decreased (number of stil existing nodes)
-        var node = Graph.instance.nodes.get(Graph.instance.nodeIds);
-        Graph.instance.removeAllEdges(node);
-        Graph.instance.nodes.remove(node.id);
-        this.changeDescriptWindow(SIFT_DOWN);
+        if(animated){
+            //TODO
+            d.ele = input.value;
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
+            this.changeDescriptWindow(SIFT_UP);
+        }else{
+            Graph.instance.decreaseKey(d,input);
+        }
+        that.update();
     };
     
     this.nextOperation = function() {
@@ -133,6 +141,8 @@ var GraphEditor = function (svgOrigin) {
     
     
     this.changeAnimated = function(){
+        window.alert("not jet implemented");
+        return;
         animated = !animated;
     };
     
@@ -178,88 +188,13 @@ var GraphEditor = function (svgOrigin) {
         status = newStatus;
     };
 
-    this.swapNodes = function (id1, id2) {
-        var nodes = Graph.instance.nodes;
-        var nodeOne = nodes.get(id1);
-        var nodeTwo = nodes.get(id2);
-        nodes.remove(nodeOne.id);
-        nodes.remove(nodeTwo.id);
-        var temp = nodeOne.id;
-        nodeOne.id = nodeTwo.id;
-        nodeTwo.id = temp;
-        nodes.set(nodeTwo.id, nodeTwo);
-        nodes.set(nodeOne.id, nodeOne);
-        nodeOne.setCoor();
-        nodeTwo.setCoor();
-        Graph.instance.removeAllEdges(nodeOne);
-        Graph.instance.recoverEdges(nodeOne);
-        Graph.instance.removeAllEdges(nodeTwo);
-        Graph.instance.recoverEdges(nodeTwo);
-        return nodeOne;
-    };
-
-    this.siftUp = function (node) {
-        if(node.id === 1){
-            this.changeDescriptWindow(FINISHED);
-            return node;
-        }
-        var parentId;
-        if (node.id % 2 === 0)parentId = node.id / 2; 
-        else parentId = (node.id - 1) / 2;
-        var parent = Graph.instance.nodes.get(parentId);
-        if (+node.ele < +parent.ele) {
-            node = this.swapNodes(node.id, parent.id);
-        }else{
-            this.changeDescriptWindow(FINISHED);
-        }
-        return node;
-    };
-
-    this.siftDown = function (node) {
-        var nodes = Graph.instance.nodes;
-        if (node.id * 2 + 1 < +Graph.instance.nodeIds) {
-            var lefChild = nodes.get(node.id * 2);
-            var rigChild = nodes.get(node.id * 2 + 1);
-            if (+lefChild.ele <= +rigChild.ele && +lefChild.ele < +node.ele) {
-                node = this.swapNodes(node.id, lefChild.id);
-            } else if (+rigChild.ele <= +lefChild.ele && +rigChild.ele < +node.ele) {
-                node = this.swapNodes(node.id, rigChild.id);
-            }else{
-                this.changeDescriptWindow(FINISHED);
-            }
-        } else if (node.id * 2 < +this.nodeIds) {
-            var child = nodes.get(node.id * 2);
-            if (+child.ele < +node.ele) {
-                node = this.swapNodes(node.id, child.id);
-            }
-            this.changeDescriptWindow(FINISHED);
-        }else{
-            this.changeDescriptWindow(FINISHED);
-        }
-        return node;
-    };
-
 
     this.removeMin = function () {
         var node = Graph.instance.getMin();
         if(node===null)return;
         selectNode(node);
         this.removeSelected();
-    };
-    
-    this.updateArray = function(){
-        var str = "[";
-        var nodes = Graph.instance.nodes;
-        var ids = Graph.instance.nodeIds;
-        if(ids>1)str = str + nodes.get(1).ele;
-        for(i = 2; i<ids; i++){
-            str = str + ", " + nodes.get(i).ele;
-        }
-        /*for(i = ids; i<31; i++){
-            str = str + ",";
-        }*/
-        str = str + "]";
-        document.getElementById("ArrayPre").innerHTML = str;
+        that.update();
     };
 
     var that = this;

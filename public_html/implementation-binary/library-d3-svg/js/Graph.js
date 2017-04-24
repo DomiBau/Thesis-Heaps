@@ -208,10 +208,10 @@ Graph.prototype.addEdgeToParent = function (node) {
 };
 
 Graph.prototype.addEdgesToChildren = function (node) {
-    if (node.id * 2 < this.nodeIds) {
+    if ((node.id * 2) < +this.nodeIds) {
         this.addEdge(node.id, node.id * 2);
     }
-    if (((node.id * 2) + 1) < this.nodeIds) {
+    if (((node.id * 2) + 1) < +this.nodeIds) {
         this.addEdge(node.id, node.id * 2 + 1);
     }
 };

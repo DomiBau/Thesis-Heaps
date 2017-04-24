@@ -7,7 +7,7 @@
     <g transform="translate(17,17),translate(-107.28571428571428,-233)">
         <g id="edges">
             <g class="edge">
-                <line x1="107.28571428571428" y1="233" x2="226.31249999999997" y2="233" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"></line>
+                <line stroke-dasharray="5, 5" x1="107.28571428571428" y1="233" x2="226.31249999999997" y2="233" style="stroke: rgb(0, 0, 0); stroke-width: 2px;"></line>
             </g>
         </g>
     </g>

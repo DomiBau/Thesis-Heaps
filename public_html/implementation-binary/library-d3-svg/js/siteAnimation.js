@@ -269,7 +269,7 @@ function initializeSiteLayout(){
         var input = document.getElementById('decreaseNum');
         input.setAttribute("type","number");
         if(input.value&&+input.value<+decreaseNode.ele){
-            Graph.instance.decreaseKey(decreaseNode,input);
+            binaryHeap.decreaseKey(input);
             binaryHeap.doUpdate();
             binaryHeap.updateArray();
         }

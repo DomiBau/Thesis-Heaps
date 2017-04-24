@@ -29,7 +29,7 @@ var const_Colors = {
  * Standardgröße eines Knotens
  * @type Number
  */
-var global_KnotenRadius = 15;
+var global_KnotenRadius = 12;
 
 /**
  * Standardaussehen einer Kante.
@@ -49,7 +49,7 @@ var global_Edgelayout = {
  */
 var global_NodeLayout = {
     'fillStyle' : const_Colors.NodeFilling,    // Farbe der Füllung
-    'nodeRadius' : 15,                         // Radius der Kreises
+    'nodeRadius' : 12,                         // Radius der Kreises
     'borderColor' : const_Colors.NodeBorder,   // Farbe des Rands (ohne Markierung)
     'borderWidth' : 2,                         // Breite des Rands
     'fontColor' : 'black',                     // Farbe der Schrift
@@ -224,7 +224,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
 
             enterSelection.append("text")
                 .attr("class","resource unselectable")
-                .attr("dy",-global_KnotenRadius+"px")           // set offset y position
+                .attr("dy",(-global_KnotenRadius-3)+"px")           // set offset y position
                 .attr("text-anchor", "middle");
 
 
@@ -338,7 +338,6 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
     //initialize //TODO: is called twice when we init both tabs at the same time
     if(Graph.instance===null){
         //calls registered event listeners when loaded;
-        
         var GRAPH_FILENAME = GRAPH_FILENAME || null;
         var filename = GRAPH_FILENAME || "graphs-new/"+$("#tg_select_GraphSelector").val()+".txt"; //the selected option 
        Graph.loadInstance(filename,function(error,text,filename){
@@ -390,10 +389,10 @@ GraphDrawer.prototype.edgeText = function(d){
 };
 
 /**
- * Displays on top of a node (typically constraints or state variables)
+ * Displays on top of a node
  */
 GraphDrawer.prototype.nodeText = function(d){
-    return d.toString();   
+    return d.toString();
 };
 
 /**

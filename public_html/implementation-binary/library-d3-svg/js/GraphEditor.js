@@ -92,10 +92,16 @@ var GraphEditor = function (svgOrigin) {
     
     this.decreaseKey = function(input){
         var d = selectedNode;
-        d.ele = input.value;
-        $('#describtionOfOperation').css({'display': "block"});
-        $('#tg_div_statusWindow').css({'display': "none"});
-        this.changeDescriptWindow(SIFT_UP);
+        if(animated){
+            d.ele = input.value;
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
+            this.changeDescriptWindow(SIFT_UP);
+            siftNode = d;
+        }else{
+            Graph.instance.decreaseKey(d,input);
+        }
+        
     };
     
     this.removeLastNode = function(){//nodeIds is already decreased (number of stil existing nodes)
@@ -193,10 +199,10 @@ var GraphEditor = function (svgOrigin) {
         nodes.set(nodeOne.id, nodeOne);
         nodeOne.setCoor();
         nodeTwo.setCoor();
-        Graph.instance.removeAllEdges(nodeOne);
-        Graph.instance.recoverEdges(nodeOne);
         Graph.instance.removeAllEdges(nodeTwo);
         Graph.instance.recoverEdges(nodeTwo);
+        Graph.instance.removeAllEdges(nodeOne);
+        Graph.instance.recoverEdges(nodeOne);
         return nodeOne;
     };
 
