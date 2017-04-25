@@ -114,6 +114,7 @@ var GraphEditor = function (svgOrigin) {
     this.nextOperation = function() {
         switch(+status){
             case +FINISHED:
+                this.disableAllHeader();
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 break;
@@ -162,18 +163,21 @@ var GraphEditor = function (svgOrigin) {
     this.changeDescriptWindow = function (newStatus) {
         switch (newStatus){
             case FINISHED:
-                $('#firstTest').css({'display': "none"});
-                $('#fourthTest').css({'display': "block"});
+                $('#doneHeader').css({'display': "block"});
                 break;
             case SIFT_UP:
+                $('#siftUpHeader').css({'display': "block"});
                 $('#firstTest').css({'display': "none"});
                 $('#secondTest').css({'display': "block"});
                 break;
             case SIFT_DOWN:
+                $('#siftDownHeader').css({'display': "block"});
                 break;
             case REMOVE_LAST:
+                $('#deleteHeader').css({'display': "block"});
                 break;
             case SIFT_DOWN_ALL:
+                $('#siftDownHeader').css({'display': "block"});
                 break;
             /*case :
                 break;
@@ -184,6 +188,13 @@ var GraphEditor = function (svgOrigin) {
             */
         }
         status = newStatus;
+    };
+    
+    this.disableAllHeader = function(){
+        $('#doneHeader').css({'display': "none"});
+        $('#siftDownHeader').css({'display': "none"});
+        $('#deleteHeader').css({'display': "none"});
+        $('#siftUpHeader').css({'display': "none"});
     };
 
     this.swapNodes = function (id1, id2) {
