@@ -520,7 +520,7 @@ Graph.setInstance = function (error, text, filename, exceptionFp, animated) {
     try {
         Graph.instance = Graph.parse(text, animated);
         Graph.instance.recoverAllEdges();
-        document.getElementById("ArrayPre").innerHTML = "Führe eine Operation durch um die Arraydarstelung zu sehen.";
+        document.getElementById("ArrayPre").innerHTML = "Führe eine Operation durch um die Arraydarstellung zu sehen.";
         noErrors = true;
     } catch (ex) {
         if (exceptionFp)

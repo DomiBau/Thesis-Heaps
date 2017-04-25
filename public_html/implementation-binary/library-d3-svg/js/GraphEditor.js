@@ -7,6 +7,7 @@ var FINISHED = 20;
 var nextIdToSift;
 var siftNode = null;
 var animated = false;
+var inAnimation = false;
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
@@ -78,6 +79,7 @@ var GraphEditor = function (svgOrigin) {
     };
     
     this.insertNode = function(ele) {
+        deselectNode();
         if(animated){
             siftNode = Graph.instance.addLast(ele);
             this.changeDescriptWindow(SIFT_UP);
@@ -92,6 +94,7 @@ var GraphEditor = function (svgOrigin) {
     
     this.decreaseKey = function(input){
         var d = selectedNode;
+        deselectNode();      
         if(animated){
             d.ele = input.value;
             $('#describtionOfOperation').css({'display': "block"});
@@ -104,7 +107,7 @@ var GraphEditor = function (svgOrigin) {
         
     };
     
-    this.removeLastNode = function(){//nodeIds is already decreased (number of stil existing nodes)
+    this.removeLastNode = function(){//nodeIds is already decreased (number of still existing nodes)
         var node = Graph.instance.nodes.get(Graph.instance.nodeIds);
         Graph.instance.removeAllEdges(node);
         Graph.instance.nodes.remove(node.id);
@@ -114,6 +117,7 @@ var GraphEditor = function (svgOrigin) {
     this.nextOperation = function() {
         switch(+status){
             case +FINISHED:
+                inAnimation = false;
                 this.disableAllHeader();
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
@@ -146,6 +150,7 @@ var GraphEditor = function (svgOrigin) {
     };
     
     this.buildHeap = function (text){
+        deselectNode();
         Graph.buildInstance(text,animated);
         if(animated){
             var nextId = Math.floor((Graph.instance.nodeIds-1)/2);
@@ -166,17 +171,21 @@ var GraphEditor = function (svgOrigin) {
                 $('#doneHeader').css({'display': "block"});
                 break;
             case SIFT_UP:
+                inAnimation = true;
                 $('#siftUpHeader').css({'display': "block"});
                 $('#firstTest').css({'display': "none"});
                 $('#secondTest').css({'display': "block"});
                 break;
             case SIFT_DOWN:
+                inAnimation = true;
                 $('#siftDownHeader').css({'display': "block"});
                 break;
             case REMOVE_LAST:
+                inAnimation = true;
                 $('#deleteHeader').css({'display': "block"});
                 break;
             case SIFT_DOWN_ALL:
+                inAnimation = true;
                 $('#siftDownHeader').css({'display': "block"});
                 break;
             /*case :
@@ -303,10 +312,13 @@ var GraphEditor = function (svgOrigin) {
     };
 
     var selectNode = function (selection) {
-        selectedNode = selection;
-        var x = selectedNode.x + "px";
-        var y = selectedNode.y + "px";
-        $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"});
+        if(!inAnimation){
+           selectedNode = selection;
+            var x = selectedNode.x + "px";
+            var y = selectedNode.y + "px";
+            $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"}); 
+        }
+        
     };
 
     /**

@@ -273,6 +273,7 @@ function initializeSiteLayout(){
             binaryHeap.doUpdate();
             binaryHeap.updateArray();
         }
+        input.value = "";
     });
     
     
