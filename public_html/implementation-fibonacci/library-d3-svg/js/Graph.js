@@ -10,7 +10,8 @@
 
 
 var mainNodeDistance = 125;
-var maxMainNodes = 10;
+var maxMainNodes = Math.floor(700/mainNodeDistance)*2;
+var needMoreSpace = false;
 /**
  * @classdesc
  * Represents a graph.
@@ -89,10 +90,15 @@ Graph.Node.prototype.toString = function (full) {
     return str;
 };
 
-Graph.Node.prototype.setCoor = function (that) {
+
+
+Graph.Node.prototype.setCoor = function (that, offset) {
     if (this.parent) {
-        var offset = this.parentsChild * 35;
         this.x = this.parent.x - offset;
+        if(+this.x<0){
+            needMoreSpace = true;
+            return;
+        }
         this.y = this.parent.y - 50;
     } else {//MainNode
         var index = that.mainNodes.indexOf(this);
@@ -103,15 +109,23 @@ Graph.Node.prototype.setCoor = function (that) {
             x = x - (x % mainNodeDistance) + mainNodeDistance;
             y = 265;
         }
+        if(x>700){//only possible with delete or decrease 
+            x = x - 700;
+            x = x - (x % mainNodeDistance) + mainNodeDistance;
+            y = 50;
+        }
         this.x = x;
         this.y = y;
     }
+    var newOffset = 0;
     if (+this.children.length > 0) {
         for (var i = 0; i < this.children.length; i++) {
             this.children[i].parentsChild = i;
-            this.children[i].setCoor(that);
+            newOffset = this.children[i].setCoor(that, newOffset);
         }
+        newOffset-=35;
     }
+    return offset + newOffset + 35;
 };
 
 
@@ -163,7 +177,7 @@ Graph.prototype.addNode = function (ele) {
     if (this.numMainNodes >= maxMainNodes)//maxMainNodes is max capacity for Main nodes
         return;
     var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null, null);
-    this.addToMainNodes(node);
+    this.addToMainNodes(node,true);
     this.nodes.set(node.id, node);
     this.rearrangeNodes();
     return node;
@@ -244,12 +258,12 @@ Graph.prototype.removeNode = function (id) {
 
         }
         var childr = node.parent.children;
-        childr.splice(node.parentsChild, 1);
+        childr.splice(childr.indexOf(node), 1);
         node.parent.degree--;
     }
     var length = node.children.length;
     for (var j = 0; j < length; j++) {
-        this.addToMainNodes(node.children[j]);
+        this.addToMainNodes(node.children[j],false);
     }
     this.removeAllEdges(node);
     this.nodes.remove(id);
@@ -332,7 +346,12 @@ Graph.prototype.addChildToParent = function (child, parent) {
 };
 
 
-Graph.prototype.addToMainNodes = function (node) {
+Graph.prototype.addToMainNodes = function (node, splice) {
+    if(node.parent&&splice){
+        var index = node.parent.children.indexOf(node);
+        node.parent.children.splice(index,1);
+        node.parent.degree--;
+    }
     this.numMainNodes++;
     node.marked = false;
     this.mainNodes.push(node);
@@ -340,6 +359,7 @@ Graph.prototype.addToMainNodes = function (node) {
     node.inEdges.forEach(function (key) {
         that.removeEdge(key);
     });
+    
     node.parent = null;
 };
 
@@ -349,17 +369,17 @@ Graph.prototype.getNextId = function () {
 
 Graph.prototype.cutOut = function (node) {
     node.marked = false;
-    if(node.parent){
-        if (node.parent.marked) {
-            this.cutOut(node.parent);
+    var parent = node.parent;
+    this.addToMainNodes(node,true);
+    if(parent){
+        if (parent.marked) {
+            this.cutOut(parent);
         } else {
-            if(node.parent.parent){
+            if(parent.parent){//Not a Main Node
                 node.parent.marked = true;
             }
         }
     }
-    this.addToMainNodes(node);
-
 };
 
 
@@ -367,7 +387,14 @@ Graph.prototype.rearrangeNodes = function () {
     this.updateMinPointer();
     var length = this.mainNodes.length;
     for (var l = 0; l < length; l++) {
-        this.mainNodes[l].setCoor(this);
+        this.mainNodes[l].setCoor(this,0);
+    }
+    if(needMoreSpace){
+        needMoreSpace = false;
+        mainNodeDistance = mainNodeDistance*2;
+        if(mainNodeDistance>700)mainNodeDistance = 700;
+        maxMainNodes = Math.floor(700/mainNodeDistance)*2;
+        this.rearrangeNodes();
     }
 };
 

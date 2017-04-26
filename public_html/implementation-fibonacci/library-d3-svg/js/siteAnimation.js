@@ -273,16 +273,6 @@ function initializeSiteLayout(){
     });
     
     
-    
-    /*var buildBut = document.getElementById('buildButton');
-    buildBut.onclick = function() {
-        var input = document.getElementById('buildInput');
-        input.setAttribute("type","string");
-        fibonacciHeap.buildHeap(input.value);
-        input.value="";
-    };*/
-    
-    
     var insertBut = document.getElementById('insertButton');
     insertBut.onclick = function() {
         var input = document.getElementById('insertNum');
