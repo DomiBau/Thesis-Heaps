@@ -26,6 +26,8 @@ function Graph() {
 
     this.numMainNodes = 0;
     this.mainNodes = [];
+    
+    this.numNodes = 0;
 
     //associative arrays of nodes and edges
     this.nodes = d3.map();
@@ -44,13 +46,12 @@ function Graph() {
  * @param {number} id - a unique id
  * @param {number} ele - the number representing the element (key)
  */
-Graph.Node = function (x, y, id, ele, parent, parentsChild, left, right) {
+Graph.Node = function (x, y, id, ele, parent, parentsChild) {
     this.x = x;
     this.y = y;
     this.id = id;
     this.ele = ele;
     this.parent = parent;
-    this.parentsChild = parentsChild;
     this.marked = false;
     this.degree = 0;
     this.children = [];
@@ -176,8 +177,9 @@ Graph.prototype.addNode = function (ele) {
     }
     if (this.numMainNodes >= maxMainNodes)//maxMainNodes is max capacity for Main nodes
         return;
+    this.numNodes++;
     var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null, null);
-    this.addToMainNodes(node,true);
+    this.addToMainNodes(node);
     this.nodes.set(node.id, node);
     this.rearrangeNodes();
     return node;
@@ -263,7 +265,7 @@ Graph.prototype.removeNode = function (id) {
     }
     var length = node.children.length;
     for (var j = 0; j < length; j++) {
-        this.addToMainNodes(node.children[j],false);
+        this.addToMainNodes(node.children[0]);
     }
     this.removeAllEdges(node);
     this.nodes.remove(id);
@@ -272,8 +274,23 @@ Graph.prototype.removeNode = function (id) {
         var index = this.mainNodes.indexOf(node);
         this.mainNodes.splice(index, 1);
     }
+    this.numNodes--;
     this.consolidate();
     return node;
+};
+
+Graph.prototype.onlyRemoveNode = function(node){
+    if(node.parent){
+        node.parent.children.splice(node.parent.children.indexOf(node), 1);
+        node.parent.degree--;
+    } else {
+        this.numMainNodes--;
+        var index = this.mainNodes.indexOf(node);
+        this.mainNodes.splice(index, 1);
+    }
+    this.numNodes--;
+    this.removeAllEdges(node);
+    this.nodes.remove(node.id);
 };
 
 
@@ -346,8 +363,8 @@ Graph.prototype.addChildToParent = function (child, parent) {
 };
 
 
-Graph.prototype.addToMainNodes = function (node, splice) {
-    if(node.parent&&splice){
+Graph.prototype.addToMainNodes = function (node) {
+    if(node.parent){
         var index = node.parent.children.indexOf(node);
         node.parent.children.splice(index,1);
         node.parent.degree--;
@@ -359,7 +376,6 @@ Graph.prototype.addToMainNodes = function (node, splice) {
     node.inEdges.forEach(function (key) {
         that.removeEdge(key);
     });
-    
     node.parent = null;
 };
 
@@ -370,13 +386,13 @@ Graph.prototype.getNextId = function () {
 Graph.prototype.cutOut = function (node) {
     node.marked = false;
     var parent = node.parent;
-    this.addToMainNodes(node,true);
+    this.addToMainNodes(node);
     if(parent){
         if (parent.marked) {
             this.cutOut(parent);
         } else {
             if(parent.parent){//Not a Main Node
-                node.parent.marked = true;
+                parent.marked = true;
             }
         }
     }

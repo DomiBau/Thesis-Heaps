@@ -1,12 +1,15 @@
 var status = 0;
-var REMOVE_LAST = 1;
-var SIFT_UP = 2;
-var SIFT_DOWN = 3;
-var SIFT_DOWN_ALL = 10;
+var DELETE = 1;
+var INSERT = 2;
+var DECREASE = 3;
+var CUTOUT = 4;
+var CONSOLIDATE = 10;
 var FINISHED = 20;
-var nextIdToSift;
-var siftNode = null;
+var cutOutNode = null;
+var nextConId;
+var childrenToAdd = [];
 var animated = false;
+var inAnimation = false;
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
@@ -33,17 +36,15 @@ var GraphEditor = function (svgOrigin) {
                 .style("stroke", function (d) {
                     if (d === selectedNode) {
                         return const_Colors.NodeBorderHighlight;
-                    }/*else if(d.marked){
-                        return 
-                    }*/else {
+                    } else {
                         return global_NodeLayout['borderColor'];
                     }
                 })
-                .style("fill", function(d) {
-                    if (d.marked){
-                      return const_Colors.NodeFillingHighlight;
-                    }else{
-                      return const_Colors.NodeFilling;
+                .style("fill", function (d) {
+                    if (d.marked) {
+                        return const_Colors.NodeFillingHighlight;
+                    } else {
+                        return const_Colors.NodeFilling;
                     }
                 });
     };
@@ -65,125 +66,114 @@ var GraphEditor = function (svgOrigin) {
         var oldId = d.id;
         deselectNode();
         if (animated) {//animated
-            var ids = Graph.instance.dekrIds();
-            var nodes = Graph.instance.nodes;
-            if (ids === 1) {
-                nodes.remove(ids);
-                that.update();
-            } else {
-                var lastNode = oldId === ids;
-                if (!lastNode)this.swapNodes(oldId,ids);
-                var node = nodes.get(oldId);
-                that.update();
-                siftNode = node;
-                this.changeDescriptWindow(REMOVE_LAST);
-                $('#describtionOfOperation').css({'display': "block"});
-                $('#tg_div_statusWindow').css({'display': "none"});
-            }
+            childrenToAdd = d.children;
+            cutOutNode = d.parent;
+            Graph.instance.onlyRemoveNode(d);
+            that.update();
+            this.changeDescriptWindow(DELETE);
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
         } else {
             Graph.instance.removeNode(oldId);
             that.update();
         }
     };
-    
-    this.insertNode = function(ele) {
-        if(animated){
-            siftNode = Graph.instance.addLast(ele);
-            this.changeDescriptWindow(SIFT_UP);
+
+    this.addChildrenToMainNodes = function () {
+        for (var i = 0; i < childrenToAdd.length; i++) {
+            var child = childrenToAdd[i];
+            child.parent = null;
+            Graph.instance.addToMainNodes(child);
+            Graph.instance.rearrangeNodes();
+        }
+        that.update();
+        this.changeDescriptWindow(CUTOUT);
+    };
+
+    this.insertNode = function (ele) {
+        deselectNode();
+        if (animated) {
+            this.changeDescriptWindow(INSERT);
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
+            Graph.instance.addNode(ele);
         } else {
             Graph.instance.addNode(ele);
         }
         that.update();
     };
-    
-    this.decreaseKey = function(input){
+
+    this.decreaseKey = function (input) {
         var d = selectedNode;
-        if(animated){
-            //TODO
+        deselectNode();
+        if (animated) {
             d.ele = input.value;
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
-            this.changeDescriptWindow(SIFT_UP);
-        }else{
-            Graph.instance.decreaseKey(d,input);
+            if (d.parent) {
+                if (d.parent.ele > d.ele) {
+                    this.changeDescriptWindow(CUTOUT);
+                    cutOutNode = d;
+                } else {
+                    this.changeDescriptWindow(DECREASE);
+                }
+            } else {
+                this.changeDescriptWindow(DECREASE);
+            }
+        } else {
+            Graph.instance.decreaseKey(d, input);
         }
         that.update();
     };
-    
-    this.nextOperation = function() {
-        switch(+status){
+
+    this.nextOperation = function () {
+        switch (+status) {
             case +FINISHED:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 break;
-            case +REMOVE_LAST:
-                this.removeLastNode();
+            case +INSERT:
+                $('#describtionOfOperation').css({'display': "none"});
+                $('#tg_div_statusWindow').css({'display': "block"});
                 break;
-            case +SIFT_UP:
-                siftNode = this.siftUp(siftNode);
+            case +DELETE:
+                this.addChildrenToMainNodes();
                 break;
-            case +SIFT_DOWN:
-                siftNode = this.siftDown(siftNode);
+            case +CONSOLIDATE:
                 break;
-            case +SIFT_DOWN_ALL:
-                siftNode = this.siftDown(siftNode);
-                if(+status===+FINISHED&&nextIdToSift!==1){
-                    nextIdToSift--;
-                    siftNode=Graph.instance.nodes.get(nextIdToSift);
-                    this.changeDescriptWindow(SIFT_DOWN_ALL);
-                }
+            case +CUTOUT:
+                break;
+            case +DECREASE:
                 break;
         }
         that.update();
     };
-    
-    
-    this.changeAnimated = function(){
-        window.alert("not jet implemented");
-        return;
+
+
+    this.changeAnimated = function () {
         animated = !animated;
     };
-    
-    this.buildHeap = function (text){
-        Graph.buildInstance(text,animated);
-        if(animated){
-            var nextId = Math.floor((Graph.instance.nodeIds-1)/2);
-            siftNode = Graph.instance.nodes.get(nextId);
-            nextIdToSift = nextId;
-            this.changeDescriptWindow(SIFT_DOWN_ALL);
-            $('#describtionOfOperation').css({'display': "block"});
-            $('#tg_div_statusWindow').css({'display': "none"});
-        }
-        that.update();
-    };
-    
-    
-    
+
+
+
     this.changeDescriptWindow = function (newStatus) {
-        switch (newStatus){
-            case FINISHED:
+        switch (+newStatus) {
+            case +FINISHED:
                 $('#firstTest').css({'display': "none"});
                 $('#fourthTest').css({'display': "block"});
                 break;
-            case SIFT_UP:
+            case +INSERT:
                 $('#firstTest').css({'display': "none"});
                 $('#secondTest').css({'display': "block"});
                 break;
-            case SIFT_DOWN:
+            case +DELETE:
                 break;
-            case REMOVE_LAST:
+            case +CONSOLIDATE:
                 break;
-            case SIFT_DOWN_ALL:
+            case +CUTOUT:
                 break;
-            /*case :
+            case +DECREASE:
                 break;
-            case :
-                break;
-            case :
-                break;
-            */
         }
         status = newStatus;
     };
@@ -191,7 +181,8 @@ var GraphEditor = function (svgOrigin) {
 
     this.removeMin = function () {
         var node = Graph.instance.getMin();
-        if(node===null)return;
+        if (node === null)
+            return;
         selectNode(node);
         this.removeSelected();
         that.update();
@@ -219,10 +210,13 @@ var GraphEditor = function (svgOrigin) {
     };
 
     var selectNode = function (selection) {
-        selectedNode = selection;
-        var x = selectedNode.x + "px";
-        var y = selectedNode.y + "px";
-        $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"});
+        if (!inAnimation) {
+            selectedNode = selection;
+            var x = selectedNode.x + "px";
+            var y = selectedNode.y + "px";
+            $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"});
+        }
+
     };
 
     /**

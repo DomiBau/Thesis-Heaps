@@ -41,7 +41,7 @@
    <text class="resource unselectable edgeLabel" dominant-baseline="text-before-edge" x="110.0000" y="358.5416564941406" style="text-anchor: end;"></text></g>
    
    <g class="edge">
-   <line class="arrow" x1="80.000" y1="30.000" x2="50.000" y2="60.000" style="stroke: black; stroke-width: 2;"></line>
+   <line class="arrow" x1="80.000" y1="30.000" x2="80.000" y2="60.000" style="stroke: black; stroke-width: 2;"></line>
    <text class="resource unselectable edgeLabel" dominant-baseline="text-before-edge" x="106.3125" y="405.5416564941406" style="text-anchor: start;"></text></g>
    </g>
    
@@ -66,7 +66,7 @@
    <text class="label unselectable" dy=".35em" text-anchor="middle">0</text>
    <text class="resource unselectable" dy="-15px" text-anchor="middle">Min</text></g>
    
-   <g class="node" transform="translate(50.000,60.000)">
+   <g class="node" transform="translate(80.000,60.000)">
    <circle r="10" style="fill: rgb(152, 198, 234); stroke-width: 2; stroke: rgb(0, 101, 189);"></circle>
    <text class="label unselectable" dy=".35em" text-anchor="middle">34</text>
    <text class="resource unselectable" dy="-15px" text-anchor="middle"></text></g>
