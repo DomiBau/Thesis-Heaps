@@ -4,12 +4,16 @@ var INSERT = 2;
 var DECREASE = 3;
 var CUTOUT = 4;
 var CONSOLIDATE = 10;
+var COMBINE = 11;
 var FINISHED = 20;
 var cutOutNode = null;
-var nextConId;
+var nextConId = 0;
 var childrenToAdd = [];
 var animated = false;
 var inAnimation = false;
+var conMap = d3.map();
+var combineNodeOne = null;
+var combineNodeTwo = null;
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
@@ -115,6 +119,7 @@ var GraphEditor = function (svgOrigin) {
                     this.changeDescriptWindow(CUTOUT);
                     cutOutNode = d;
                 } else {
+                    d.parent.marked = true;
                     this.changeDescriptWindow(DECREASE);
                 }
             } else {
@@ -126,24 +131,106 @@ var GraphEditor = function (svgOrigin) {
         that.update();
     };
 
+
+    this.animatedCutOut = function () {
+        var newCutOutNode = null;
+        if (!cutOutNode) {
+            this.changeDescriptWindow(CONSOLIDATE);
+            return;
+        }
+        if (cutOutNode.parent) {
+            if (cutOutNode.parent.marked) {
+                newCutOutNode = cutOutNode.parent;
+            }
+        }
+        Graph.instance.addToMainNodes(cutOutNode);
+        Graph.instance.rearrangeNodes();
+        that.update();
+        if (newCutOutNode !== null) {
+            cutOutNode = newCutOutNode;
+            this.changeDescriptWindow(CUTOUT);
+        } else {
+            nextConId = 0;
+            this.changeDescriptWindow(CONSOLIDATE);
+        }
+    };
+
+
+    this.animatedConsolidate = function () {
+        var node = Graph.instance.getIdInMainNodes(nextConId);
+        if (!node) {
+            this.changeDescriptWindow(FINISHED);
+            return;
+        }
+        if (conMap.get(node.degree)) {
+            combineNodeOne = conMap.get(node.degree);
+            combineNodeTwo = node;
+            conMap.remove(node.degree);
+            this.changeDescriptWindow(COMBINE);
+
+        } else {
+            conMap.set(node.degree, node);
+            nextConId++;
+            this.changeDescriptWindow(CONSOLIDATE);
+        }
+        that.update();
+
+    };
+
+    this.combineNodes = function () {
+        var child = combineNodeOne;
+        var parent = combineNodeTwo;
+        if (+combineNodeOne.ele < +combineNodeTwo.ele) {
+            child = combineNodeTwo;
+            parent = combineNodeOne;
+        }
+        Graph.instance.mainNodes.splice(Graph.instance.mainNodes.indexOf(child), 1);
+        child.parent = parent;
+        child.parentsChild = parent.children.length;
+        parent.children.push(child);
+        parent.degree++;
+        Graph.instance.addEdge(parent.id, child.id);
+        combineNodeOne = null;
+        combineNodeTwo = null;
+        if (conMap.get(parent.degree)) {
+            combineNodeOne = parent;
+            combineNodeTwo = conMap.get(parent.degree);
+            conMap.remove(parent.degree);
+            nextConId--;
+            this.changeDescriptWindow(COMBINE);
+        } else {
+            conMap.set(parent.degree, parent);
+            this.changeDescriptWindow(CONSOLIDATE);
+        }
+        Graph.instance.rearrangeNodes();
+        that.update();
+    };
+
     this.nextOperation = function () {
         switch (+status) {
-            case +FINISHED:
+            case + FINISHED:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 break;
-            case +INSERT:
+            case + INSERT:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 break;
-            case +DELETE:
+            case + DELETE:
                 this.addChildrenToMainNodes();
                 break;
-            case +CONSOLIDATE:
+            case + CONSOLIDATE:
+                this.animatedConsolidate();
                 break;
-            case +CUTOUT:
+            case + CUTOUT:
+                this.animatedCutOut();
                 break;
-            case +DECREASE:
+            case + DECREASE:
+                $('#describtionOfOperation').css({'display': "none"});
+                $('#tg_div_statusWindow').css({'display': "block"});
+                break;
+            case + COMBINE:
+                this.combineNodes();
                 break;
         }
         that.update();
@@ -158,21 +245,23 @@ var GraphEditor = function (svgOrigin) {
 
     this.changeDescriptWindow = function (newStatus) {
         switch (+newStatus) {
-            case +FINISHED:
+            case + FINISHED:
                 $('#firstTest').css({'display': "none"});
                 $('#fourthTest').css({'display': "block"});
                 break;
-            case +INSERT:
+            case + INSERT:
                 $('#firstTest').css({'display': "none"});
                 $('#secondTest').css({'display': "block"});
                 break;
-            case +DELETE:
+            case + DELETE:
                 break;
-            case +CONSOLIDATE:
+            case + CONSOLIDATE:
                 break;
-            case +CUTOUT:
+            case + CUTOUT:
                 break;
-            case +DECREASE:
+            case + DECREASE:
+                break;
+            case + COMBINE:
                 break;
         }
         status = newStatus;

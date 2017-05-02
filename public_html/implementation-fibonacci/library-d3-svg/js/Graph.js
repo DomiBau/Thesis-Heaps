@@ -321,12 +321,6 @@ Graph.prototype.consolidate = function () {
         map = this.mapHandling(map, curNode);
         consCount++;
     }
-
-    var str = "";
-    for (var i = 0; i < this.mainNodes.length; i++) {
-        str = str + this.mainNodes[i].ele + ", ";
-    }
-    //window.alert("MainNodes are: " + str);
     this.numMainNodes = this.mainNodes.length;
     this.rearrangeNodes();
 };
@@ -377,6 +371,10 @@ Graph.prototype.addToMainNodes = function (node) {
         that.removeEdge(key);
     });
     node.parent = null;
+};
+
+Graph.prototype.getIdInMainNodes = function (id) {
+    return this.mainNodes[id];
 };
 
 Graph.prototype.getNextId = function () {
