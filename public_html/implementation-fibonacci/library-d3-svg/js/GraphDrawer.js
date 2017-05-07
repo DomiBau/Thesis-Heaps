@@ -227,6 +227,13 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
                 .attr("dy",(-global_KnotenRadius-3)+"px")           // set offset y position
                 .attr("text-anchor", "middle");
 
+            enterSelection.append("path")
+                    .attr("class","markerLeft")
+                    .attr("d","M -11.5,-0.5 L -24,3.5 L -24,-4.5 Z");
+            
+            enterSelection.append("path")
+                    .attr("class", "markerRight")
+                    .attr("d","M 11.5,-0.5 L 24,3.5 L 24,-4.5 Z");
 
         // ENTER + UPDATE
         // Appending to the enter selection expands the update selection to include
@@ -314,19 +321,6 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
           }else{
             res.text(this.edgeText);
           }
-
-            /*res
-            .style("text-anchor", function(d){
-                var arrowXProj = that.nodeX(d.start)-that.nodeX(d.end);
-                return (arrowXProj>0) ? "start" : "end";
-            })
-            .attr("dominant-baseline",function(d){
-                var arrowYProj = that.nodeY(d.start)-that.nodeY(d.end);
-                return (arrowYProj>0) ? "text-before-edge" : "text-after-edge";
-            })
-            .each(textAttribs)
-            */
-
         selection.call(this.onEdgesUpdated);
 
     //EXIT

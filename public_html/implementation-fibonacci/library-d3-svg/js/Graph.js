@@ -8,10 +8,13 @@
  * @requires d3.map, an associative array similar to new Object() / {}
  */
 
-
-var mainNodeDistance = 125;
+var startDistance = 130;
+var mainNodeDistance = startDistance;
 var maxMainNodes = Math.floor(700/mainNodeDistance)*2;
 var needMoreSpace = false;
+var squeeze = false;
+var lockDistance = false;
+var numOperation = 0;
 /**
  * @classdesc
  * Represents a graph.
@@ -24,7 +27,7 @@ function Graph() {
     this.nodeIds = 0;
     this.edgeIds = 0;
 
-    this.numMainNodes = 0;
+    
     this.mainNodes = [];
     
     this.numNodes = 0;
@@ -32,6 +35,10 @@ function Graph() {
     //associative arrays of nodes and edges
     this.nodes = d3.map();
     this.edges = d3.map();
+    
+    this.potential = 0;//numMainNodes+2*markedNodes
+    this.markedNodes = 0;
+    this.numMainNodes = 0;
 
     this.minPointer = null;
 
@@ -56,6 +63,7 @@ Graph.Node = function (x, y, id, ele, parent, parentsChild) {
     this.degree = 0;
     this.children = [];
     this.min = false;
+    this.isMain = true;
 
     //outgoing and incoming edges are saved to facilitate handling of vertices in algorithms
     this.outEdges = d3.map();
@@ -94,11 +102,15 @@ Graph.Node.prototype.toString = function (full) {
 
 
 Graph.Node.prototype.setCoor = function (that, offset) {
+    this.isMain = false;
     if (this.parent) {
         this.x = this.parent.x - offset;
-        if(+this.x<0){
+        if(mainNodeDistance-offset<0&&!lockDistance){
             needMoreSpace = true;
             return;
+        }
+        if(offset*2>mainNodeDistance){
+            squeeze=false;
         }
         this.y = this.parent.y - 50;
     } else {//MainNode
@@ -186,7 +198,10 @@ Graph.prototype.addNode = function (ele) {
 };
 
 
-
+Graph.prototype.updatePotential = function () {
+    this.potential = this.numMainNodes + 2* this.markedNodes;
+    document.getElementById("potential").innerHTML = this.potential;
+};
 
 
 Graph.prototype.getMin = function () {
@@ -250,12 +265,16 @@ Graph.prototype.recoverAllEdges = function () {//add Edge to parent for every No
 
 Graph.prototype.removeNode = function (id) {
     var node = this.nodes.get(id);
+    if(node.marked){
+        this.markedNodes--;
+    }
     if (node.parent) {
         if (node.parent.marked) {
             this.cutOut(node.parent);
         } else {
             if (node.parent.parent) {
                 node.parent.marked = true;
+                this.markedNodes++;
             }
 
         }
@@ -364,7 +383,10 @@ Graph.prototype.addToMainNodes = function (node) {
         node.parent.degree--;
     }
     this.numMainNodes++;
-    node.marked = false;
+    if(node.marked){
+        this.markedNodes--;
+        node.marked = false;
+    }
     this.mainNodes.push(node);
     var that = this;
     node.inEdges.forEach(function (key) {
@@ -382,7 +404,10 @@ Graph.prototype.getNextId = function () {
 };
 
 Graph.prototype.cutOut = function (node) {
-    node.marked = false;
+    if(node.marked){
+        this.markedNodes--;
+        node.marked = false;
+    }
     var parent = node.parent;
     this.addToMainNodes(node);
     if(parent){
@@ -391,6 +416,7 @@ Graph.prototype.cutOut = function (node) {
         } else {
             if(parent.parent){//Not a Main Node
                 parent.marked = true;
+                this.markedNodes++;
             }
         }
     }
@@ -399,14 +425,26 @@ Graph.prototype.cutOut = function (node) {
 
 Graph.prototype.rearrangeNodes = function () {
     this.updateMinPointer();
+    this.updatePotential();
+    squeeze = true;
     var length = this.mainNodes.length;
     for (var l = 0; l < length; l++) {
         this.mainNodes[l].setCoor(this,0);
+        this.mainNodes[l].isMain = true;
     }
-    if(needMoreSpace){
+    if(needMoreSpace&&!lockDistance){
         needMoreSpace = false;
         mainNodeDistance = mainNodeDistance*2;
-        if(mainNodeDistance>700)mainNodeDistance = 700;
+        if(mainNodeDistance>700){
+            mainNodeDistance = 700;
+            lockDistance = true;
+        }
+        maxMainNodes = Math.floor(700/mainNodeDistance)*2;
+        this.rearrangeNodes();
+    }
+    if(squeeze&&mainNodeDistance>startDistance){
+        lockDistance = false;
+        mainNodeDistance = mainNodeDistance/2;
         maxMainNodes = Math.floor(700/mainNodeDistance)*2;
         this.rearrangeNodes();
     }

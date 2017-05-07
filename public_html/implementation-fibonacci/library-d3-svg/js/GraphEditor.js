@@ -14,11 +14,14 @@ var inAnimation = false;
 var conMap = d3.map();
 var combineNodeOne = null;
 var combineNodeTwo = null;
+var FunctionGraph = d3.select("#tg_canvas_function");
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
 
     this.type = "GraphEditor";
+    
+    FunctionGraph.on("mousedown", function(){window.alert("buhu")})
 
     this.svgOrigin
             .on("mousedown", mousedown)
@@ -49,6 +52,23 @@ var GraphEditor = function (svgOrigin) {
                         return const_Colors.NodeFillingHighlight;
                     } else {
                         return const_Colors.NodeFilling;
+                    }
+                });
+        selection.selectAll(".markerLeft")
+                .attr("d",function(d){
+                    if(d.isMain){
+                        return "M -11.5,-0.5 L -24,3.5 L -24,-4.5 Z";
+                    }else{
+                        return "M 0,0 Z";
+                    }
+                });
+                
+        selection.selectAll(".markerRight")
+                .attr("d",function(d){
+                    if(d.isMain){
+                        return "M 11.5,-0.5 L 24,3.5 L 24,-4.5 Z";
+                    }else{
+                        return "M 0,0 Z";
                     }
                 });
     };

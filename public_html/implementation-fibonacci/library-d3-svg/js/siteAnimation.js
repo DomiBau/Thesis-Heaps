@@ -193,7 +193,6 @@ function svgGraphCanvasDownloadable(){
      var ahref = d3.select(this);
      ahref.property("href-lang","image/svg+xml");
      ahref.property("href",href);
-//      window.location=data;
    });
 
    //2 bottom right: Legende

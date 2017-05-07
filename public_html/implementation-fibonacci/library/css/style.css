@@ -256,6 +256,10 @@ canvas.graphCanvas {
     border: 1px dashed black;
 }
 
+canvas.funtionCanvas {
+    border: 1px dashed black;
+}
+
 img.LegendeIcon {
     /* height: 22px; */
 }
