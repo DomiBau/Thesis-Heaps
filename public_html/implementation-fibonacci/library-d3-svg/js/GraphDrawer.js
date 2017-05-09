@@ -82,7 +82,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
     var id = svgOrigin.attr("id");
     GraphAlgos.set(id,this);
 
-    var transTime = 250 //(transTime!=null) ? transTime : 250;
+    var transTime = 250;
 
     var extraMargin = extraMargin || {};
 
@@ -274,7 +274,6 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
      * D3's Data Join of edge data with their visualization (lines)
      */
     this.updateEdges = function(){
-
         var selection = svg_links.selectAll(".edge")
             .data(Graph.instance.getEdges(),function(d){
                 return d.id;
@@ -291,16 +290,9 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
 
         enterSelection.append("line")
             .attr("class","arrow")
-        //    .style("marker-end", "url(#arrowhead2)")
             .style("stroke","black")
             .style("stroke-width",global_Edgelayout['lineWidth']);
 
-        //enterSelection.append("text")
-//             .style("text-anchor", "middle")
-//             .attr("dominant-baseline","middle")
-//             .attr("dy", "-.5em")           // set offset y position
-        //    .attr("class","resource unselectable edgeLabel")
-   
 
     var that = this;
 

@@ -14,15 +14,67 @@ var inAnimation = false;
 var conMap = d3.map();
 var combineNodeOne = null;
 var combineNodeTwo = null;
-var FunctionGraph = d3.select("#tg_canvas_function");
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
 
     this.type = "GraphEditor";
     
-    FunctionGraph.on("mousedown", function(){window.alert("buhu")})
-
+    var margin = {top: 30, right: 20, bottom: 20, left: 20};
+    var width = 380 - margin.left - margin.right;
+    var height = 180 - margin.top - margin.bottom;
+    
+    var container = d3.select("#tg_canvas_function")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      
+      
+    var xAxisScale = d3.scale.linear().domain([0, 10]).range([0, 340]);
+    var xAxis = d3.svg.axis().scale(xAxisScale);
+    var xAxisGroup = container.append("g")
+            .attr("class","xAxis")
+            .attr("transform", "translate(" + (margin.left) + "," + (height+margin.top) + ")")
+            .call(xAxis);
+    
+    var yAxisScale = d3.scale.linear().domain([0, funcYRange]).range([130,0]);
+    var yAxis = d3.svg.axis().scale(yAxisScale).ticks(5);//.orient("left");
+    var yAxisGroup = container.append("g")
+            .attr("class","yAxis")
+            .attr("transform", "rotate(90),translate(30,-20)")
+            .call(yAxis)
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .attr("dx","-.6em")
+            .attr("dy","-.35em");
+    
+    
+    container.append("text")
+            .attr("x","33")
+            .attr("y","30")
+            .attr("fill","black")
+            .attr("text-anchor", "middle")
+            .attr("transform","rotate(-20)")
+            .text("Potenzial");
+    
+    
+    container.append("text")
+            .attr("x","360")
+            .attr("y","158")
+            .attr("fill","black")
+            .attr("text-anchor", "front")
+            .attr("transform","rotate(-20,360,158)")
+            .text("Zeit");
+    
+    
+    container.append("path")
+            .attr("id","functionGraph")
+            .attr("d","")
+            .attr("stroke","#0065BD")
+            .attr("stroke-width","2px")
+            .attr("fill","none");
+    
+    
     this.svgOrigin
             .on("mousedown", mousedown)
             .on("contextmenu", function (d) {
@@ -296,6 +348,7 @@ var GraphEditor = function (svgOrigin) {
         this.removeSelected();
         that.update();
     };
+    
 
     var that = this;
 

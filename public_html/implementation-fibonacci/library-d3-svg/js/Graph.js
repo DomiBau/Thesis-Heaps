@@ -10,11 +10,13 @@
 
 var startDistance = 130;
 var mainNodeDistance = startDistance;
-var maxMainNodes = Math.floor(700/mainNodeDistance)*2;
+var maxMainNodes = Math.floor(700 / mainNodeDistance) * 2;
 var needMoreSpace = false;
 var squeeze = false;
 var lockDistance = false;
 var numOperation = 0;
+var data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];//always holds 11 numbers for the Graph
+var funcYRange = 20;
 /**
  * @classdesc
  * Represents a graph.
@@ -27,15 +29,15 @@ function Graph() {
     this.nodeIds = 0;
     this.edgeIds = 0;
 
-    
+
     this.mainNodes = [];
-    
+
     this.numNodes = 0;
 
     //associative arrays of nodes and edges
     this.nodes = d3.map();
     this.edges = d3.map();
-    
+
     this.potential = 0;//numMainNodes+2*markedNodes
     this.markedNodes = 0;
     this.numMainNodes = 0;
@@ -53,7 +55,7 @@ function Graph() {
  * @param {number} id - a unique id
  * @param {number} ele - the number representing the element (key)
  */
-Graph.Node = function (x, y, id, ele, parent, parentsChild) {
+Graph.Node = function (x, y, id, ele, parent) {
     this.x = x;
     this.y = y;
     this.id = id;
@@ -101,16 +103,19 @@ Graph.Node.prototype.toString = function (full) {
 
 
 
-Graph.Node.prototype.setCoor = function (that, offset) {
-    this.isMain = false;
+Graph.Node.prototype.setCoor = function (that, offset, start) {
+    if (this.marked) {
+        that.markedNodes++;
+    }
     if (this.parent) {
+        this.isMain = false;
         this.x = this.parent.x - offset;
-        if(mainNodeDistance-offset<0&&!lockDistance){
+        if (mainNodeDistance < start - this.x && !lockDistance) {
             needMoreSpace = true;
             return;
         }
-        if(offset*2>mainNodeDistance){
-            squeeze=false;
+        if ((start - this.x) * 2 > mainNodeDistance) {
+            squeeze = false;
         }
         this.y = this.parent.y - 50;
     } else {//MainNode
@@ -122,21 +127,22 @@ Graph.Node.prototype.setCoor = function (that, offset) {
             x = x - (x % mainNodeDistance) + mainNodeDistance;
             y = 265;
         }
-        if(x>700){//only possible with delete or decrease 
+        if (x > 700) {//only possible with delete or decrease
             x = x - 700;
             x = x - (x % mainNodeDistance) + mainNodeDistance;
             y = 50;
         }
         this.x = x;
         this.y = y;
+        start = this.x;
     }
     var newOffset = 0;
     if (+this.children.length > 0) {
         for (var i = 0; i < this.children.length; i++) {
             this.children[i].parentsChild = i;
-            newOffset = this.children[i].setCoor(that, newOffset);
+            newOffset = this.children[i].setCoor(that, newOffset, start);
         }
-        newOffset-=35;
+        newOffset -= 35;
     }
     return offset + newOffset + 35;
 };
@@ -184,13 +190,14 @@ Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
  * @param ele {Number|String} new element to be inserted
  */
 Graph.prototype.addNode = function (ele) {
+    numOperation++;
     if (!ele) {
         ele = Math.ceil(Math.random() * 100);
     }
     if (this.numMainNodes >= maxMainNodes)//maxMainNodes is max capacity for Main nodes
         return;
     this.numNodes++;
-    var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null, null);
+    var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null);
     this.addToMainNodes(node);
     this.nodes.set(node.id, node);
     this.rearrangeNodes();
@@ -199,8 +206,23 @@ Graph.prototype.addNode = function (ele) {
 
 
 Graph.prototype.updatePotential = function () {
-    this.potential = this.numMainNodes + 2* this.markedNodes;
+    this.potential = this.numMainNodes + 2 * this.markedNodes;
     document.getElementById("potential").innerHTML = this.potential;
+    data.shift();
+    data.push(this.potential);
+    this.updateFunction();
+};
+
+Graph.prototype.updateFunction = function () {
+    var str = "";
+    var cur = data[0];
+    str += "M " + 20 + "," + (160 - 6.5 * cur) + " ";
+
+    for (var i = 1; i <= 10; i++) {
+        cur = data[i];
+        str += "L " + (20 + 34 * i) + "," + (160 - 6.5 * cur) + " ";
+    }
+    d3.select("#functionGraph").attr("d", str);
 };
 
 
@@ -239,15 +261,15 @@ Graph.prototype.addEdgesToChildren = function (node) {
 
 Graph.prototype.decreaseKey = function (decreaseNode, input) {
     decreaseNode.ele = input.value;
-    if(decreaseNode.parent){
+    if (decreaseNode.parent) {
         if (+decreaseNode.ele < +decreaseNode.parent.ele) {
             this.cutOut(decreaseNode);
             this.consolidate();
         }
-    }else{
+    } else {
         this.updateMinPointer();
     }
-        
+
 };
 
 Graph.prototype.recoverEdges = function (node) {
@@ -265,7 +287,7 @@ Graph.prototype.recoverAllEdges = function () {//add Edge to parent for every No
 
 Graph.prototype.removeNode = function (id) {
     var node = this.nodes.get(id);
-    if(node.marked){
+    if (node.marked) {
         this.markedNodes--;
     }
     if (node.parent) {
@@ -298,8 +320,8 @@ Graph.prototype.removeNode = function (id) {
     return node;
 };
 
-Graph.prototype.onlyRemoveNode = function(node){
-    if(node.parent){
+Graph.prototype.onlyRemoveNode = function (node) {
+    if (node.parent) {
         node.parent.children.splice(node.parent.children.indexOf(node), 1);
         node.parent.degree--;
     } else {
@@ -324,7 +346,8 @@ Graph.prototype.updateMinPointer = function () {
         }
     }
     this.minPointer = curMin;
-    if(this.minPointer)this.minPointer.min = true;
+    if (this.minPointer)
+        this.minPointer.min = true;
 };
 
 
@@ -377,13 +400,13 @@ Graph.prototype.addChildToParent = function (child, parent) {
 
 
 Graph.prototype.addToMainNodes = function (node) {
-    if(node.parent){
+    if (node.parent) {
         var index = node.parent.children.indexOf(node);
-        node.parent.children.splice(index,1);
+        node.parent.children.splice(index, 1);
         node.parent.degree--;
     }
     this.numMainNodes++;
-    if(node.marked){
+    if (node.marked) {
         this.markedNodes--;
         node.marked = false;
     }
@@ -404,17 +427,17 @@ Graph.prototype.getNextId = function () {
 };
 
 Graph.prototype.cutOut = function (node) {
-    if(node.marked){
+    if (node.marked) {
         this.markedNodes--;
         node.marked = false;
     }
     var parent = node.parent;
     this.addToMainNodes(node);
-    if(parent){
+    if (parent) {
         if (parent.marked) {
             this.cutOut(parent);
         } else {
-            if(parent.parent){//Not a Main Node
+            if (parent.parent) {//Not a Main Node
                 parent.marked = true;
                 this.markedNodes++;
             }
@@ -423,31 +446,40 @@ Graph.prototype.cutOut = function (node) {
 };
 
 
+
+
 Graph.prototype.rearrangeNodes = function () {
     this.updateMinPointer();
-    this.updatePotential();
+    this.markedNodes = 0;
+    this.numMainNodes = 0;
     squeeze = true;
     var length = this.mainNodes.length;
     for (var l = 0; l < length; l++) {
-        this.mainNodes[l].setCoor(this,0);
+        this.numMainNodes++;
+        this.mainNodes[l].setCoor(this, 0, 0);
         this.mainNodes[l].isMain = true;
     }
-    if(needMoreSpace&&!lockDistance){
+    if (needMoreSpace && !lockDistance) {
         needMoreSpace = false;
-        mainNodeDistance = mainNodeDistance*2;
-        if(mainNodeDistance>700){
+        mainNodeDistance = mainNodeDistance * 2;
+        if (mainNodeDistance > 700) {
             mainNodeDistance = 700;
             lockDistance = true;
         }
-        maxMainNodes = Math.floor(700/mainNodeDistance)*2;
+        maxMainNodes = Math.floor(700 / mainNodeDistance) * 2;
+        //data.unshift(0);
+        //data.pop();
         this.rearrangeNodes();
-    }
-    if(squeeze&&mainNodeDistance>startDistance){
+    } else
+    if (squeeze && mainNodeDistance > startDistance) {
         lockDistance = false;
-        mainNodeDistance = mainNodeDistance/2;
-        maxMainNodes = Math.floor(700/mainNodeDistance)*2;
+        mainNodeDistance = mainNodeDistance / 2;
+        maxMainNodes = Math.floor(700 / mainNodeDistance) * 2;
         this.rearrangeNodes();
+    }else{
+        this.updatePotential();
     }
+    
 };
 
 

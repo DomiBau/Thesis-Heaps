@@ -3,7 +3,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <meta charset="utf-8">
-        <meta name="description" content="This applet demonstrates the binary heap" />
+        <meta name="description" content="This applet demonstrates the fibonacci heap" />
         <meta name="keywords" content="fibonacci, heap, datastructure, TUM, Technische Universität München, applet">
         <meta http-equiv="X-UA-Compatible" content="IE=Edge">
         <meta name="author" content="Dominique Bau">
@@ -20,20 +20,7 @@
         <script src="../library/js/jquery-ui-1.10.1.custom.min.js"></script>
         <link type="text/css" href="../library/css/mmenu/jquery.mmenu.all.css" rel="stylesheet" />
         <script src="../library/js/mmenu/jquery.mmenu.min.all.js"></script>
-        <script src="../library/js/mathjax/MathJax.js?config=TeX-AMS-MML_SVG.js&locale=en"></script>
         <script src="../library/js/d3/d3.js"></script>
-
-        <!-- CDN  -->
-        <!--     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-            <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-            <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/5.3.4/css/jquery.mmenu.all.min.css" rel="stylesheet" />
-            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.mmenu/5.3.4/js/jquery.mmenu.min.js"></script>
-            <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG.js&locale=en"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
-        -->
-
-        <!-- MathJax CDN fallback -->
-        <script>window.MathJax || document.write('<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG.js&locale=en">\x3C/script>')</script>
 
         <!--     d3 related library code -->
         <script src="../library-d3-svg/js/Graph.js"></script>
@@ -62,7 +49,7 @@
                 <ul>
                     <li><a href="#tab_te"><span>Einführung</span></a></li>
                     <li><a href="#tab_tg"><span>Teste die Datenstruktur</span></a></li>
-                    <li><a href="#tab_ti"><span>Beschreibung der Operationen</span></a></li>
+                    <li><a href="#tab_ti"><span>Beschreibung der Heapstruktur</span></a></li>
                     <li><a href="#tab_tw"><span>Weiteres</span></a></li>
                 </ul>
 
@@ -87,7 +74,7 @@
                     </div>
                 </div>
 
-                <!-- TAB Graph Erstellen -->
+                <!-- TAB Heap -->
                 <div id="tab_tg">
                     <div>
                         <div class="canvasWrapper">
@@ -157,14 +144,33 @@
                             Um ein beliebiges Element zu löschen (<strong>Delete</strong>) oder den Schlüssel eines Elementes zu veringern (<strong>Decrease-Key</strong>) drücke auf den gewünschten Knoten.
                             <br><br>
                             Potenzial: <a id="potential"></a><br>
-                            <svg class="funtionCanvas" id="tg_canvas_function" width="200" height="150">
+                            <svg class="funtionCanvas" id="tg_canvas_function" width="200" height="100">
                                 <style>
                                     .line {
                                       fill: none;
                                       stroke: steelblue;
                                       stroke-width: 2px;
                                     }
+                                    .xAxis path, .xAxis line{
+                                        stroke: black;
+                                        fill: none;
+                                    }
+                                    
+                                    .xAxis path {
+                                        stroke-width: 2px;
+                                    }
+                                    .yAxis path, .yAxis line{
+                                        stroke: black;
+                                        fill: none;
+                                    }
+                                    
+                                    .yAxis path {
+                                        stroke-width: 2px;
+                                    }
+                                    
+                                    
                                 </style>
+                                
                             </svg>
                         </div>
                         <div id="describtionOfOperation" class="buttonWindow" style="display: none">
@@ -179,7 +185,7 @@
                 </div>
 
 
-                <!-- TAB Beschreibung des Algorithmus -->
+                <!-- TAB Beschreibung des Heaps -->
                 <div id="tab_ti" style="display: none;">
                     <div id="ti_div_Einfuehrungstext">
                         <div class="BeispielbildContainer">
