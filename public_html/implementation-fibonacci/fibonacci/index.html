@@ -125,16 +125,25 @@
                                 </tr>
                             </table>
                         </div>
+                        
                         <div id="tg_div_statusWindow" class="buttonWindow">
-                                <select name="graphSelector" id="tg_select_GraphSelector" style="display : none ">
-                                    <option selected label="Heap 1">heap1</option>
-                                </select>
-                                <h2>Animationen und Beschreibungen:</h2>
-                                <label class="switch">
-                                    <input type="checkbox" id="animationCheckBox">
-                                    <div class="slider round"></div>
-                                </label>
-                                <br>
+                            <table id="statusWindowTable" align="center" width="300px">
+                                <tr>
+                                    <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Animationen:</span></td>
+                                    <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Zurücksetzen auf:</span></td>
+                                </tr>
+                                <tr>
+                                    <td><label class="switch">
+                                        <input type="checkbox" id="animationCheckBox">
+                                        <div class="slider round"></div>
+                                    </label></td>
+                                    <td><select name="graphSelector" id="tg_select_GraphSelector" style="">
+                                        <option selected label="Vier Einzelne">heap1</option>
+                                        <option label="3 Binomial Heaps">heap2</option>
+                                        <option label="1 Großer Heap">heap3</option>
+                                    </select></td>
+                                </tr>
+                            </table>
                             <h2>Welche Operation möchtest Du durchführen?</h2>
                             <strong>Insert</strong> fügt ein Element in die Datenstruktur mit dem gewünschten Schlüssel ein. Gibst Du keinen Schlüssel ein bekommt das Element einen zufälligen Schlüssel.<br>
                             <button class="windowButton" id="insertButton">Insert</button>

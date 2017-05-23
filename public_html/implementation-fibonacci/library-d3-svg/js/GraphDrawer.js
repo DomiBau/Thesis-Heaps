@@ -320,8 +320,6 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
         exitSelection.remove();
 
     };
-
-    //initialize //TODO: is called twice when we init both tabs at the same time
     if(Graph.instance===null){
         //calls registered event listeners when loaded;
         var GRAPH_FILENAME = GRAPH_FILENAME || null;

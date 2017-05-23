@@ -84,8 +84,7 @@ var GraphEditor = function (svgOrigin) {
 
     this.onNodesEntered = function (selection) {
         selection
-                .on("mousedown", mousedownNode)
-                .on("mouseup", mouseupNode);
+                .on("mousedown", mousedownNode);
     };
 
     this.onNodesUpdated = function (selection) {
@@ -93,7 +92,7 @@ var GraphEditor = function (svgOrigin) {
                 .style("cursor", "pointer")
                 .selectAll("circle")
                 .style("stroke", function (d) {
-                    if (d === selectedNode) {
+                    if (d === selectedNode||d.focus) {
                         return const_Colors.NodeBorderHighlight;
                     } else {
                         return global_NodeLayout['borderColor'];
@@ -149,6 +148,7 @@ var GraphEditor = function (svgOrigin) {
             this.changeDescriptWindow(DELETE);
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
+            inAnimation = true;
         } else {
             Graph.instance.removeNode(oldId);
             that.update();
@@ -172,6 +172,7 @@ var GraphEditor = function (svgOrigin) {
             this.changeDescriptWindow(INSERT);
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
+            inAnimation = true;
             Graph.instance.addNode(ele);
         } else {
             Graph.instance.addNode(ele);
@@ -186,6 +187,7 @@ var GraphEditor = function (svgOrigin) {
             d.ele = input.value;
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
+            inAnimation = true;
             if (d.parent) {
                 if (d.parent.ele > d.ele) {
                     this.changeDescriptWindow(CUTOUT);
@@ -207,6 +209,7 @@ var GraphEditor = function (svgOrigin) {
     this.animatedCutOut = function () {
         var newCutOutNode = null;
         if (!cutOutNode) {
+            nextConId = 0;
             this.changeDescriptWindow(CONSOLIDATE);
             return;
         }
@@ -234,19 +237,20 @@ var GraphEditor = function (svgOrigin) {
             this.changeDescriptWindow(FINISHED);
             return;
         }
+        node.focus = true;
         if (conMap.get(node.degree)) {
             combineNodeOne = conMap.get(node.degree);
             combineNodeTwo = node;
             conMap.remove(node.degree);
             this.changeDescriptWindow(COMBINE);
-
         } else {
             conMap.set(node.degree, node);
             nextConId++;
             this.changeDescriptWindow(CONSOLIDATE);
         }
+        Graph.instance.rearrangeNodes();
         that.update();
-
+        node.focus=false;
     };
 
     this.combineNodes = function () {
@@ -256,6 +260,7 @@ var GraphEditor = function (svgOrigin) {
             child = combineNodeTwo;
             parent = combineNodeOne;
         }
+        //console.log("Combining " + child.ele + " and " + parent.ele);
         Graph.instance.mainNodes.splice(Graph.instance.mainNodes.indexOf(child), 1);
         child.parent = parent;
         child.parentsChild = parent.children.length;
@@ -279,14 +284,18 @@ var GraphEditor = function (svgOrigin) {
     };
 
     this.nextOperation = function () {
+        //this.logMainNodes();
         switch (+status) {
             case + FINISHED:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
+                inAnimation = false;
+                conMap = d3.map();
                 break;
             case + INSERT:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
+                inAnimation = false;
                 break;
             case + DELETE:
                 this.addChildrenToMainNodes();
@@ -300,6 +309,7 @@ var GraphEditor = function (svgOrigin) {
             case + DECREASE:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
+                inAnimation = false;
                 break;
             case + COMBINE:
                 this.combineNodes();
@@ -308,6 +318,17 @@ var GraphEditor = function (svgOrigin) {
         that.update();
     };
 
+
+        
+    this.logMainNodes = function () {
+        var nodes = Graph.instance.mainNodes;
+        var str = "["
+        for(var i = 0;i< nodes.length;i++){
+            str+=nodes[i].ele + " ,"
+        }
+        str+="]";
+        console.log(str);
+    };
 
     this.changeAnimated = function () {
         animated = !animated;
@@ -385,14 +406,6 @@ var GraphEditor = function (svgOrigin) {
      * End of mouseclick on a node
      * @method
      */
-    function mouseupNode() {
-        if (selectedNode) {
-            svgOrigin.create();
-        }
-        hasDragged = false;
-        d3.event.stopPropagation(); //we dont want svg to receive the event
-        that.updateNodes();
-    }
 
     function mousedownNode(d, id) {
         if (selectedNode === d) {// Falls wir wieder auf den selben Knoten geklickt haben, hebe Auswahl auf.

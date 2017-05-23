@@ -291,7 +291,6 @@ function initializeSiteLayout(){
    var delBut = document.getElementById('deleteButton');
    delBut.onclick = function(){
        fibonacciHeap.removeSelected();
-       fibonacciHeap.updateArray();
    };
    
    $('#animationCheckBox').change(function (){

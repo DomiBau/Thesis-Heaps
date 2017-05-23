@@ -13,11 +13,12 @@ function GraphEditorTab(algo,p_tab) {
      * Wires up the events on button clicks or selection changes and listens to a Graph change event
      * @method
      */
+    var clicked = false;
     this.init = function() {
         $("#tg_button_gotoAlgorithmTab").click(function() {
             $("#tabs").tabs("option","active",2);
         });
-        $("#tg_select_GraphSelector").on("change.GraphDrawer",that.setGraphHandler);     // Beispielgraph auswählen
+        $("#tg_select_GraphSelector").on("click.GraphDrawer",that.setGraphHandler);     // Beispielgraph auswählen
         
         //add function to be called after a new graph has been loaded.
         Graph.addChangeListener(function(){
@@ -71,13 +72,16 @@ function GraphEditorTab(algo,p_tab) {
      * @method
      */
     this.setGraphHandler = function() {
-        var selection = $("#tg_select_GraphSelector>option:selected").val();
-        var filename = selection + ".txt";
-        //console.log(filename);
+        if(clicked){
+            var selection = $("#tg_select_GraphSelector>option:selected").val();
+            var filename = selection + ".txt";
+            //console.log(filename);
 
-        //load graph as singleton
-        //calls registered event listeners when loaded
-        Graph.loadInstance("graphs-new/"+filename);
+            //load graph as singleton
+            //calls registered event listeners when loaded
+            Graph.loadInstance("graphs-new/"+filename);
+        }
+        clicked = !clicked;
     };
 }
 

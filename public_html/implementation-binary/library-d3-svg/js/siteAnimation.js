@@ -323,7 +323,7 @@ function initializeSiteLayout(){
    
    svgHack();
    svgGraphCanvasDownloadable();
-   binaryHeap.updateArray();
+   //binaryHeap.updateArray();
 }
 
 

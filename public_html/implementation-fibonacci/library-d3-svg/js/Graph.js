@@ -43,7 +43,6 @@ function Graph() {
     this.numMainNodes = 0;
 
     this.minPointer = null;
-
 }
 
 
@@ -66,6 +65,7 @@ Graph.Node = function (x, y, id, ele, parent) {
     this.children = [];
     this.min = false;
     this.isMain = true;
+    this.focus = false;
 
     //outgoing and incoming edges are saved to facilitate handling of vertices in algorithms
     this.outEdges = d3.map();
@@ -524,30 +524,26 @@ Graph.prototype.getEdges = function () {
  */
 Graph.parse = function (text, animated) {
     var graph = new Graph();
+    for(var i = 0; i < 10;i++){
+        graph.updatePotential();
+    }
     var lines = text.split("\n");
     // Nach Zeilen aufteilen
-    if (lines[0].split(" ")[0] === "%") {//files
         for (var line in lines) {
             var s = lines[line].split(" ");
             // Nach Parametern aufteilen
             if (s[0] === "%") { //comment
                 continue;
             }
-            //x y r1 r2 ...
             if (s[0] === "n") {
                 var node = graph.addNode(s[1]);
             }
-            //s t r1 r2 ... 
-            if (s[0] === "e") {
-                //graph.addEdge(s[1], s[2]);
+            if (s[0] === "d") {
+                var min = graph.getMin();
+                graph.removeNode(min.id);
             }
         }
-    } else {//Build
-        var nums = lines[0].split(",");
-        for (var num in nums) {
-            graph.addNode(nums[num]);
-        }
-    }
+    
     if (graph.nodeIds === 0 && graph.edgeIds === 0) {
         throw "parse error";
     }
@@ -602,6 +598,7 @@ Graph.loadInstance = function (filename, exceptionFp, animated) {
     d3.text(filename, function (error, text) {
         Graph.setInstance(error, text, filename, exceptionFp, animated);
     });
+    return true;
 };
 
 

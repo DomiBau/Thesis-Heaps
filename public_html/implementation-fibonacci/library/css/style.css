@@ -54,7 +54,7 @@ h2 {
     font: arial bold;
     font-size: 12px;
     color: #0A5096;
-    line-height: 16px;
+    line-height: 10px;
 }
 
 h3 {
@@ -96,6 +96,16 @@ div.statusWindow {
     padding-right: 15px;
     border: 2px groove #78C8FF;
     overflow: auto;
+}
+
+table.statusWindowTable {
+    
+}
+
+smallHeader {
+    font: arial bold;
+    font-size: 12px;
+    color: #0A5096;
 }
 
 
