@@ -16,7 +16,9 @@ var squeeze = false;
 var lockDistance = false;
 var numOperation = 0;
 var data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];//always holds 11 numbers for the Graph
+var realData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 var funcYRange = 20;
+var func2YRange = 40;
 /**
  * @classdesc
  * Represents a graph.
@@ -200,6 +202,8 @@ Graph.prototype.addNode = function (ele) {
     var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null);
     this.addToMainNodes(node);
     this.nodes.set(node.id, node);
+    realData.push(1);
+    realData.shift();
     this.rearrangeNodes();
     return node;
 };
@@ -216,13 +220,38 @@ Graph.prototype.updatePotential = function () {
 Graph.prototype.updateFunction = function () {
     var str = "";
     var cur = data[0];
-    str += "M " + 20 + "," + (160 - 6.5 * cur) + " ";
-
+    str += "M " + funcSvgMargin.left + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / funcYRange) * cur) + " ";
     for (var i = 1; i <= 10; i++) {
         cur = data[i];
-        str += "L " + (20 + 34 * i) + "," + (160 - 6.5 * cur) + " ";
+        str += "L " + (funcSvgMargin.left + (funcSvgWidth / 10) * i) + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / funcYRange) * cur) + " ";
     }
     d3.select("#functionGraph").attr("d", str);
+
+
+    var thickness = 6;
+    cur = realData[0];
+    var avg = cur;
+    str = "M " + (funcSvgMargin.left - (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight) + " ";
+    str += "L " + (funcSvgMargin.left - (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / func2YRange) * cur) + " ";
+    str += "L " + (funcSvgMargin.left + (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / func2YRange) * cur) + " ";
+    str += "L " + (funcSvgMargin.left + (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight) + " ";
+    for (var i = 1; i <= 10; i++) {
+        cur = realData[i];
+        avg += cur;
+        str += "L " + (funcSvgMargin.left + (funcSvgWidth / 10) * i - (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight) + " ";
+        str += "L " + (funcSvgMargin.left + (funcSvgWidth / 10) * i - (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / func2YRange) * cur) + " ";
+        str += "L " + (funcSvgMargin.left + (funcSvgWidth / 10) * i + (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / func2YRange) * cur) + " ";
+        str += "L " + (funcSvgMargin.left + (funcSvgWidth / 10) * i + (thickness / 2)) + "," + (funcSvgMargin.top + funcSvgHeight) + " ";
+    }
+    d3.select("#realCostGraph").attr("d", str);
+
+
+    avg = avg / 11;
+    str = "M " + funcSvgMargin.left + "," + (funcSvgMargin.top + funcSvgHeight) + " ";
+    str += "L " + funcSvgMargin.left + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / func2YRange) * avg);
+    str += "L " + (funcSvgMargin.left + funcSvgWidth) + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / func2YRange) * avg);
+    str += "L " + (funcSvgMargin.left + funcSvgWidth) + "," + (funcSvgMargin.top + funcSvgHeight) + " ";
+    d3.select("#averageCostGraph").attr("d", str);
 };
 
 
@@ -263,10 +292,17 @@ Graph.prototype.decreaseKey = function (decreaseNode, input) {
     decreaseNode.ele = input.value;
     if (decreaseNode.parent) {
         if (+decreaseNode.ele < +decreaseNode.parent.ele) {
+            realData.push(this.mainNodes.length);
+            realData.shift();
             this.cutOut(decreaseNode);
             this.consolidate();
+        } else {
+            realData.push(1);
+            realData.shift();
         }
     } else {
+        realData.push(1);
+        realData.shift();
         this.updateMinPointer();
     }
 
@@ -286,6 +322,8 @@ Graph.prototype.recoverAllEdges = function () {//add Edge to parent for every No
 };
 
 Graph.prototype.removeNode = function (id) {
+    realData.push(20);//???
+    realData.shift();
     var node = this.nodes.get(id);
     if (node.marked) {
         this.markedNodes--;
@@ -476,10 +514,10 @@ Graph.prototype.rearrangeNodes = function () {
         mainNodeDistance = mainNodeDistance / 2;
         maxMainNodes = Math.floor(700 / mainNodeDistance) * 2;
         this.rearrangeNodes();
-    }else{
+    } else {
         this.updatePotential();
     }
-    
+
 };
 
 
@@ -524,26 +562,25 @@ Graph.prototype.getEdges = function () {
  */
 Graph.parse = function (text, animated) {
     var graph = new Graph();
-    for(var i = 0; i < 10;i++){
-        graph.updatePotential();
-    }
+    realData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     var lines = text.split("\n");
     // Nach Zeilen aufteilen
-        for (var line in lines) {
-            var s = lines[line].split(" ");
-            // Nach Parametern aufteilen
-            if (s[0] === "%") { //comment
-                continue;
-            }
-            if (s[0] === "n") {
-                var node = graph.addNode(s[1]);
-            }
-            if (s[0] === "d") {
-                var min = graph.getMin();
-                graph.removeNode(min.id);
-            }
+    for (var line in lines) {
+        var s = lines[line].split(" ");
+        // Nach Parametern aufteilen
+        if (s[0] === "%") { //comment
+            continue;
         }
-    
+        if (s[0] === "n") {
+            var node = graph.addNode(s[1]);
+        }
+        if (s[0] === "d") {
+            var min = graph.getMin();
+            graph.removeNode(min.id);
+        }
+    }
+
     if (graph.nodeIds === 0 && graph.edgeIds === 0) {
         throw "parse error";
     }

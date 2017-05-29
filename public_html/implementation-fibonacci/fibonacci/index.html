@@ -85,11 +85,11 @@
                                         <line stroke-dasharray="5, 5"              x1="0" y1="29" x2="700" y2="29" />
                                         <line stroke-dasharray="5, 5"              x1="0" y1="238" x2="700" y2="238" />
                                         <style><![CDATA[
-                                        line{
-                                            stroke: black;
-                                            stroke-width: 2;
-                                        }
-                                        ]]></style>
+                                            line{
+                                                stroke: black;
+                                                stroke-width: 2;
+                                            }
+                                            ]]></style>
                                         </svg>
                                         <a class="svgDownloader" download="heap.svg" href="data:text/plain,test">Heap.svg</a>
                                         <div id="DeleteMenu">
@@ -125,23 +125,27 @@
                                 </tr>
                             </table>
                         </div>
-                        
+
                         <div id="tg_div_statusWindow" class="buttonWindow">
-                            <table id="statusWindowTable" align="center" width="300px">
+                            <table id="statusWindowTable" align="center" width="100%">
                                 <tr>
                                     <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Animationen:</span></td>
                                     <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Zurücksetzen auf:</span></td>
+                                    <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Teste Dich:</span></td>
                                 </tr>
                                 <tr>
                                     <td><label class="switch">
-                                        <input type="checkbox" id="animationCheckBox">
-                                        <div class="slider round"></div>
-                                    </label></td>
+                                            <input type="checkbox" id="animationCheckBox">
+                                            <div class="slider round"></div>
+                                        </label></td>
                                     <td><select name="graphSelector" id="tg_select_GraphSelector" style="">
-                                        <option selected label="Vier Einzelne">heap1</option>
-                                        <option label="3 Binomial Heaps">heap2</option>
-                                        <option label="1 Großer Heap">heap3</option>
-                                    </select></td>
+                                            <option selected label="Vier Einzelne">heap1</option>
+                                            <option label="3 Binomial Heaps">heap2</option>
+                                            <option label="1 Großer Heap">heap3</option>
+                                        </select></td>
+                                    <td>
+                                        <button style="width: 90px" id="testYourselfButton">Aufgabe</button>
+                                    </td>
                                 </tr>
                             </table>
                             <h2>Welche Operation möchtest Du durchführen?</h2>
@@ -154,32 +158,29 @@
                             <br><br>
                             Potenzial: <a id="potential"></a><br>
                             <svg class="funtionCanvas" id="tg_canvas_function" width="200" height="100">
-                                <style>
-                                    .line {
-                                      fill: none;
-                                      stroke: steelblue;
-                                      stroke-width: 2px;
-                                    }
-                                    .xAxis path, .xAxis line{
-                                        stroke: black;
-                                        fill: none;
-                                    }
-                                    
-                                    .xAxis path {
-                                        stroke-width: 2px;
-                                    }
-                                    .yAxis path, .yAxis line{
-                                        stroke: black;
-                                        fill: none;
-                                    }
-                                    
-                                    .yAxis path {
-                                        stroke-width: 2px;
-                                    }
-                                    
-                                    
-                                </style>
-                                
+                            <style>
+                                .line {
+                                    fill: none;
+                                    stroke: steelblue;
+                                    stroke-width: 2px;
+                                }
+                                .xAxis path, .xAxis line{
+                                    stroke: black;
+                                    fill: none;
+                                }
+
+                                .xAxis path {
+                                    stroke-width: 2px;
+                                }
+                                .yAxis path, .yAxis line{
+                                    stroke: black;
+                                    fill: none;
+                                }
+
+                                .yAxis path {
+                                    stroke-width: 2px;
+                                }
+                            </style>
                             </svg>
                         </div>
                         <div id="describtionOfOperation" class="buttonWindow" style="display: none">
@@ -187,8 +188,42 @@
                             <div id="secondTest" style="display: none">This is just a second Test!</div>
                             <div id="thirdTest" style="display: none">This is just a third Test!</div>
                             <div id="fourthTest" style="display: none">This is just a fourth Test!</div>
-                            <button class="windowButton" id="nextButton">next</button>
-                            
+                            <table class="descWinTable" align="center" id="descTable">
+                                <tr>
+                                    <th>Grad</th>
+                                    <td>0</td>
+                                    <td>1</td>
+                                    <td>2</td>
+                                    <td>3</td>
+                                    <td>4</td>
+                                    <td>5</td>
+                                    <td>6</td>
+                                    <td>7</td>
+                                    <td>8</td>
+                                </tr>
+                                <tr>
+                                    <th>Element</th>
+                                    <td id="degree0El">-</td>
+                                    <td id="degree1El">-</td>
+                                    <td id="degree2El">-</td>
+                                    <td id="degree3El">-</td>
+                                    <td id="degree4El">-</td>
+                                    <td id="degree5El">-</td>
+                                    <td id="degree6El">-</td>
+                                    <td id="degree7El">-</td>
+                                    <td id="degree8El">-</td>
+                                </tr>
+                            </table>
+                            <button class="windowButton" id="nextButton">Weiter</button>
+                        </div>
+                        <div id="exerciseWindow" class="buttonWindow" style="display:none">
+                            <h2>Die Aufgabe:</h2>
+                            Baue nur mit Delete-Min und Insert Operationen eine lineare Kette mit vier Elementen. Lineare Kette bedeutet, dass es nur einen Heap gibt und in diesem Heap jeder Knoten, bis auf der letzte, genau ein Kind hat.
+                            <br>
+                            <button class="windowButton" id="insertButtonEx">Insert</button>
+                            <input type="number" id="insertNumEx" min="-100" max="100"><br><br>
+                            <button class="windowButton" id="deleteMinButtonEx">Delete-Min</button><br><br>
+                            <button id="quitExButton" class="windowButton">Die Aufgabe aufgeben</button>
                         </div>
                     </div>
                 </div>

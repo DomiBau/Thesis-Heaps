@@ -19,6 +19,7 @@ function GraphEditorTab(algo,p_tab) {
             $("#tabs").tabs("option","active",2);
         });
         $("#tg_select_GraphSelector").on("click.GraphDrawer",that.setGraphHandler);     // Beispielgraph auswählen
+        $("#tg_select_GraphSelector").on("blur.GraphDrawer",function(){clicked = false;});
         
         //add function to be called after a new graph has been loaded.
         Graph.addChangeListener(function(){

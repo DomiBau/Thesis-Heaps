@@ -288,6 +288,21 @@ function initializeSiteLayout(){
        fibonacciHeap.removeMin();
    };
    
+   var exerButton = document.getElementById('testYourselfButton');
+   exerButton.onclick = function () {
+        $('#exerciseWindow').css({'display': "block"});
+        $('#tg_div_statusWindow').css({'display': "none"});
+        $("#DeleteMenu").css({'display': "none"});       
+        Graph.loadInstance("graphs-new/empty.txt");
+   };
+   
+   var quitExButton = document.getElementById('quitExButton');
+   quitExButton.onclick = function () {
+        $('#exerciseWindow').css({'display': "none"});
+        $('#tg_div_statusWindow').css({'display': "block"});
+        Graph.loadInstance("graphs-new/heap1.txt");
+   };
+   
    var delBut = document.getElementById('deleteButton');
    delBut.onclick = function(){
        fibonacciHeap.removeSelected();
@@ -299,6 +314,22 @@ function initializeSiteLayout(){
    
    $("#nextButton").click(function(){
        fibonacciHeap.nextOperation();
+   });
+   
+   $("#insertButtonEx").click(function () {
+        var input = document.getElementById('insertNumEx');
+        input.setAttribute("type","number");
+        if(!input.value){
+            input.value=Math.ceil(Math.random()*100);
+        }
+        fibonacciHeap.insertNode(input.value);
+        input.value="";
+        fibonacciHeap.checkFinished();
+   });
+   
+   $("#deleteMinButtonEx").click(function () {
+       fibonacciHeap.removeMin();
+       fibonacciHeap.checkFinished();
    });
    
    svgHack();

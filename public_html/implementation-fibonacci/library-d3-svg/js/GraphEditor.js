@@ -11,36 +11,53 @@ var nextConId = 0;
 var childrenToAdd = [];
 var animated = false;
 var inAnimation = false;
+var inExercise = false;
 var conMap = d3.map();
 var combineNodeOne = null;
 var combineNodeTwo = null;
+var funcSvgMargin = {top: 30, right: 20, bottom: 30, left: 20};
+var funcSvgWidth = 380 - funcSvgMargin.left - funcSvgMargin.right;
+var funcSvgHeight = 180 - funcSvgMargin.top - funcSvgMargin.bottom;
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
 
     this.type = "GraphEditor";
     
-    var margin = {top: 30, right: 20, bottom: 20, left: 20};
-    var width = 380 - margin.left - margin.right;
-    var height = 180 - margin.top - margin.bottom;
     
     var container = d3.select("#tg_canvas_function")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", funcSvgWidth + funcSvgMargin.left + funcSvgMargin.right)
+        .attr("height", funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom)
+    
+    
+    container.append("path")
+            .attr("id","averageCostGraph")
+            .attr("d","")
+            .attr("stroke","red")
+            .attr("stroke-width","0px")
+            .attr("fill","red");
       
+    container.append("path")
+            .attr("id","realCostGraph")
+            .attr("d","")
+            //.attr("stroke","grey")
+            //.attr("stroke-width","0px")
+            .attr("fill","grey");
+    
+    
       
-    var xAxisScale = d3.scale.linear().domain([0, 10]).range([0, 340]);
+    var xAxisScale = d3.scale.linear().domain([0, 10]).range([0, funcSvgWidth]);
     var xAxis = d3.svg.axis().scale(xAxisScale);
     var xAxisGroup = container.append("g")
             .attr("class","xAxis")
-            .attr("transform", "translate(" + (margin.left) + "," + (height+margin.top) + ")")
+            .attr("transform", "translate(" + (funcSvgMargin.left) + "," + (funcSvgHeight+funcSvgMargin.top) + ")")
             .call(xAxis);
     
-    var yAxisScale = d3.scale.linear().domain([0, funcYRange]).range([130,0]);
+    var yAxisScale = d3.scale.linear().domain([0, funcYRange]).range([120,0]);
     var yAxis = d3.svg.axis().scale(yAxisScale).ticks(5);//.orient("left");
     var yAxisGroup = container.append("g")
             .attr("class","yAxis")
-            .attr("transform", "rotate(90),translate(30,-20)")
+            .attr("transform", "rotate(90),translate("+funcSvgMargin.top+",-" + funcSvgMargin.left + ")")
             .call(yAxis)
             .selectAll("text")
             .style("text-anchor", "end")
@@ -48,23 +65,40 @@ var GraphEditor = function (svgOrigin) {
             .attr("dx","-.6em")
             .attr("dy","-.35em");
     
+    var secYScale = d3.scale.linear().domain([0,func2YRange]).range([120,0]);
+    var secY = d3.svg.axis().scale(secYScale).ticks(5).orient("top");
+    var secYGroup = container.append("g")
+            .attr("class","yAxis")
+            .attr("transform","rotate(90),translate(" + funcSvgMargin.top +", -"+ (funcSvgWidth + funcSvgMargin.left)+ ")")
+            .call(secY)
+            .selectAll("text")
+            .style("text-anchor","front")
+            .attr("transform","rotate(-90)")
+            .attr("dx","1.1em")
+            .attr("dy","1.1em");
+    
     
     container.append("text")
-            .attr("x","33")
-            .attr("y","30")
+            .attr("x",(funcSvgMargin.left+3))
+            .attr("y",(funcSvgMargin.top-5))
             .attr("fill","black")
-            .attr("text-anchor", "middle")
-            .attr("transform","rotate(-20)")
+            .attr("text-anchor", "front")
             .text("Potenzial");
     
     
     container.append("text")
-            .attr("x","360")
-            .attr("y","158")
+            .attr("x",(funcSvgWidth+funcSvgMargin.right+funcSvgMargin.left)/2)
+            .attr("y",(funcSvgHeight+funcSvgMargin.top+funcSvgMargin.bottom))
             .attr("fill","black")
-            .attr("text-anchor", "front")
-            .attr("transform","rotate(-20,360,158)")
+            .attr("text-anchor", "middle")
             .text("Zeit");
+    
+    container.append("text")
+            .attr("x",(funcSvgWidth+funcSvgMargin.left-3))
+            .attr("y",(funcSvgMargin.top-5))
+            .attr("fill","black")
+            .attr("text-anchor", "end")
+            .text("Reelle Kosten");
     
     
     container.append("path")
@@ -242,9 +276,11 @@ var GraphEditor = function (svgOrigin) {
             combineNodeOne = conMap.get(node.degree);
             combineNodeTwo = node;
             conMap.remove(node.degree);
+            document.getElementById("degree" + node.degree + "El").innerHTML = "-";
             this.changeDescriptWindow(COMBINE);
         } else {
             conMap.set(node.degree, node);
+            document.getElementById("degree" + node.degree + "El").innerHTML = node.ele;
             nextConId++;
             this.changeDescriptWindow(CONSOLIDATE);
         }
@@ -273,10 +309,12 @@ var GraphEditor = function (svgOrigin) {
             combineNodeOne = parent;
             combineNodeTwo = conMap.get(parent.degree);
             conMap.remove(parent.degree);
+            document.getElementById("degree" + parent.degree + "El").innerHTML = "-";
             nextConId--;
             this.changeDescriptWindow(COMBINE);
         } else {
             conMap.set(parent.degree, parent);
+            document.getElementById("degree" + parent.degree + "El").innerHTML = parent.ele;
             this.changeDescriptWindow(CONSOLIDATE);
         }
         Graph.instance.rearrangeNodes();
@@ -291,6 +329,10 @@ var GraphEditor = function (svgOrigin) {
                 $('#tg_div_statusWindow').css({'display': "block"});
                 inAnimation = false;
                 conMap = d3.map();
+                for(var i = 0; i<=8; i++){
+                    document.getElementById("degree" + i + "El").innerHTML="-"
+                }
+                document.getElementById("descTable").style="display:none";
                 break;
             case + INSERT:
                 $('#describtionOfOperation').css({'display': "none"});
@@ -349,6 +391,7 @@ var GraphEditor = function (svgOrigin) {
             case + DELETE:
                 break;
             case + CONSOLIDATE:
+                document.getElementById("descTable").style="display:default";
                 break;
             case + CUTOUT:
                 break;
@@ -368,6 +411,17 @@ var GraphEditor = function (svgOrigin) {
         selectNode(node);
         this.removeSelected();
         that.update();
+    };
+    
+    this.checkFinished = function () {
+        var nodes = Graph.instance.mainNodes;
+        var done = true;
+        if(nodes.length>1){
+            done = false;
+        }else if(nodes[0].degree>1){
+            
+        }//TODO
+        
     };
     
 
@@ -393,7 +447,7 @@ var GraphEditor = function (svgOrigin) {
     };
 
     var selectNode = function (selection) {
-        if (!inAnimation) {
+        if (!inAnimation&&!inExercise) {
             selectedNode = selection;
             var x = selectedNode.x + "px";
             var y = selectedNode.y + "px";
