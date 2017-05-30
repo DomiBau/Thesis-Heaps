@@ -142,6 +142,7 @@ Graph.Node.prototype.setCoor = function (that, offset, start) {
     if (+this.children.length > 0) {
         for (var i = 0; i < this.children.length; i++) {
             this.children[i].parentsChild = i;
+            //console.log("Parent: "+ this.ele + "  Child: " + this.children[i].ele);
             newOffset = this.children[i].setCoor(that, newOffset, start);
         }
         newOffset -= 35;
@@ -192,12 +193,17 @@ Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
  * @param ele {Number|String} new element to be inserted
  */
 Graph.prototype.addNode = function (ele) {
+            
     numOperation++;
     if (!ele) {
         ele = Math.ceil(Math.random() * 100);
     }
-    if (this.numMainNodes >= maxMainNodes)//maxMainNodes is max capacity for Main nodes
+    if (this.numMainNodes >= maxMainNodes){//maxMainNodes is max capacity for Main nodes
+        if(inExercise){
+            usedExcerciseOperations--;
+        }
         return;
+    }
     this.numNodes++;
     var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null);
     this.addToMainNodes(node);

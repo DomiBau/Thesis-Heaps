@@ -13,102 +13,105 @@ var animated = false;
 var inAnimation = false;
 var inExercise = false;
 var conMap = d3.map();
+var focusedNode = null;
 var combineNodeOne = null;
 var combineNodeTwo = null;
 var funcSvgMargin = {top: 30, right: 20, bottom: 30, left: 20};
 var funcSvgWidth = 380 - funcSvgMargin.left - funcSvgMargin.right;
 var funcSvgHeight = 180 - funcSvgMargin.top - funcSvgMargin.bottom;
+var usedExcerciseOperations = 0;
+var maxExerciseOperations = 15;
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
 
     this.type = "GraphEditor";
-    
-    
+
+
     var container = d3.select("#tg_canvas_function")
-        .attr("width", funcSvgWidth + funcSvgMargin.left + funcSvgMargin.right)
-        .attr("height", funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom)
-    
-    
+            .attr("width", funcSvgWidth + funcSvgMargin.left + funcSvgMargin.right)
+            .attr("height", funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom)
+
+
     container.append("path")
-            .attr("id","averageCostGraph")
-            .attr("d","")
-            .attr("stroke","red")
-            .attr("stroke-width","0px")
-            .attr("fill","red");
-      
+            .attr("id", "averageCostGraph")
+            .attr("d", "")
+            .attr("stroke", "red")
+            .attr("stroke-width", "0px")
+            .attr("fill", "red");
+
     container.append("path")
-            .attr("id","realCostGraph")
-            .attr("d","")
+            .attr("id", "realCostGraph")
+            .attr("d", "")
             //.attr("stroke","grey")
             //.attr("stroke-width","0px")
-            .attr("fill","grey");
-    
-    
-      
+            .attr("fill", "grey");
+
+
+
     var xAxisScale = d3.scale.linear().domain([0, 10]).range([0, funcSvgWidth]);
     var xAxis = d3.svg.axis().scale(xAxisScale);
     var xAxisGroup = container.append("g")
-            .attr("class","xAxis")
-            .attr("transform", "translate(" + (funcSvgMargin.left) + "," + (funcSvgHeight+funcSvgMargin.top) + ")")
+            .attr("class", "xAxis")
+            .attr("transform", "translate(" + (funcSvgMargin.left) + "," + (funcSvgHeight + funcSvgMargin.top) + ")")
             .call(xAxis);
-    
-    var yAxisScale = d3.scale.linear().domain([0, funcYRange]).range([120,0]);
+
+    var yAxisScale = d3.scale.linear().domain([0, funcYRange]).range([120, 0]);
     var yAxis = d3.svg.axis().scale(yAxisScale).ticks(5);//.orient("left");
     var yAxisGroup = container.append("g")
-            .attr("class","yAxis")
-            .attr("transform", "rotate(90),translate("+funcSvgMargin.top+",-" + funcSvgMargin.left + ")")
+            .attr("class", "yAxis")
+            .attr("transform", "rotate(90),translate(" + funcSvgMargin.top + ",-" + funcSvgMargin.left + ")")
             .call(yAxis)
             .selectAll("text")
             .style("text-anchor", "end")
             .attr("transform", "rotate(-90)")
-            .attr("dx","-.6em")
-            .attr("dy","-.35em");
-    
-    var secYScale = d3.scale.linear().domain([0,func2YRange]).range([120,0]);
+            .attr("dx", "-.6em")
+            .attr("dy", "-.35em");
+
+    var secYScale = d3.scale.linear().domain([0, func2YRange]).range([120, 0]);
     var secY = d3.svg.axis().scale(secYScale).ticks(5).orient("top");
     var secYGroup = container.append("g")
-            .attr("class","yAxis")
-            .attr("transform","rotate(90),translate(" + funcSvgMargin.top +", -"+ (funcSvgWidth + funcSvgMargin.left)+ ")")
+            .attr("class", "yAxis")
+            .attr("transform", "rotate(90),translate(" + funcSvgMargin.top + ", -" + (funcSvgWidth + funcSvgMargin.left) + ")")
             .call(secY)
             .selectAll("text")
-            .style("text-anchor","front")
-            .attr("transform","rotate(-90)")
-            .attr("dx","1.1em")
-            .attr("dy","1.1em");
-    
-    
+            .style("text-anchor", "front")
+            .attr("transform", "rotate(-90)")
+            .attr("dx", "1.1em")
+            .attr("dy", "1.1em");
+
+
     container.append("text")
-            .attr("x",(funcSvgMargin.left+3))
-            .attr("y",(funcSvgMargin.top-5))
-            .attr("fill","black")
+            .attr("x", (funcSvgMargin.left + 3))
+            .attr("y", (funcSvgMargin.top - 5))
+            .attr("fill", "black")
             .attr("text-anchor", "front")
             .text("Potenzial");
-    
-    
+
+
     container.append("text")
-            .attr("x",(funcSvgWidth+funcSvgMargin.right+funcSvgMargin.left)/2)
-            .attr("y",(funcSvgHeight+funcSvgMargin.top+funcSvgMargin.bottom))
-            .attr("fill","black")
+            .attr("x", (funcSvgWidth + funcSvgMargin.right + funcSvgMargin.left) / 2)
+            .attr("y", (funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom))
+            .attr("fill", "black")
             .attr("text-anchor", "middle")
             .text("Zeit");
-    
+
     container.append("text")
-            .attr("x",(funcSvgWidth+funcSvgMargin.left-3))
-            .attr("y",(funcSvgMargin.top-5))
-            .attr("fill","black")
+            .attr("x", (funcSvgWidth + funcSvgMargin.left - 3))
+            .attr("y", (funcSvgMargin.top - 5))
+            .attr("fill", "black")
             .attr("text-anchor", "end")
             .text("Reelle Kosten");
-    
-    
+
+
     container.append("path")
-            .attr("id","functionGraph")
-            .attr("d","")
-            .attr("stroke","#0065BD")
-            .attr("stroke-width","2px")
-            .attr("fill","none");
-    
-    
+            .attr("id", "functionGraph")
+            .attr("d", "")
+            .attr("stroke", "#0065BD")
+            .attr("stroke-width", "2px")
+            .attr("fill", "none");
+
+
     this.svgOrigin
             .on("mousedown", mousedown)
             .on("contextmenu", function (d) {
@@ -126,7 +129,7 @@ var GraphEditor = function (svgOrigin) {
                 .style("cursor", "pointer")
                 .selectAll("circle")
                 .style("stroke", function (d) {
-                    if (d === selectedNode||d.focus) {
+                    if (d === selectedNode || d.focus) {
                         return const_Colors.NodeBorderHighlight;
                     } else {
                         return global_NodeLayout['borderColor'];
@@ -140,19 +143,19 @@ var GraphEditor = function (svgOrigin) {
                     }
                 });
         selection.selectAll(".markerLeft")
-                .attr("d",function(d){
-                    if(d.isMain){
+                .attr("d", function (d) {
+                    if (d.isMain) {
                         return "M -11.5,-0.5 L -24,3.5 L -24,-4.5 Z";
-                    }else{
+                    } else {
                         return "M 0,0 Z";
                     }
                 });
-                
+
         selection.selectAll(".markerRight")
-                .attr("d",function(d){
-                    if(d.isMain){
+                .attr("d", function (d) {
+                    if (d.isMain) {
                         return "M 11.5,-0.5 L 24,3.5 L 24,-4.5 Z";
-                    }else{
+                    } else {
                         return "M 0,0 Z";
                     }
                 });
@@ -202,6 +205,7 @@ var GraphEditor = function (svgOrigin) {
 
     this.insertNode = function (ele) {
         deselectNode();
+        document.getElementById('insertedEl').innerHTML = ele;
         if (animated) {
             this.changeDescriptWindow(INSERT);
             $('#describtionOfOperation').css({'display': "block"});
@@ -252,7 +256,9 @@ var GraphEditor = function (svgOrigin) {
                 newCutOutNode = cutOutNode.parent;
             }
         }
-        Graph.instance.addToMainNodes(cutOutNode);
+        if(!cutOutNode.isMain){
+            Graph.instance.addToMainNodes(cutOutNode);
+        }
         Graph.instance.rearrangeNodes();
         that.update();
         if (newCutOutNode !== null) {
@@ -269,24 +275,34 @@ var GraphEditor = function (svgOrigin) {
         var node = Graph.instance.getIdInMainNodes(nextConId);
         if (!node) {
             this.changeDescriptWindow(FINISHED);
+            focusedNode.focus = false;
+            focusedNode = null;
             return;
         }
         node.focus = true;
+        if(focusedNode){
+            focusedNode.focus = false;
+        }
+        focusedNode = node;
         if (conMap.get(node.degree)) {
             combineNodeOne = conMap.get(node.degree);
             combineNodeTwo = node;
             conMap.remove(node.degree);
-            document.getElementById("degree" + node.degree + "El").innerHTML = "-";
+            if(node.degree<=8){
+                document.getElementById("degree" + node.degree + "El").innerHTML = "-";
+            }
             this.changeDescriptWindow(COMBINE);
         } else {
             conMap.set(node.degree, node);
-            document.getElementById("degree" + node.degree + "El").innerHTML = node.ele;
+            if(node.degree<=8){
+                document.getElementById("degree" + node.degree + "El").innerHTML = node.ele;
+            }
             nextConId++;
             this.changeDescriptWindow(CONSOLIDATE);
         }
         Graph.instance.rearrangeNodes();
         that.update();
-        node.focus=false;
+        //node.focus = false;
     };
 
     this.combineNodes = function () {
@@ -296,7 +312,6 @@ var GraphEditor = function (svgOrigin) {
             child = combineNodeTwo;
             parent = combineNodeOne;
         }
-        //console.log("Combining " + child.ele + " and " + parent.ele);
         Graph.instance.mainNodes.splice(Graph.instance.mainNodes.indexOf(child), 1);
         child.parent = parent;
         child.parentsChild = parent.children.length;
@@ -309,12 +324,16 @@ var GraphEditor = function (svgOrigin) {
             combineNodeOne = parent;
             combineNodeTwo = conMap.get(parent.degree);
             conMap.remove(parent.degree);
-            document.getElementById("degree" + parent.degree + "El").innerHTML = "-";
+            if(parent.degree<=8){
+                document.getElementById("degree" + parent.degree + "El").innerHTML = "-";
+            }
             nextConId--;
             this.changeDescriptWindow(COMBINE);
         } else {
             conMap.set(parent.degree, parent);
-            document.getElementById("degree" + parent.degree + "El").innerHTML = parent.ele;
+            if(parent.degree<=8){
+                document.getElementById("degree" + parent.degree + "El").innerHTML = parent.ele;
+            }
             this.changeDescriptWindow(CONSOLIDATE);
         }
         Graph.instance.rearrangeNodes();
@@ -329,17 +348,21 @@ var GraphEditor = function (svgOrigin) {
                 $('#tg_div_statusWindow').css({'display': "block"});
                 inAnimation = false;
                 conMap = d3.map();
-                for(var i = 0; i<=8; i++){
-                    document.getElementById("degree" + i + "El").innerHTML="-"
+                for (var i = 0; i <= 8; i++) {
+                    document.getElementById("degree" + i + "El").innerHTML = "-"
                 }
-                document.getElementById("descTable").style="display:none";
+                document.getElementById("descTable").style = "display:none";
                 break;
             case + INSERT:
+                $('#insertHeader').css({'display': "none"});
+                $('#insertText').css({'display': "none"});
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 inAnimation = false;
                 break;
             case + DELETE:
+                $('#deleteHeader').css({'display': "none"});
+                $('#deleteText').css({'display': "none"});
                 this.addChildrenToMainNodes();
                 break;
             case + CONSOLIDATE:
@@ -361,14 +384,14 @@ var GraphEditor = function (svgOrigin) {
     };
 
 
-        
+
     this.logMainNodes = function () {
         var nodes = Graph.instance.mainNodes;
         var str = "["
-        for(var i = 0;i< nodes.length;i++){
-            str+=nodes[i].ele + " ,"
+        for (var i = 0; i < nodes.length; i++) {
+            str += nodes[i].ele + " ,"
         }
-        str+="]";
+        str += "]";
         console.log(str);
     };
 
@@ -385,15 +408,19 @@ var GraphEditor = function (svgOrigin) {
                 $('#fourthTest').css({'display': "block"});
                 break;
             case + INSERT:
-                $('#firstTest').css({'display': "none"});
-                $('#secondTest').css({'display': "block"});
+                $('#insertHeader').css({'display': "block"});
+                $('#insertText').css({'display': "block"});
                 break;
             case + DELETE:
+                $('#deleteHeader').css({'display': "block"});
+                $('#deleteText').css({'display': "block"});
                 break;
             case + CONSOLIDATE:
-                document.getElementById("descTable").style="display:default";
+                document.getElementById("descTable").style = "display:default";
                 break;
             case + CUTOUT:
+                $('#cutOutHeader').css({'display': "block"});
+                $('#cutOutText').css({'display': "block"});
                 break;
             case + DECREASE:
                 break;
@@ -412,18 +439,39 @@ var GraphEditor = function (svgOrigin) {
         this.removeSelected();
         that.update();
     };
-    
+
     this.checkFinished = function () {
-        var nodes = Graph.instance.mainNodes;
         var done = true;
-        if(nodes.length>1){
+        var nodes = Graph.instance.mainNodes;
+        if(nodes.length!==1){
             done = false;
-        }else if(nodes[0].degree>1){
-            
-        }//TODO
-        
+        }
+        for(var i = 0; i<3; i++){
+            if(nodes&&nodes.length>0){
+                if(nodes[0].children.length!==1){
+                    done = false;
+                }
+                nodes = nodes[0].children;
+            }else {
+                done = false;
+            }
+        }
+        if(nodes&&nodes.length>0){
+            if(nodes[0].children.length!==0){
+                done = false;
+            }
+        }
+        if(done){
+            $('#exerciseWindow').css({'display': "none"});
+            $('#gratulationWindow').css({'display': "block"});
+        }else 
+        if(+usedExcerciseOperations > +maxExerciseOperations){
+            $('#exerciseWindow').css({'display': "none"});
+            $('#youLostWindow').css({'display': "block"});
+            inAnimation = true;
+        }
     };
-    
+
 
     var that = this;
 
@@ -444,14 +492,21 @@ var GraphEditor = function (svgOrigin) {
         that.svgOrigin.style("cursor", "default");
         that.update();
         $("#DeleteMenu").css({'display': "none"});
+        $("#DeleteMenuEx").css({'display': "none"});
     };
 
     var selectNode = function (selection) {
-        if (!inAnimation&&!inExercise) {
+        if (!inAnimation && !inExercise) {
             selectedNode = selection;
             var x = selectedNode.x + "px";
             var y = selectedNode.y + "px";
             $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"});
+        }
+        if(!inAnimation && inExercise){
+            selectedNode = selection;
+            var x = selectedNode.x + "px";
+            var y = selectedNode.y + "px";
+            $("#DeleteMenuEx").css({'bottom': y, 'left': x, 'display': "inline"});
         }
 
     };

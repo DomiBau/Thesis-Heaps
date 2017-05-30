@@ -98,6 +98,12 @@
                                             <button class="onNodeButtons" id="decreaseButton">Decrease-Key</button>
                                             <input type="number" id="decreaseNum" min="-100" max="100">
                                         </div>
+                                        <div id="DeleteMenuEx" style="display: none">
+                                            <h2 class="DeleteHeader">Delete oder Decrease?</h2>
+                                            <button class="onNodeButtons" id="deleteButtonEx">Delete</button>
+                                            <button class="onNodeButtons" id="decreaseButtonEx">Decrease-Key</button>
+                                            <input type="number" id="decreaseNumEx" min="-100" max="100">
+                                        </div>
                                         <div class="Legende">
                                             <h2 class="LegendeHeader"><button class="LegendeMin"></button> Legende</h2>
                                             <div class="LegendeText">
@@ -184,11 +190,20 @@
                             </svg>
                         </div>
                         <div id="describtionOfOperation" class="buttonWindow" style="display: none">
-                            <div id="firstTest" style="display: block">This is just a Test!</div>
-                            <div id="secondTest" style="display: none">This is just a second Test!</div>
-                            <div id="thirdTest" style="display: none">This is just a third Test!</div>
-                            <div id="fourthTest" style="display: none">This is just a fourth Test!</div>
-                            <table class="descWinTable" align="center" id="descTable">
+                            <div id="insertHeader" style="display: none"><h3>Insert</h3></div>
+                            <div id="deleteHeader" style="display: none"><h3>Delete</h3></div>
+                            <div id="deleteMinHeader" style="display: none"><h3>Delete-Min</h3></div>
+                            <div id="decreaseHeader" style="display: none"><h3>Decrease-Key</h3></div>
+                            <div id="cutOutHeader" style="display: none"><h3>Ausschneiden</h3></div>
+                            <div id="consolidateHeader" style="display: none"><h3>Consolidate</h3></div>
+                            <div id="insertText" style="display: none">Dein Element mit dem Schlüssel <span id="insertedEl"></span> wurde in die Liste der Heaps als einzelner Heap eingefügt. Es muss nichts weiter gemacht werden.</div>
+                            <div id="deleteText" style="display: none">Das Element wurde bereits aus der Grafik gelöscht. Falls das Element ein Knoten über sich hatte, welcher nicht der oberste Knoten im Heap war, wurde dieser markiert, oder wird im Folgenden ausgeschnitten. Als nächster Schritt werden (wenn vorhanden) die Kinder des gelöschten Knoten in die Liste der Heaps eingefügt. Anschließend wird noch ein Consolidate durchgeführt.</div>
+                            <div id="deleteMinText" style="display: none">Das kleinste Element wurde bereits aus der Grafik gelöscht. Im Folgenden werden die Kinder des gelöschten Element in die Liste der Heaps eingefügt. Zur Fertigstellung der </div>
+                            <div id="decreaseText" style="display: none">This is just a fourth Test!</div>
+                            <div id="cutOutText" style="display: none">Da das Element über dem entfernten Element markiert war wird es ausgeschnitten. Das bedeutet, dass das Element von seinem parent getrennt und in die Liste der Heaps eingefügt wird. Dieser Prozess führt sich nach oben fort bis man entweder bei der Wurzel des Heaps, oder man bei einem unmarkierten Knoten angekommen ist. Dieser unmarkierte Knoten wird, falls es sich nicht um die Wurzel handelt, markiert.</div>
+                            <div id="consolidateText" style="display: none">This is just a fourth Test!</div>
+                            <br><br>
+                            <table class="descWinTable" align="center" id="descTable" style="display: none"  width="80%">
                                 <tr>
                                     <th>Grad</th>
                                     <td>0</td>
@@ -214,16 +229,37 @@
                                     <td id="degree8El">-</td>
                                 </tr>
                             </table>
+                            <div id="combineHeader" style="display: none"><h3>Kombinieren</h3></div>
+                            <div id="combineText" style="display: none">This is just a fourth Test!</div>
+                            <div id="doneHeader" style="display: none"><h3>Fertig</h3></div>
+                            <br>
+                            <br>
                             <button class="windowButton" id="nextButton">Weiter</button>
                         </div>
                         <div id="exerciseWindow" class="buttonWindow" style="display:none">
                             <h2>Die Aufgabe:</h2>
-                            Baue nur mit Delete-Min und Insert Operationen eine lineare Kette mit vier Elementen. Lineare Kette bedeutet, dass es nur einen Heap gibt und in diesem Heap jeder Knoten, bis auf der letzte, genau ein Kind hat.
-                            <br>
+                            Baue eine lineare Kette mit vier Elementen mit weniger als <span id="maxExOp"></span> Operationen. Lineare Kette bedeutet, dass es nur einen Heap gibt und in diesem Heap jeder Knoten, bis auf der letzte (unterste), genau ein Kind hat. Der letzte Knoten hat kein Kind mehr.
+                            <br><br>
                             <button class="windowButton" id="insertButtonEx">Insert</button>
                             <input type="number" id="insertNumEx" min="-100" max="100"><br><br>
                             <button class="windowButton" id="deleteMinButtonEx">Delete-Min</button><br><br>
+                            <br>
+                            Anzahl genutzer Operationen: <span id="numUsedOpEx">0</span>
+                            <br><br>
+                            <button id="resetExButton" class="windowButton">Zurücksetzen</button>
                             <button id="quitExButton" class="windowButton">Die Aufgabe aufgeben</button>
+                            <br>
+                            Eine mögliche Lösung der Aufgabe kann im Reiter "Weiteres" gefunden werden.
+                        </div>
+                        <div id="gratulationWindow" class="buttonWindow" style="display:none">
+                            <h2>Glückwunsch du hast die Aufgabe geschafft!</h2>
+                            <button class="windowButton" id="backToEx">Zurück zur Aufgabe</button>
+                            <button class="windowButton" id="backToTest">Zurück zum Testen</button>
+                        </div>
+                        <div id="youLostWindow" class="buttonWindow" style="display:none">
+                            <h2>Du hast leider schon zu viele Operationen gebraucht!</h2>
+                            <button class="windowButton" id="backToEx2">Zurück zur Aufgabe</button>
+                            <button class="windowButton" id="backToTest2">Zurück zum Testen</button>
                         </div>
                     </div>
                 </div>
@@ -266,9 +302,25 @@
                             <div id=tw_div_statusPseudocode>
                             </div>
                         </div>
-                        <h3>Anything else?</h3>
+                        <h3>Lösung der Aufgabe</h3>
                         <div>
-                            here?
+                            Eine mögliche Lösung der Aufgabe ist:<br>
+                            Insert 100;
+                            Insert 99;
+                            Insert 0;
+                            Delete-Min;
+                            Insert 98;
+                            Insert 97;
+                            Insert 0;
+                            Delete-Min;
+                            Delete 98;
+                            Insert 96;
+                            Insert 95;
+                            Insert 0;
+                            Delete-Min;
+                            Delete 96;<br>
+                            Eine Abfolge von 3 mal Insert, Delete-Min und einer Delete Operation kann als Erweiterung der bereits bestehenden linearen Kette um ein Element gesehen werden. Im Folgenden wird zu dieser Abfolge nur Erweiterung gesagt.
+                            Die Delete-Min Funktion löscht hierbei also immer die 0 und löst die Consolidate-Funktion aus. Es werden immer die Elemente mit Grad 0 verkettet und darauf hin die beiden Heaps mit Grad 1 kombiniert. Durch das löschen des wegstehenden Elements, bekommt man eine lineare Kette. Wichtig hierbei ist es, dass man mindestens 2 kleinere Elemente, als das kleinste Element in der linearen Kette pro Erweiterung einfügt. Dadurch ist gesichert, dass die bestehende lineare Kette an die neue 2 Elemente-Kette angehängt wird und nicht andersrum. Sonst würde sich die lineare Kette nicht verlängern.
                         </div>
                         <h3>Binary Heaps</h3>
                         <div>
