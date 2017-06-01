@@ -208,9 +208,11 @@ Graph.prototype.addNode = function (ele) {
     var node = new Graph.Node(-10, 550, this.nodeIds++, ele, null);
     this.addToMainNodes(node);
     this.nodes.set(node.id, node);
-    realData.push(1);
+    realData.push(realCurCost);
     realData.shift();
+    realCurCost = 0;
     this.rearrangeNodes();
+    this.updatePotential();
     return node;
 };
 
@@ -298,20 +300,24 @@ Graph.prototype.decreaseKey = function (decreaseNode, input) {
     decreaseNode.ele = input.value;
     if (decreaseNode.parent) {
         if (+decreaseNode.ele < +decreaseNode.parent.ele) {
-            realData.push(this.mainNodes.length);
-            realData.shift();
+            realCurCost++;
             this.cutOut(decreaseNode);
             this.consolidate();
+            realData.push(realCurCost);
+            realData.shift();
+            realCurCost = 0;
         } else {
             realData.push(1);
             realData.shift();
+            realCurCost = 0;
         }
     } else {
         realData.push(1);
         realData.shift();
+        realCurCost = 0;
         this.updateMinPointer();
     }
-
+    this.updatePotential();
 };
 
 Graph.prototype.recoverEdges = function (node) {
@@ -328,8 +334,7 @@ Graph.prototype.recoverAllEdges = function () {//add Edge to parent for every No
 };
 
 Graph.prototype.removeNode = function (id) {
-    realData.push(20);//???
-    realData.shift();
+    realCurCost++;
     var node = this.nodes.get(id);
     if (node.marked) {
         this.markedNodes--;
@@ -361,6 +366,10 @@ Graph.prototype.removeNode = function (id) {
     }
     this.numNodes--;
     this.consolidate();
+    realData.push(realCurCost);
+    realData.shift();
+    realCurCost = 0;
+    this.updatePotential();
     return node;
 };
 
@@ -401,6 +410,7 @@ var consLength = 0;
 Graph.prototype.consolidate = function () {
     var map = d3.map();
     consLength = this.mainNodes.length;
+    realCurCost += consLength;
     consCount = 0;
     while (consCount < consLength) {
         var curNode = this.mainNodes[consCount];
@@ -444,6 +454,7 @@ Graph.prototype.addChildToParent = function (child, parent) {
 
 
 Graph.prototype.addToMainNodes = function (node) {
+    realCurCost++;
     if (node.parent) {
         var index = node.parent.children.indexOf(node);
         node.parent.children.splice(index, 1);
@@ -521,7 +532,6 @@ Graph.prototype.rearrangeNodes = function () {
         maxMainNodes = Math.floor(700 / mainNodeDistance) * 2;
         this.rearrangeNodes();
     } else {
-        this.updatePotential();
     }
 
 };

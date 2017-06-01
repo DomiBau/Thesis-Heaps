@@ -21,6 +21,7 @@ var funcSvgWidth = 380 - funcSvgMargin.left - funcSvgMargin.right;
 var funcSvgHeight = 180 - funcSvgMargin.top - funcSvgMargin.bottom;
 var usedExcerciseOperations = 0;
 var maxExerciseOperations = 15;
+var realCurCost = 0;
 
 var GraphEditor = function (svgOrigin) {
     GraphDrawer.call(this, svgOrigin, null, 0);
@@ -38,14 +39,14 @@ var GraphEditor = function (svgOrigin) {
             .attr("d", "")
             .attr("stroke", "red")
             .attr("stroke-width", "0px")
-            .attr("fill", "red");
+            .attr("fill", "#C4071B");
 
     container.append("path")
             .attr("id", "realCostGraph")
             .attr("d", "")
             //.attr("stroke","grey")
             //.attr("stroke-width","0px")
-            .attr("fill", "grey");
+            .attr("fill", "#00c532");
 
 
 
@@ -181,6 +182,7 @@ var GraphEditor = function (svgOrigin) {
             childrenToAdd = d.children;
             cutOutNode = d.parent;
             Graph.instance.onlyRemoveNode(d);
+            realCurCost++;
             that.update();
             this.changeDescriptWindow(DELETE);
             $('#describtionOfOperation').css({'display': "block"});
@@ -227,11 +229,11 @@ var GraphEditor = function (svgOrigin) {
             $('#tg_div_statusWindow').css({'display': "none"});
             inAnimation = true;
             if (d.parent) {
-                if (d.parent.ele > d.ele) {
+                if (+d.parent.ele > +d.ele) {
+                    d.marked = true;
                     this.changeDescriptWindow(CUTOUT);
                     cutOutNode = d;
                 } else {
-                    d.parent.marked = true;
                     this.changeDescriptWindow(DECREASE);
                 }
             } else {
@@ -249,16 +251,21 @@ var GraphEditor = function (svgOrigin) {
         if (!cutOutNode) {
             nextConId = 0;
             this.changeDescriptWindow(CONSOLIDATE);
+            realCurCost += Graph.instance.mainNodes.length;
             return;
         }
-        if (cutOutNode.parent) {
-            if (cutOutNode.parent.marked) {
+        if (cutOutNode.marked) {
+            if (cutOutNode.parent) {
                 newCutOutNode = cutOutNode.parent;
             }
+            if (!cutOutNode.isMain && cutOutNode) {
+                Graph.instance.addToMainNodes(cutOutNode);
+            }
+        } else if (!cutOutNode.isMain) {
+            cutOutNode.marked = true;
+            realCurCost++;
         }
-        if(!cutOutNode.isMain){
-            Graph.instance.addToMainNodes(cutOutNode);
-        }
+
         Graph.instance.rearrangeNodes();
         that.update();
         if (newCutOutNode !== null) {
@@ -267,6 +274,7 @@ var GraphEditor = function (svgOrigin) {
         } else {
             nextConId = 0;
             this.changeDescriptWindow(CONSOLIDATE);
+            realCurCost += Graph.instance.mainNodes.length;
         }
     };
 
@@ -280,7 +288,7 @@ var GraphEditor = function (svgOrigin) {
             return;
         }
         node.focus = true;
-        if(focusedNode){
+        if (focusedNode) {
             focusedNode.focus = false;
         }
         focusedNode = node;
@@ -288,13 +296,13 @@ var GraphEditor = function (svgOrigin) {
             combineNodeOne = conMap.get(node.degree);
             combineNodeTwo = node;
             conMap.remove(node.degree);
-            if(node.degree<=8){
+            if (node.degree <= 8) {
                 document.getElementById("degree" + node.degree + "El").innerHTML = "-";
             }
             this.changeDescriptWindow(COMBINE);
         } else {
             conMap.set(node.degree, node);
-            if(node.degree<=8){
+            if (node.degree <= 8) {
                 document.getElementById("degree" + node.degree + "El").innerHTML = node.ele;
             }
             nextConId++;
@@ -324,14 +332,14 @@ var GraphEditor = function (svgOrigin) {
             combineNodeOne = parent;
             combineNodeTwo = conMap.get(parent.degree);
             conMap.remove(parent.degree);
-            if(parent.degree<=8){
+            if (parent.degree <= 8) {
                 document.getElementById("degree" + parent.degree + "El").innerHTML = "-";
             }
             nextConId--;
             this.changeDescriptWindow(COMBINE);
         } else {
             conMap.set(parent.degree, parent);
-            if(parent.degree<=8){
+            if (parent.degree <= 8) {
                 document.getElementById("degree" + parent.degree + "El").innerHTML = parent.ele;
             }
             this.changeDescriptWindow(CONSOLIDATE);
@@ -352,12 +360,17 @@ var GraphEditor = function (svgOrigin) {
                     document.getElementById("degree" + i + "El").innerHTML = "-"
                 }
                 document.getElementById("descTable").style = "display:none";
+                realData.push(realCurCost);
+                realData.shift();
+                realCurCost = 0;
+                Graph.instance.updatePotential();
                 break;
             case + INSERT:
                 $('#insertHeader').css({'display': "none"});
                 $('#insertText').css({'display': "none"});
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
+
                 inAnimation = false;
                 break;
             case + DELETE:
@@ -374,6 +387,10 @@ var GraphEditor = function (svgOrigin) {
             case + DECREASE:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
+                realData.push(realCurCost);
+                realData.shift();
+                realCurCost = 0;
+                Graph.instance.updatePotential();
                 inAnimation = false;
                 break;
             case + COMBINE:
@@ -443,29 +460,29 @@ var GraphEditor = function (svgOrigin) {
     this.checkFinished = function () {
         var done = true;
         var nodes = Graph.instance.mainNodes;
-        if(nodes.length!==1){
+        if (nodes.length !== 1) {
             done = false;
         }
-        for(var i = 0; i<3; i++){
-            if(nodes&&nodes.length>0){
-                if(nodes[0].children.length!==1){
+        for (var i = 0; i < 3; i++) {
+            if (nodes && nodes.length > 0) {
+                if (nodes[0].children.length !== 1 || nodes[0].marked) {
                     done = false;
                 }
                 nodes = nodes[0].children;
-            }else {
+            } else {
                 done = false;
             }
         }
-        if(nodes&&nodes.length>0){
-            if(nodes[0].children.length!==0){
+        if (nodes && nodes.length > 0) {
+            if (nodes[0].children.length !== 0 || nodes[0].marked) {
                 done = false;
             }
         }
-        if(done){
+        if (done) {
             $('#exerciseWindow').css({'display': "none"});
             $('#gratulationWindow').css({'display': "block"});
-        }else 
-        if(+usedExcerciseOperations > +maxExerciseOperations){
+        } else
+        if (+usedExcerciseOperations > +maxExerciseOperations) {
             $('#exerciseWindow').css({'display': "none"});
             $('#youLostWindow').css({'display': "block"});
             inAnimation = true;
@@ -502,7 +519,7 @@ var GraphEditor = function (svgOrigin) {
             var y = selectedNode.y + "px";
             $("#DeleteMenu").css({'bottom': y, 'left': x, 'display': "inline"});
         }
-        if(!inAnimation && inExercise){
+        if (!inAnimation && inExercise) {
             selectedNode = selection;
             var x = selectedNode.x + "px";
             var y = selectedNode.y + "px";
