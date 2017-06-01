@@ -45,14 +45,6 @@ function GraphEditorTab(algo,p_tab) {
             }
         }); 
 
-        $('#fileUploader').on('change',function(ev){
-            Graph.handleFileSelect(ev,function(errCode,errDescription,filename){
-                    $('#ta_div_parseError').dialog("open");
-                    $('#ta_div_parseErrorText').text(errCode);
-                    $('#ta_div_parseErrorFilename').text(filename);
-                    $('#ta_div_parseErrorDescription').text(errDescription);
-            })
-        });
         
         //inheritance
         Tab.prototype.init.call(this);

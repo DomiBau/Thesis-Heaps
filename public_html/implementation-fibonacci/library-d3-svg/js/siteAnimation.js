@@ -1,4 +1,5 @@
-var graphEditorTab = null, algorithmTab = null;
+var graphEditorTab = null, exerciseTab = null;
+var fibonacciHeap = null; var fibonacciHeapEx = null;
 
 function svgHack() {
 //add arrowhead
@@ -29,26 +30,87 @@ function svgHack() {
             .attr("d", "M 0,0 V 8 L12,4 Z"); //this is actual shape for arrowhead
 
 
+    var container = d3.select("#tg_canvas_function")
+            .attr("width", funcSvgWidth + funcSvgMargin.left + funcSvgMargin.right)
+            .attr("height", funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom)
 
-    // TODO: regenerate SVG's with correctly embedded css so we don't need to 
-    // replace img with svg anymore http://www.mediaevent.de/svg-in-html-seiten/
-    if (!isDebug()) {
-        var imgs = d3.selectAll("img");
-        imgs.attr("src", function (a, b, c) {
-            var src = this.src;
-            var selection = d3.select(this);
-            if (src.indexOf(".svg") == src.length - 4) {
-                d3.text(src, function (error, text) {
-                    var parent = d3.select(selection.node().parentNode)
-                    parent.insert("span", "img").html(text);
-                    var newSVGElem = parent.select("span").select("svg");
-                    newSVGElem.attr("class", "svgText");
-                    selection.remove();
-                });
-            }
-            return src;
-        })
-    }
+
+    container.append("path")
+            .attr("id", "averageCostGraph")
+            .attr("d", "")
+            .attr("stroke", "red")
+            .attr("stroke-width", "0px")
+            .attr("fill", "#C4071B");
+
+    container.append("path")
+            .attr("id", "realCostGraph")
+            .attr("d", "")
+            .attr("fill", "#00c532");
+
+
+
+    var xAxisScale = d3.scale.linear().domain([0, 10]).range([0, funcSvgWidth]);
+    var xAxis = d3.svg.axis().scale(xAxisScale);
+    var xAxisGroup = container.append("g")
+            .attr("class", "xAxis")
+            .attr("transform", "translate(" + (funcSvgMargin.left) + "," + (funcSvgHeight + funcSvgMargin.top) + ")")
+            .call(xAxis);
+
+    var yAxisScale = d3.scale.linear().domain([0, funcYRange]).range([120, 0]);
+    var yAxis = d3.svg.axis().scale(yAxisScale).ticks(5);//.orient("left");
+    var yAxisGroup = container.append("g")
+            .attr("class", "yAxis")
+            .attr("transform", "rotate(90),translate(" + funcSvgMargin.top + ",-" + funcSvgMargin.left + ")")
+            .call(yAxis)
+            .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .attr("dx", "-.6em")
+            .attr("dy", "-.35em");
+
+    var secYScale = d3.scale.linear().domain([0, func2YRange]).range([120, 0]);
+    var secY = d3.svg.axis().scale(secYScale).ticks(5).orient("top");
+    var secYGroup = container.append("g")
+            .attr("class", "yAxis")
+            .attr("transform", "rotate(90),translate(" + funcSvgMargin.top + ", -" + (funcSvgWidth + funcSvgMargin.left) + ")")
+            .call(secY)
+            .selectAll("text")
+            .style("text-anchor", "front")
+            .attr("transform", "rotate(-90)")
+            .attr("dx", "1.1em")
+            .attr("dy", "1.1em");
+
+
+    container.append("text")
+            .attr("x", (funcSvgMargin.left + 3))
+            .attr("y", (funcSvgMargin.top - 5))
+            .attr("fill", "black")
+            .attr("text-anchor", "front")
+            .text("Potenzial");
+
+
+    container.append("text")
+            .attr("x", (funcSvgWidth + funcSvgMargin.right + funcSvgMargin.left) / 2)
+            .attr("y", (funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom))
+            .attr("fill", "black")
+            .attr("text-anchor", "middle")
+            .text("Zeit");
+
+    container.append("text")
+            .attr("x", (funcSvgWidth + funcSvgMargin.left - 3))
+            .attr("y", (funcSvgMargin.top - 5))
+            .attr("fill", "black")
+            .attr("text-anchor", "end")
+            .text("Reelle Kosten");
+
+
+    container.append("path")
+            .attr("id", "functionGraph")
+            .attr("d", "")
+            .attr("stroke", "#0065BD")
+            .attr("stroke-width", "2px")
+            .attr("fill", "none");
+
 }
 
 
@@ -238,13 +300,7 @@ function initializeSiteLayout() {
         $("#tabs").tabs("option", "active", 1);
     });
     $("#te_button_gotoIdee").click(function () {
-        $("#tabs").tabs("option", "active", 2);
-    });
-    $("#ti_button_gotoDrawGraph").click(function () {
-        $("#tabs").tabs("option", "active", 1);
-    });
-    $("#ti_button_gotoAlgorithm").click(function () {
-        $("#tabs").tabs("option", "active", 1);
+        $("#tabs").tabs("option", "active", 3);
     });
     $("#tw_Accordion").accordion({heightStyle: "content"});
 
@@ -252,6 +308,12 @@ function initializeSiteLayout() {
     fibonacciHeap = new GraphEditor(d3.select("#tg_canvas_graph"));
     graphEditorTab = new GraphEditorTab(fibonacciHeap, $("#tab_tg"));
     graphEditorTab.init();
+    
+    fibonacciHeapEx = new GraphEditor(d3.select("#ta_canvas_graph"));
+    exerciseTab = new ExerciseTab(fibonacciHeapEx, $("#tab_ta"));
+    exerciseTab.init();
+    
+    
 
 
 
@@ -260,17 +322,25 @@ function initializeSiteLayout() {
             var id = ui.oldPanel[0].id;
             if (id == "tab_tg") { /** graph editor tab */
                 graphEditorTab.deactivate();
-            }/*else if(id == "tab_ta") { 
-             algorithmTab.deactivate();
-             }*/
+            }else if(id == "tab_ta") {
+                inExercise = false;
+                exerciseTab.deactivate();
+            }
         },
         activate: function (event, ui) {
             var id = ui.newPanel[0].id;
             if (id == "tab_tg") {
+                Graph.loadInstance("graphs-new/"+"heap1.txt");
                 graphEditorTab.activate();
-            }/* else if(id == "tab_ta") {
-             algorithmTab.activate();
-             }*/
+                
+            } else if(id == "tab_ta") {
+                usedExcerciseOperations = 0;
+                document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
+                $("#DeleteMenuEx").css({'display': "none"});
+                Graph.loadInstance("graphs-new/empty.txt");
+                inExercise = true;
+                exerciseTab.activate();
+            }
         }
     });
 
@@ -286,8 +356,7 @@ function initializeSiteLayout() {
     });
 
 
-    var insertBut = document.getElementById('insertButton');
-    insertBut.onclick = function () {
+    $('#insertButton').click(function(){
         var input = document.getElementById('insertNum');
         input.setAttribute("type", "number");
         if (!input.value) {
@@ -295,39 +364,25 @@ function initializeSiteLayout() {
         }
         fibonacciHeap.insertNode(input.value);
         input.value = "";
-    };
+    });
 
-    var delMinBut = document.getElementById('deleteMinButton');
-    delMinBut.onclick = function () {
+    $('#deleteMinButton').click(function(){
         fibonacciHeap.removeMin();
-    };
-
-    var exerButton = document.getElementById('testYourselfButton');
-    exerButton.onclick = function () {
+    });
+    
+    $('#testYourselfButton').click(function(){
         if(document.getElementById('animationCheckBox').checked){
             fibonacciHeap.changeAnimated();
             document.getElementById('animationCheckBox').checked = false;
         }
-        $('#exerciseWindow').css({'display': "block"});
-        $('#tg_div_statusWindow').css({'display': "none"});
         $("#DeleteMenu").css({'display': "none"});
-        Graph.loadInstance("graphs-new/empty.txt");
-        inExercise = true;
-    };
+        $("#tabs").tabs("option", "active", 2);
+    });
 
-    var quitExButton = document.getElementById('quitExButton');
-    quitExButton.onclick = function () {
-        $('#exerciseWindow').css({'display': "none"});
-        $('#tg_div_statusWindow').css({'display': "block"});
-        Graph.loadInstance("graphs-new/heap1.txt");
-        $("#DeleteMenuEx").css({'display': "none"});
-        inExercise = false;
-    };
-
-    var delBut = document.getElementById('deleteButton');
-    delBut.onclick = function () {
+    
+    $('#deleteButton').click(function(){
         fibonacciHeap.removeSelected();
-    };
+    });
 
     $('#animationCheckBox').change(function () {
         fibonacciHeap.changeAnimated();
@@ -343,34 +398,32 @@ function initializeSiteLayout() {
         if (!input.value) {
             input.value = Math.ceil(Math.random() * 100);
         }
-        fibonacciHeap.insertNode(input.value);
+        fibonacciHeapEx.insertNode(input.value);
         input.value = "";
         usedExcerciseOperations++;
         document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
-        fibonacciHeap.checkFinished();
+        fibonacciHeapEx.checkFinished();
     });
 
     $("#deleteMinButtonEx").click(function () {
-        fibonacciHeap.removeMin();
+        fibonacciHeapEx.removeMin();
         usedExcerciseOperations++;
         document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
-        fibonacciHeap.checkFinished();
+        fibonacciHeapEx.checkFinished();
     });
 
     $("#backToTest").click(function () {
         $('#gratulationWindow').css({'display': "none"});
-        $('#tg_div_statusWindow').css({'display': "block"});
-        Graph.loadInstance("graphs-new/heap1.txt");
+        $('#exerciseWindow').css({'display': "block"});
         $("#DeleteMenuEx").css({'display': "none"});
-        inExercise = false;
+        $("#tabs").tabs("option", "active", 1);
     });
     
     $("#backToTest2").click(function () {
         $('#youLostWindow').css({'display': "none"});
-        $('#tg_div_statusWindow').css({'display': "block"});
-        Graph.loadInstance("graphs-new/heap1.txt");
-        inExercise = false;
-        inAnimation = false;
+        $('#exerciseWindow').css({'display': "block"});
+        $("#DeleteMenuEx").css({'display': "none"});
+        $("#tabs").tabs("option", "active", 1);
     });
     
     $("#backToEx").click(function () {
@@ -388,29 +441,29 @@ function initializeSiteLayout() {
     });
     
     $('#deleteButtonEx').click(function () {
-        fibonacciHeap.removeSelected();
+        fibonacciHeapEx.removeSelected();
         usedExcerciseOperations++;
         document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
-        fibonacciHeap.checkFinished();
+        fibonacciHeapEx.checkFinished();
     });
     
     $('#decreaseButtonEx').click(function () {
-        var decreaseNode = fibonacciHeap.getSelectedNode();
+        var decreaseNode = fibonacciHeapEx.getSelectedNode();
         var input = document.getElementById('decreaseNumEx');
         input.setAttribute("type", "number");
         if (input.value && +input.value < +decreaseNode.ele) {
-            fibonacciHeap.decreaseKey(input);
+            fibonacciHeapEx.decreaseKey(input);
             usedExcerciseOperations++;
         }
         input.value = "";
         document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
-        fibonacciHeap.checkFinished();
+        fibonacciHeapEx.checkFinished();
     });
     
     $('#resetExButton').click(function () {
         usedExcerciseOperations = 0;
         document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
-        $("#DeleteMenu").css({'display': "none"});
+        $("#DeleteMenuEx").css({'display': "none"});
         Graph.loadInstance("graphs-new/empty.txt");
     });
     
@@ -456,11 +509,10 @@ $(function () {
  "classes": "mm-light",
  });
  });
- */
 
 function isDebug() {
     if (getUrlVars()["debug"] == "true") {
         return true;
     }
     return false;
-}
+}*/

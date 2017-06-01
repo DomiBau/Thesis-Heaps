@@ -29,89 +29,6 @@ var GraphEditor = function (svgOrigin) {
     this.type = "GraphEditor";
 
 
-    var container = d3.select("#tg_canvas_function")
-            .attr("width", funcSvgWidth + funcSvgMargin.left + funcSvgMargin.right)
-            .attr("height", funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom)
-
-
-    container.append("path")
-            .attr("id", "averageCostGraph")
-            .attr("d", "")
-            .attr("stroke", "red")
-            .attr("stroke-width", "0px")
-            .attr("fill", "#C4071B");
-
-    container.append("path")
-            .attr("id", "realCostGraph")
-            .attr("d", "")
-            //.attr("stroke","grey")
-            //.attr("stroke-width","0px")
-            .attr("fill", "#00c532");
-
-
-
-    var xAxisScale = d3.scale.linear().domain([0, 10]).range([0, funcSvgWidth]);
-    var xAxis = d3.svg.axis().scale(xAxisScale);
-    var xAxisGroup = container.append("g")
-            .attr("class", "xAxis")
-            .attr("transform", "translate(" + (funcSvgMargin.left) + "," + (funcSvgHeight + funcSvgMargin.top) + ")")
-            .call(xAxis);
-
-    var yAxisScale = d3.scale.linear().domain([0, funcYRange]).range([120, 0]);
-    var yAxis = d3.svg.axis().scale(yAxisScale).ticks(5);//.orient("left");
-    var yAxisGroup = container.append("g")
-            .attr("class", "yAxis")
-            .attr("transform", "rotate(90),translate(" + funcSvgMargin.top + ",-" + funcSvgMargin.left + ")")
-            .call(yAxis)
-            .selectAll("text")
-            .style("text-anchor", "end")
-            .attr("transform", "rotate(-90)")
-            .attr("dx", "-.6em")
-            .attr("dy", "-.35em");
-
-    var secYScale = d3.scale.linear().domain([0, func2YRange]).range([120, 0]);
-    var secY = d3.svg.axis().scale(secYScale).ticks(5).orient("top");
-    var secYGroup = container.append("g")
-            .attr("class", "yAxis")
-            .attr("transform", "rotate(90),translate(" + funcSvgMargin.top + ", -" + (funcSvgWidth + funcSvgMargin.left) + ")")
-            .call(secY)
-            .selectAll("text")
-            .style("text-anchor", "front")
-            .attr("transform", "rotate(-90)")
-            .attr("dx", "1.1em")
-            .attr("dy", "1.1em");
-
-
-    container.append("text")
-            .attr("x", (funcSvgMargin.left + 3))
-            .attr("y", (funcSvgMargin.top - 5))
-            .attr("fill", "black")
-            .attr("text-anchor", "front")
-            .text("Potenzial");
-
-
-    container.append("text")
-            .attr("x", (funcSvgWidth + funcSvgMargin.right + funcSvgMargin.left) / 2)
-            .attr("y", (funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom))
-            .attr("fill", "black")
-            .attr("text-anchor", "middle")
-            .text("Zeit");
-
-    container.append("text")
-            .attr("x", (funcSvgWidth + funcSvgMargin.left - 3))
-            .attr("y", (funcSvgMargin.top - 5))
-            .attr("fill", "black")
-            .attr("text-anchor", "end")
-            .text("Reelle Kosten");
-
-
-    container.append("path")
-            .attr("id", "functionGraph")
-            .attr("d", "")
-            .attr("stroke", "#0065BD")
-            .attr("stroke-width", "2px")
-            .attr("fill", "none");
-
 
     this.svgOrigin
             .on("mousedown", mousedown)
@@ -555,6 +472,7 @@ var GraphEditor = function (svgOrigin) {
             that.updateNodes();
         }
     }
+    
 };
 
 //inheritance

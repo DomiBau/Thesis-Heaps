@@ -27,6 +27,7 @@
         <script src="../library-d3-svg/js/GraphDrawer.js"></script>
         <script src="../library-d3-svg/js/GraphEditor.js"></script>
         <script src="../library-d3-svg/js/Logger.js"></script>
+        <script src="../library-d3-svg/js/ExerciseTab.js"></script>
         <script src="../library-d3-svg/js/Tab.js"></script>
         <script src="../library-d3-svg/js/GraphEditorTab.js"></script>
         <script src="../library-d3-svg/js/siteAnimation.js"></script>
@@ -49,6 +50,7 @@
                 <ul>
                     <li><a href="#tab_te"><span>Einführung</span></a></li>
                     <li><a href="#tab_tg"><span>Teste die Datenstruktur</span></a></li>
+                    <li><a href="#tab_ta"><span>Forschungsaufgabe</span></a></li>
                     <li><a href="#tab_ti"><span>Beschreibung der Heapstruktur</span></a></li>
                     <li><a href="#tab_tw"><span>Weiteres</span></a></li>
                 </ul>
@@ -74,7 +76,7 @@
                     </div>
                 </div>
 
-                <!-- TAB Heap -->
+                <!-- TAB TestHeap -->
                 <div id="tab_tg">
                     <div>
                         <div class="canvasWrapper">
@@ -97,12 +99,6 @@
                                             <button class="onNodeButtons" id="deleteButton">Delete</button>
                                             <button class="onNodeButtons" id="decreaseButton">Decrease-Key</button>
                                             <input type="number" id="decreaseNum" min="-100" max="100">
-                                        </div>
-                                        <div id="DeleteMenuEx" style="display: none">
-                                            <h2 class="DeleteHeader">Delete oder Decrease?</h2>
-                                            <button class="onNodeButtons" id="deleteButtonEx">Delete</button>
-                                            <button class="onNodeButtons" id="decreaseButtonEx">Decrease-Key</button>
-                                            <input type="number" id="decreaseNumEx" min="-100" max="100">
                                         </div>
                                         <div class="Legende">
                                             <h2 class="LegendeHeader"><button class="LegendeMin"></button> Legende</h2>
@@ -235,7 +231,61 @@
                             <br>
                             <button class="windowButton" id="nextButton">Weiter</button>
                         </div>
-                        <div id="exerciseWindow" class="buttonWindow" style="display:none">
+                    </div>
+                </div>
+
+                <!-- Tab Aufgabe -->
+                <div id="tab_ta" style="display: none;">
+                    <div>
+                        <div class="canvasWrapper">
+                            <table class="algoTable">
+                                <tr>
+                                    <td class="svgContainer">
+                                        <svg class="graphCanvas" id="ta_canvas_graph" width="700" height="500">
+                                        <line stroke-dasharray="5, 5"              x1="0" y1="29" x2="700" y2="29" />
+                                        <line stroke-dasharray="5, 5"              x1="0" y1="238" x2="700" y2="238" />
+                                        <style><![CDATA[
+                                            line{
+                                                stroke: black;
+                                                stroke-width: 2;
+                                            }
+                                            ]]></style>
+                                        </svg>
+                                        <a class="svgDownloader" download="heap.svg" href="data:text/plain,test">Heap.svg</a>
+                                        <div id="DeleteMenuEx" style="display: none">
+                                            <h2 class="DeleteHeader">Delete oder Decrease?</h2>
+                                            <button class="onNodeButtons" id="deleteButtonEx">Delete</button>
+                                            <button class="onNodeButtons" id="decreaseButtonEx">Decrease-Key</button>
+                                            <input type="number" id="decreaseNumEx" min="-100" max="100">
+                                        </div>
+                                        <div class="Legende">
+                                            <h2 class="LegendeHeader"><button class="LegendeMin"></button> Legende</h2>
+                                            <div class="LegendeText">
+                                                <table>
+                                                    <tr>
+                                                        <td class="LegendeTabelle"><img src="img/legend-editor/node.svg" alt="node" class="LegendeIcon"></td>
+                                                        <td><span>Element</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="LegendeTabelle"><img src="img/legend-editor/markedNode.svg" alt="markedNode" class="LegendeIcon"></td>
+                                                        <td><span>Markiertes Element</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="LegendeTabelle"><img src="img/legend-editor/edge.svg" alt="edge" class="LegendeIcon"></td>
+                                                        <td><span>Vater-Kind Beziehung</span></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="LegendeTabelle"><img src="img/legend-editor/dashedEdge.svg" alt="dashedEdge" class="LegendeIcon"></td>
+                                                        <td><span>Verbindung der Heaps</span></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div id="exerciseWindow" class="buttonWindow">
                             <h2>Die Aufgabe:</h2>
                             Baue eine lineare Kette mit vier Elementen mit weniger als <span id="maxExOp"></span> Operationen. Lineare Kette bedeutet, dass es nur einen Heap gibt und in diesem Heap jeder Knoten, bis auf der letzte (unterste), genau ein Kind hat. Der letzte Knoten hat kein Kind mehr. Zudem soll kein Element markiert sein.
                             <br><br>
@@ -246,7 +296,6 @@
                             Anzahl genutzer Operationen: <span id="numUsedOpEx">0</span>
                             <br><br>
                             <button id="resetExButton" class="windowButton">Zurücksetzen</button>
-                            <button id="quitExButton" class="windowButton">Die Aufgabe aufgeben</button>
                             <br>
                             Eine mögliche Lösung der Aufgabe kann im Reiter "Weiteres" gefunden werden.
                         </div>
@@ -262,7 +311,6 @@
                         </div>
                     </div>
                 </div>
-
 
                 <!-- TAB Beschreibung des Heaps -->
                 <div id="tab_ti" style="display: none;">
@@ -290,6 +338,7 @@
                     </div>
                 </div>
 
+                
 
                 <!-- TAB Weiteres -->
                 <div id="tab_tw" style="display: none;">
