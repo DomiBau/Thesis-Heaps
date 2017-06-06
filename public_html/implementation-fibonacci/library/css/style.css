@@ -169,6 +169,8 @@ div.canvasWrapper {
     width: 175px;
 }
 
+
+
 button.onNodeButtons{
     width: 175px;
     padding: 2px;
@@ -250,6 +252,42 @@ input:checked + .slider:before {
 
 button.windowButton{
     width: 150px;
+}
+
+#functionInfo {
+    display: none;
+    position: absolute;
+    border: 2px groove #78C8FF;
+    background-color: #DDDDDD;
+    opacity: 1;
+    bottom: 40px;
+    right:  20px;
+    text-align: center;
+    width: 390px;
+    height: 190px;
+}
+
+#functionInfoButton{
+    width: 110px;
+    float: right;
+    font-size : 10px;
+}
+
+#closeFunctionInfoButton{
+    width: 110px;
+    float: right;
+    font-size : 10px;
+}
+
+#functionInfoTable{
+    border-collapse: collapse;
+    text-align: left;
+}
+
+
+
+#functionInfoTable tr, #functionInfoTable td{
+    border: 1px solid black;
 }
 
 

@@ -130,7 +130,7 @@
                         <div id="tg_div_statusWindow" class="buttonWindow">
                             <table id="statusWindowTable" align="center" width="100%">
                                 <tr>
-                                    <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Animationen:</span></td>
+                                    <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Beschreibungen:</span></td>
                                     <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Zurücksetzen auf:</span></td>
                                     <td><span style="font-weight: bold;font-size: 12px;color: #0A5096">Teste Dich:</span></td>
                                 </tr>
@@ -150,14 +150,13 @@
                                 </tr>
                             </table>
                             <h2>Welche Operation möchtest Du durchführen?</h2>
-                            <strong>Insert</strong> fügt ein Element in die Datenstruktur mit dem gewünschten Schlüssel ein. Gibst Du keinen Schlüssel ein bekommt das Element einen zufälligen Schlüssel.<br>
+                            <strong>Insert</strong> fügt ein Element in die Datenstruktur mit dem gewünschten Schlüssel ein. Gibst Du keinen Schlüssel ein, bekommt das Element einen zufälligen Schlüssel.<br>
                             <button class="windowButton" id="insertButton">Insert</button>
                             <input type="number" id="insertNum" min="-100" max="100"><br><br>
                             <strong>Delete-Min</strong> löscht das Element mit dem kleinsten Schlüssel aus der Datenstruktur.<br>
                             <button class="windowButton" id="deleteMinButton">Delete-Min</button><br><br>
-                            Um ein beliebiges Element zu löschen (<strong>Delete</strong>) oder den Schlüssel eines Elementes zu veringern (<strong>Decrease-Key</strong>) drücke auf den gewünschten Knoten.
-                            <br><br>
-                            Potenzial: <a id="potential"></a><br>
+                            Um ein beliebiges Element zu löschen (<strong>Delete</strong>) oder den Schlüssel eines Elementes zu verringern (<strong>Decrease-Key</strong>), drücke auf den gewünschten Knoten.
+                            <br>
                             <svg class="funtionCanvas" id="tg_canvas_function" width="200" height="100">
                             <style>
                                 .line {
@@ -183,6 +182,35 @@
                                 }
                             </style>
                             </svg>
+                            <button id="functionInfoButton" class="windowButton">Info zum Graphen</button>
+                        </div>
+                        <div id="functionInfo">
+                            Der Graph gibt Auskunft über das Potenzial, die reellen Kosten und den Durchschnitt der reellen Kosten. Bei jedem der 3 Kategorien werden die 11 letzten Operationen angezeigt bzw. in Betracht gezogen.<br>
+                            <br><br>
+                            <table id="functionInfoTable" align="center" width="99%">
+                                <tr>
+                                    <td><h2>Kategorie</h2></td>
+                                    <td><h2>Visualisierung</h2></td>
+                                    <td><h2>y-Achse</h2></td>
+                                </tr>
+                                <tr>
+                                    <td>Potenzial</td>
+                                    <td style="color: #0065BD">blaue Linie</td>
+                                    <td>links</td>
+                                </tr>
+                                <tr>
+                                    <td>Reelle Kosten</td>
+                                    <td style="color: #00c532">grüne Balken</td>
+                                    <td>rechts</td>
+                                </tr>
+                                <tr>
+                                    <td>Durchschnitt der reellen Kosten</td>
+                                    <td style="color: #C4071B">rote Fläche</td>
+                                    <td>rechts</td>
+                                </tr>
+                            </table>
+                            <br>
+                            <button id="closeFunctionInfoButton" class="windowButton">Schließen</button>
                         </div>
                         <div id="describtionOfOperation" class="buttonWindow" style="display: none">
                             <div id="insertHeader" style="display: none"><h3>Insert</h3></div>

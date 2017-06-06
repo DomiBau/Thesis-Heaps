@@ -49,7 +49,7 @@ function svgHack() {
 
 
 
-    var xAxisScale = d3.scale.linear().domain([0, 10]).range([0, funcSvgWidth]);
+    var xAxisScale = d3.scale.linear().domain([-10, 0]).range([0, funcSvgWidth]);
     var xAxis = d3.svg.axis().scale(xAxisScale);
     var xAxisGroup = container.append("g")
             .attr("class", "xAxis")
@@ -101,7 +101,7 @@ function svgHack() {
             .attr("y", (funcSvgMargin.top - 5))
             .attr("fill", "black")
             .attr("text-anchor", "end")
-            .text("Reelle Kosten");
+            .text("(Durchschnitt) Reelle Kosten");
 
 
     container.append("path")
@@ -170,7 +170,7 @@ function svgSerializeAndCrop(svgNode, styles) {
     sel.attr("id", null);
     sel.attr("class", null);
 
-    var crop = isDebug();
+    var crop = false;
 
     if (algo && crop) {
         var nodes = Graph.instance.getNodes();
@@ -390,6 +390,14 @@ function initializeSiteLayout() {
 
     $("#nextButton").click(function () {
         fibonacciHeap.nextOperation();
+    });
+    
+    $("#functionInfoButton").click(function () {
+        $("#functionInfo").css({'display': "inline"});
+    });
+    
+    $("#closeFunctionInfoButton").click(function() {
+        $("#functionInfo").css({'display': "none"});
     });
 
     $("#insertButtonEx").click(function () {

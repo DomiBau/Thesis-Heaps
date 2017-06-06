@@ -142,7 +142,6 @@ Graph.Node.prototype.setCoor = function (that, offset, start) {
     if (+this.children.length > 0) {
         for (var i = 0; i < this.children.length; i++) {
             this.children[i].parentsChild = i;
-            //console.log("Parent: "+ this.ele + "  Child: " + this.children[i].ele);
             newOffset = this.children[i].setCoor(that, newOffset, start);
         }
         newOffset -= 35;
@@ -219,7 +218,6 @@ Graph.prototype.addNode = function (ele) {
 
 Graph.prototype.updatePotential = function () {
     this.potential = this.numMainNodes + 2 * this.markedNodes;
-    document.getElementById("potential").innerHTML = this.potential;
     data.shift();
     data.push(this.potential);
     this.updateFunction();
