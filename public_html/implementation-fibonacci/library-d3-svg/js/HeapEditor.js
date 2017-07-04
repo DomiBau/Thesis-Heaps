@@ -3,6 +3,7 @@ var DELETE = 1;
 var INSERT = 2;
 var DECREASE = 3;
 var CUTOUT = 4;
+var ONLYCUTOUT = 5;
 var CONSOLIDATE = 10;
 var COMBINE = 11;
 var FINISHED = 20;
@@ -23,10 +24,10 @@ var usedExcerciseOperations = 0;
 var maxExerciseOperations = 15;
 var realCurCost = 0;
 
-var GraphEditor = function (svgOrigin) {
-    GraphDrawer.call(this, svgOrigin, null, 0);
+var HeapEditor = function (svgOrigin) {
+    HeapDrawer.call(this, svgOrigin, null, 0);
 
-    this.type = "GraphEditor";
+    this.type = "HeapEditor";
 
 
 
@@ -98,7 +99,7 @@ var GraphEditor = function (svgOrigin) {
         if (animated) {//animated
             childrenToAdd = d.children;
             cutOutNode = d.parent;
-            Graph.instance.onlyRemoveNode(d);
+            Heap.instance.onlyRemoveNode(d);
             realCurCost++;
             that.update();
             this.changeDescriptWindow(DELETE);
@@ -106,7 +107,7 @@ var GraphEditor = function (svgOrigin) {
             $('#tg_div_statusWindow').css({'display': "none"});
             inAnimation = true;
         } else {
-            Graph.instance.removeNode(oldId);
+            Heap.instance.removeNode(oldId);
             that.update();
         }
     };
@@ -115,8 +116,8 @@ var GraphEditor = function (svgOrigin) {
         for (var i = 0; i < childrenToAdd.length; i++) {
             var child = childrenToAdd[i];
             child.parent = null;
-            Graph.instance.addToMainNodes(child);
-            Graph.instance.rearrangeNodes();
+            Heap.instance.addToMainNodes(child);
+            Heap.instance.rearrangeNodes();
         }
         that.update();
         this.changeDescriptWindow(CUTOUT);
@@ -130,9 +131,9 @@ var GraphEditor = function (svgOrigin) {
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
             inAnimation = true;
-            Graph.instance.addNode(ele);
+            Heap.instance.addNode(ele);
         } else {
-            Graph.instance.addNode(ele);
+            Heap.instance.addNode(ele);
         }
         that.update();
     };
@@ -148,7 +149,7 @@ var GraphEditor = function (svgOrigin) {
             if (d.parent) {
                 if (+d.parent.ele > +d.ele) {
                     d.marked = true;
-                    this.changeDescriptWindow(CUTOUT);
+                    this.changeDescriptWindow(ONLYCUTOUT);
                     cutOutNode = d;
                 } else {
                     this.changeDescriptWindow(DECREASE);
@@ -157,7 +158,7 @@ var GraphEditor = function (svgOrigin) {
                 this.changeDescriptWindow(DECREASE);
             }
         } else {
-            Graph.instance.decreaseKey(d, input);
+            Heap.instance.decreaseKey(d, input);
         }
         that.update();
     };
@@ -167,8 +168,12 @@ var GraphEditor = function (svgOrigin) {
         var newCutOutNode = null;
         if (!cutOutNode) {
             nextConId = 0;
-            this.changeDescriptWindow(CONSOLIDATE);
-            realCurCost += Graph.instance.mainNodes.length;
+            if(status === CUTOUT){
+                this.changeDescriptWindow(CONSOLIDATE);
+                realCurCost += Heap.instance.mainNodes.length;
+            }else{
+                this.changeDescriptWindow(FINISHED);
+            }
             return;
         }
         if (cutOutNode.marked) {
@@ -176,28 +181,36 @@ var GraphEditor = function (svgOrigin) {
                 newCutOutNode = cutOutNode.parent;
             }
             if (!cutOutNode.isMain && cutOutNode) {
-                Graph.instance.addToMainNodes(cutOutNode);
+                Heap.instance.addToMainNodes(cutOutNode);
             }
         } else if (!cutOutNode.isMain) {
             cutOutNode.marked = true;
             realCurCost++;
         }
 
-        Graph.instance.rearrangeNodes();
+        Heap.instance.rearrangeNodes();
         that.update();
         if (newCutOutNode !== null) {
             cutOutNode = newCutOutNode;
-            this.changeDescriptWindow(CUTOUT);
+            if(status===ONLYCUTOUT){
+                this.changeDescriptWindow(ONLYCUTOUT)
+            }else{
+                this.changeDescriptWindow(CUTOUT);
+            }
         } else {
-            nextConId = 0;
-            this.changeDescriptWindow(CONSOLIDATE);
-            realCurCost += Graph.instance.mainNodes.length;
+            if(status === CUTOUT){
+                nextConId = 0;
+                this.changeDescriptWindow(CONSOLIDATE);
+                realCurCost += Heap.instance.mainNodes.length;
+            }else{
+                this.changeDescriptWindow(FINISHED);
+            }
         }
     };
 
 
     this.animatedConsolidate = function () {
-        var node = Graph.instance.getIdInMainNodes(nextConId);
+        var node = Heap.instance.getIdInMainNodes(nextConId);
         if (!node) {
             this.changeDescriptWindow(FINISHED);
             focusedNode.focus = false;
@@ -225,7 +238,7 @@ var GraphEditor = function (svgOrigin) {
             nextConId++;
             this.changeDescriptWindow(CONSOLIDATE);
         }
-        Graph.instance.rearrangeNodes();
+        Heap.instance.rearrangeNodes();
         that.update();
         //node.focus = false;
     };
@@ -237,12 +250,12 @@ var GraphEditor = function (svgOrigin) {
             child = combineNodeTwo;
             parent = combineNodeOne;
         }
-        Graph.instance.mainNodes.splice(Graph.instance.mainNodes.indexOf(child), 1);
+        Heap.instance.mainNodes.splice(Heap.instance.mainNodes.indexOf(child), 1);
         child.parent = parent;
         child.parentsChild = parent.children.length;
         parent.children.push(child);
         parent.degree++;
-        Graph.instance.addEdge(parent.id, child.id);
+        Heap.instance.addEdge(parent.id, child.id);
         combineNodeOne = null;
         combineNodeTwo = null;
         if (conMap.get(parent.degree)) {
@@ -261,7 +274,7 @@ var GraphEditor = function (svgOrigin) {
             }
             this.changeDescriptWindow(CONSOLIDATE);
         }
-        Graph.instance.rearrangeNodes();
+        Heap.instance.rearrangeNodes();
         that.update();
     };
 
@@ -280,7 +293,7 @@ var GraphEditor = function (svgOrigin) {
                 realData.push(realCurCost);
                 realData.shift();
                 realCurCost = 0;
-                Graph.instance.updatePotential();
+                Heap.instance.updatePotential();
                 break;
             case + INSERT:
                 $('#insertHeader').css({'display': "none"});
@@ -301,13 +314,16 @@ var GraphEditor = function (svgOrigin) {
             case + CUTOUT:
                 this.animatedCutOut();
                 break;
+            case +ONLYCUTOUT:
+                this.animatedCutOut();
+                break;
             case + DECREASE:
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 realData.push(realCurCost);
                 realData.shift();
                 realCurCost = 0;
-                Graph.instance.updatePotential();
+                Heap.instance.updatePotential();
                 inAnimation = false;
                 break;
             case + COMBINE:
@@ -320,7 +336,7 @@ var GraphEditor = function (svgOrigin) {
 
 
     this.logMainNodes = function () {
-        var nodes = Graph.instance.mainNodes;
+        var nodes = Heap.instance.mainNodes;
         var str = "["
         for (var i = 0; i < nodes.length; i++) {
             str += nodes[i].ele + " ,"
@@ -360,13 +376,15 @@ var GraphEditor = function (svgOrigin) {
                 break;
             case + COMBINE:
                 break;
+            case +ONLYCUTOUT:
+                break;
         }
         status = newStatus;
     };
 
 
     this.removeMin = function () {
-        var node = Graph.instance.getMin();
+        var node = Heap.instance.getMin();
         if (node === null)
             return;
         selectNode(node);
@@ -376,7 +394,7 @@ var GraphEditor = function (svgOrigin) {
 
     this.checkFinished = function () {
         var done = true;
-        var nodes = Graph.instance.mainNodes;
+        var nodes = Heap.instance.mainNodes;
         if (nodes.length !== 1) {
             done = false;
         }
@@ -476,8 +494,8 @@ var GraphEditor = function (svgOrigin) {
 };
 
 //inheritance
-GraphEditor.prototype = Object.create(GraphDrawer.prototype);
-GraphEditor.prototype.constructor = GraphEditor;
+HeapEditor.prototype = Object.create(HeapDrawer.prototype);
+HeapEditor.prototype.constructor = HeapEditor;
 
 //Effective JavaScript, Item 38: Call Superclass Constructors from Subclass Constructors
 //

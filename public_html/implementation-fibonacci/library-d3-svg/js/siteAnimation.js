@@ -1,8 +1,7 @@
-var graphEditorTab = null, exerciseTab = null;
+var heapEditorTab = null, exerciseTab = null;
 var fibonacciHeap = null; var fibonacciHeapEx = null;
 
 function svgHack() {
-//add arrowhead
     var defs = d3.select("body").append("svg")
             .attr("id", "graph-defs")
             .append("defs")
@@ -29,7 +28,7 @@ function svgHack() {
             .append("path")
             .attr("d", "M 0,0 V 8 L12,4 Z"); //this is actual shape for arrowhead
 
-
+    //initiate FunctionGraph
     var container = d3.select("#tg_canvas_function")
             .attr("width", funcSvgWidth + funcSvgMargin.left + funcSvgMargin.right)
             .attr("height", funcSvgHeight + funcSvgMargin.top + funcSvgMargin.bottom)
@@ -114,46 +113,8 @@ function svgHack() {
 }
 
 
-function svgSerialize(svgHtml) {//Node){
-//   if(styles){
-//     //svg.select('defs').select('style').text('<![CDATA['+styles+']]>')
-
-//     var header ='<svg width="'+ww+'" height="'+hh+'" version="1.1" xmlns="http://www.w3.org/2000/svg">';
-//     header +='<defs>';
-//     //inline arrowhead marker style
-//     header += d3.select('#graph-defs').select('defs').html();
-//     //inline css styles
-//     header += '<style type="text/css"> <![CDATA['+styles+']]> </style>';
-//     header += '</defs>';
-//     header +=svgNode.innerHTML;
-//     header +='</svg>';
-
-//    return 'data:image/svg+xml;utf8,'+header;
-//   }
-
-
-
-    //use jquery to get the svg xml, doesnt work with d3.
-    //var svgContainer = that.tab.find('.svgContainer');//.clone();
-    //var svg = svgContainer.find(".graphCanvas");
-//   d3.select(this).attr({ version: '1.1' , xmlns:"http://www.w3.org/2000/svg"});
-    //var svgHtml = svgContainer.html();
-
-    //var svgHtml = (new XMLSerializer()).serializeToString(svgNode);//svgOrigin.node()
-    //var seed = 50 + Math.floor(Math.random()*1000000); //lower 50 ones are reserved for my own use
-
-    //svgHtml = svgHtml.replace(/arrowhead2/g,"arrowhead"+seed);
-
-    //                 svgHtml = '<?xml-stylesheet type="text/css" href="href="../library-d3-svg/css/graph-style.css" ?>' + svgHtml;
-
-    var b64 = btoa(svgHtml); // or use btoa if supported
-
-    // Works in recent Webkit(Chrome)
-    //      $("body").append($("<img src='data:image/svg+xml;base64,\n"+b64+"' alt='file.svg'/>"));
-
-    // Works in Firefox 3.6 and Webit and possibly any browser which supports the data-uri
-    //      $("body").append($("<a href-lang='image/svg+xml' href='data:image/svg+xml;base64,\n"+b64+"' title='file.svg'>Download</a>"));
-
+function svgSerialize(svgHtml) {
+    var b64 = btoa(svgHtml);
 
     var href = "data:image/svg+xml;base64,\n" + b64;
     return href;
@@ -173,7 +134,7 @@ function svgSerializeAndCrop(svgNode, styles) {
     var crop = false;
 
     if (algo && crop) {
-        var nodes = Graph.instance.getNodes();
+        var nodes = Heap.instance.getNodes();
 
         var screenCoords = nodes.map(algo.nodePos.bind(algo));
 
@@ -305,11 +266,11 @@ function initializeSiteLayout() {
     $("#tw_Accordion").accordion({heightStyle: "content"});
 
 
-    fibonacciHeap = new GraphEditor(d3.select("#tg_canvas_graph"));
-    graphEditorTab = new GraphEditorTab(fibonacciHeap, $("#tab_tg"));
-    graphEditorTab.init();
+    fibonacciHeap = new HeapEditor(d3.select("#tg_canvas_graph"));
+    heapEditorTab = new HeapEditorTab(fibonacciHeap, $("#tab_tg"));
+    heapEditorTab.init();
     
-    fibonacciHeapEx = new GraphEditor(d3.select("#ta_canvas_graph"));
+    fibonacciHeapEx = new HeapEditor(d3.select("#ta_canvas_graph"));
     exerciseTab = new ExerciseTab(fibonacciHeapEx, $("#tab_ta"));
     exerciseTab.init();
     
@@ -321,7 +282,7 @@ function initializeSiteLayout() {
         beforeActivate: function (event, ui) {
             var id = ui.oldPanel[0].id;
             if (id == "tab_tg") { /** graph editor tab */
-                graphEditorTab.deactivate();
+                heapEditorTab.deactivate();
             }else if(id == "tab_ta") {
                 inExercise = false;
                 exerciseTab.deactivate();
@@ -330,14 +291,14 @@ function initializeSiteLayout() {
         activate: function (event, ui) {
             var id = ui.newPanel[0].id;
             if (id == "tab_tg") {
-                Graph.loadInstance("graphs-new/"+"heap1.txt");
-                graphEditorTab.activate();
+                Heap.loadInstance("graphs-new/"+"heap1.txt");
+                heapEditorTab.activate();
                 
             } else if(id == "tab_ta") {
                 usedExcerciseOperations = 0;
                 document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
                 $("#DeleteMenuEx").css({'display': "none"});
-                Graph.loadInstance("graphs-new/empty.txt");
+                Heap.loadInstance("graphs-new/empty.txt");
                 inExercise = true;
                 exerciseTab.activate();
             }
@@ -444,7 +405,7 @@ function initializeSiteLayout() {
         $('#exerciseWindow').css({'display': "block"});
         usedExcerciseOperations = 0;
         document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
-        Graph.loadInstance("graphs-new/empty.txt");
+        Heap.loadInstance("graphs-new/empty.txt");
         inAnimation = false;
     });
     
@@ -472,7 +433,7 @@ function initializeSiteLayout() {
         usedExcerciseOperations = 0;
         document.getElementById('numUsedOpEx').innerHTML = usedExcerciseOperations;
         $("#DeleteMenuEx").css({'display': "none"});
-        Graph.loadInstance("graphs-new/empty.txt");
+        Heap.loadInstance("graphs-new/empty.txt");
     });
     
     document.getElementById('maxExOp').innerHTML = maxExerciseOperations;

@@ -65,17 +65,17 @@ function translate(x,y){
 }
 
 /**
- * Global map where we save the GraphDrawer instances. Used when saving svg to disc.
+ * Global map where we save the HeapDrawer instances. Used when saving svg to disc.
  */
 GraphAlgos = d3.map();
 
 /**
  * @classdesc
  * The base class of a Network visualization of a graph. Based on D3 and SVG.
- * Graph Editors and Graph Algorithms should inherit from this class.
+ * Heap Editors and Graph Algorithms should inherit from this class.
  * @constructor
  */
-GraphDrawer = function(svgOrigin,extraMargin,transTime){
+HeapDrawer = function(svgOrigin,extraMargin,transTime){
 
     /////////////////
     //PRIVATE
@@ -139,19 +139,19 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
         if(isDebug()) return; //define flag for debug
         var nodes;
 
-        if(Graph.instance && (nodes = Graph.instance.getNodes())){
+        if(Heap.instance && (nodes = Heap.instance.getNodes())){
             this.x.domain(d3.extent(nodes, function(d) { return d.x; }));
             this.y.domain(d3.extent(nodes, function(d) { return d.y; }));
         }
     };
 
     var xfun = function(d){
-        return this.x(this.nodeX(Graph.instance.nodes.get(d.id) || d));
+        return this.x(this.nodeX(Heap.instance.nodes.get(d.id) || d));
     }; xfun = xfun.bind(this);
 
 
     var yfun = function(d){
-        return this.y(this.nodeY(Graph.instance.nodes.get(d.id) || d));
+        return this.y(this.nodeY(Heap.instance.nodes.get(d.id) || d));
     }; yfun = yfun.bind(this);
 
     function lineAttribs(d){
@@ -176,8 +176,8 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
         svg_links.selectAll("g").remove();
     };
 
-    this.type="GraphDrawer";
-    this.graph = Graph.instance;
+    this.type="HeapDrawer";
+    this.graph = Heap.instance;
     this.svgOrigin = svgOrigin;
 
     var that = this;
@@ -198,7 +198,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
         // DATA JOIN
         // Join new data with old elements, if any.
           var selection = svg_nodes.selectAll(".node")
-            .data(Graph.instance.getNodes(),function(d){return d.id});
+            .data(Heap.instance.getNodes(),function(d){return d.id});
 
 
         // UPDATE
@@ -275,7 +275,7 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
      */
     this.updateEdges = function(){
         var selection = svg_links.selectAll(".edge")
-            .data(Graph.instance.getEdges(),function(d){
+            .data(Heap.instance.getEdges(),function(d){
                 return d.id;
              });
 
@@ -320,20 +320,20 @@ GraphDrawer = function(svgOrigin,extraMargin,transTime){
         exitSelection.remove();
 
     };
-    if(Graph.instance===null){
+    if(Heap.instance===null){
         //calls registered event listeners when loaded;
         var GRAPH_FILENAME = GRAPH_FILENAME || null;
         var filename = GRAPH_FILENAME || "graphs-new/"+$("#tg_select_GraphSelector").val()+".txt"; //the selected option 
-       Graph.loadInstance(filename,function(error,text,filename){
+       Heap.loadInstance(filename,function(error,text,filename){
            console.log("error loading graph instance "+error + " from " + filename +" text: "+text);
        });
     }
-}; //end constructor GraphDrawer
+}; //end constructor HeapDrawer
 
 /*
  * The main function which triggers updates to node and edge selections. 
  */
-GraphDrawer.prototype.update= function(){
+HeapDrawer.prototype.update= function(){
   this.updateNodes();
   this.updateEdges();
 };
@@ -343,62 +343,62 @@ GraphDrawer.prototype.update= function(){
 /**
  * Called when new nodes are entering
  */
-GraphDrawer.prototype.onNodesEntered = function(selection) {
+HeapDrawer.prototype.onNodesEntered = function(selection) {
 //     console.log(selection[0].length + " nodes entered")
 };
 /**
  * Called when exisitng nodes are updated
  */
-GraphDrawer.prototype.onNodesUpdated = function(selection) {
+HeapDrawer.prototype.onNodesUpdated = function(selection) {
 //     console.log(selection[0].length + " nodes updated")
 };
 /**
  * Called when new edges are entering
  */
-GraphDrawer.prototype.onEdgesEntered = function(selection) {
+HeapDrawer.prototype.onEdgesEntered = function(selection) {
 //     console.log(selection[0].length + " edges entered")
 };
 /**
  * Called when exisitng edges are updated
  */
-GraphDrawer.prototype.onEdgesUpdated = function(selection) {
+HeapDrawer.prototype.onEdgesUpdated = function(selection) {
 //     console.log(selection[0].length + " edges entered")
 };
 
 /**
  * Displays in the middle of the edge (typically cost/resource vectors or capacity/flow)
  */
-GraphDrawer.prototype.edgeText = function(d){
+HeapDrawer.prototype.edgeText = function(d){
     return d.toString();
 };
 
 /**
  * Displays on top of a node
  */
-GraphDrawer.prototype.nodeText = function(d){
+HeapDrawer.prototype.nodeText = function(d){
     return d.toString();
 };
 
 /**
  * Displays inside of a node (typically its id)
  */
-GraphDrawer.prototype.nodeLabel = function(d){
+HeapDrawer.prototype.nodeLabel = function(d){
     return d.ele;
 };
 
 /**
  * X Position of a node
  */
-GraphDrawer.prototype.nodeX = function(d){
+HeapDrawer.prototype.nodeX = function(d){
     return d.x;
 };
 /**
  * Y Position of a node
  */
-GraphDrawer.prototype.nodeY = function(d){
+HeapDrawer.prototype.nodeY = function(d){
     return d.y;
 };
-GraphDrawer.prototype.nodePos = function(d){
+HeapDrawer.prototype.nodePos = function(d){
     var obj = {};
     obj.x = this.x(this.nodeX(d));
     obj.y = this.y(this.nodeY(d));

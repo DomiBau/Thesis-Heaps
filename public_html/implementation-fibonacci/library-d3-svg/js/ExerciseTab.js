@@ -12,12 +12,12 @@ function ExerciseTab(algo,p_tab){
     var that = this;
     
     /**
-     * Wires up the events on button clicks or selection changes and listens to a Graph change event
+     * Wires up the events on button clicks or selection changes and listens to a Heap change event
      * @method
      */
     this.init = function() {
-        //add function to be called after a new graph has been loaded.
-        Graph.addChangeListener(function(){
+        //add function to be called after a new Heap has been loaded.
+        Heap.addChangeListener(function(){
             algo.clear();
             algo.update();
         });
@@ -32,7 +32,7 @@ function ExerciseTab(algo,p_tab){
      * @method
      */
     this.activate = function() {
-       if(Graph.instance) algo.update();
+       if(Heap.instance) algo.update();
        Tab.prototype.activate.call(this);
 
     };
@@ -44,5 +44,5 @@ function ExerciseTab(algo,p_tab){
     
 }
 
-ExerciseTab.prototype = Object.create(GraphDrawer.prototype);
+ExerciseTab.prototype = Object.create(HeapDrawer.prototype);
 ExerciseTab.prototype.constructor = ExerciseTab;

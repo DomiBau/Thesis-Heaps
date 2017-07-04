@@ -1,8 +1,7 @@
 /**
  * A Tab in the view. Wires together the legend and calls algo's activation functions.
- * @author Adrian Haarbach
  * @class
- * @param {GraphDrawer} algo - Instance of an algorithm. Must have interface methods : init, activate, deactivate
+ * @param {HeapDrawer} algo - Instance of an algorithm. Must have interface methods : init, activate, deactivate
  * @param {Object} p_tab - Jquery tab elector
  */
 function Tab(algo,p_tab) {
@@ -49,31 +48,6 @@ function Tab(algo,p_tab) {
      * @type Boolean
      */
     this.active = false;
-    
-//     /**
-//      * Fügt ein "Neu laden" Icon zum Tab hinzu, aktiviert es
-//      * @method
-//      */
-//     this.addRefreshToTabbar = function() {
-//         $("#tabs").find(".ui-tabs-active").append('<span class="ui-icon ui-icon-refresh" style="display:inline-block">Klicke auf den Titel des Tabs, um ihn zurückzusetzen.</span>');
-//         $("#tabs").find(".ui-tabs-active").attr("title","Klicke auf den Titel des Tabs, um ihn zurückzusetzen.").tooltip();
-//         $("#tabs").tabs("refresh");
-//         $("#tabs").find(".ui-tabs-active").find("span").on("click.Refresh",function(e) {
-//             e.stopPropagation();
-//             algo.refresh();
-//         });
-//     };
-    
-//     /**
-//      * Entfernt das neu laden Icon und die Funktionalität
-//      * @method
-//      */
-//     this.removeRefreshFromTabbar = function() {
-//         $("#tabs").find(".ui-tabs-active").tooltip().tooltip("destroy");
-//         $("#tabs").find(".ui-tabs-active").find("span").off(".Refresh");
-//         $("#tabs").find(".ui-icon-refresh").remove();
-//         $("#tabs").tabs("refresh");
-//     };
 }
 
 Tab.prototype.init = function(){

@@ -2,7 +2,7 @@
  * A Tab in the view. Wires together the legend and calls algo's activation functions.
  * @author Adrian Haarbach
  * @class
- * @param {GraphDrawer} algo - Instance of an algorithm. Must have interface methods : init, activate, deactivate
+ * @param {HeapDrawer} algo - Instance of an algorithm. Must have interface methods : init, activate, deactivate
  * @param {Object} p_tab - Jquery tab elector
  */
 function Tab(algo,p_tab) {

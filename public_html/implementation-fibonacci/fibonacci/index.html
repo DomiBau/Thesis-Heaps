@@ -23,13 +23,13 @@
         <script src="../library/js/d3/d3.js"></script>
 
         <!--     d3 related library code -->
-        <script src="../library-d3-svg/js/Graph.js"></script>
-        <script src="../library-d3-svg/js/GraphDrawer.js"></script>
-        <script src="../library-d3-svg/js/GraphEditor.js"></script>
+        <script src="../library-d3-svg/js/Heap.js"></script>
+        <script src="../library-d3-svg/js/HeapDrawer.js"></script>
+        <script src="../library-d3-svg/js/HeapEditor.js"></script>
         <script src="../library-d3-svg/js/Logger.js"></script>
         <script src="../library-d3-svg/js/ExerciseTab.js"></script>
         <script src="../library-d3-svg/js/Tab.js"></script>
-        <script src="../library-d3-svg/js/GraphEditorTab.js"></script>
+        <script src="../library-d3-svg/js/HeapEditorTab.js"></script>
         <script src="../library-d3-svg/js/siteAnimation.js"></script>
 
         <link id="graph-style" rel="stylesheet" type="text/css" href="../library-d3-svg/css/graph-style.css" />
@@ -382,20 +382,28 @@
                             Eine mögliche Lösung der Aufgabe ist:<br>
                             Insert 100;
                             Insert 99;
-                            Insert 0;
+                            Insert -1;
                             Delete-Min;
                             Insert 98;
                             Insert 97;
-                            Insert 0;
-                            Delete-Min;
-                            Delete 98;
+                            Insert -1;
+                            <strong>Delete-Min;
+                            Delete 98;</strong>
                             Insert 96;
                             Insert 95;
-                            Insert 0;
+                            Insert -1;
                             Delete-Min;
-                            Delete 96;<br>
+                            Delete 96;<br><br>
+                            Die beiden hervorgehobenen Operationen werden hier dargestellt:<br>
+                            <img src="img/exSolSvg1.svg" alt="Aufgabe 1.Teil"/>
+                            <img src="img/exSolSvg1Arrow.svg" alt="Aufgabe 1.Teil Arrow"/>
+                            <img src="img/exSolSvg2.svg" alt="Aufgabe 2.Teil"/>
+                            <img src="img/exSolSvg2Arrow.svg" alt="Aufgabe 2.Teil Arrow"/>
+                            <img src="img/exSolSvg3.svg" alt="Aufgabe 3.Teil"/><br>
+                            Dabei wird die Lineare Kette um ein Element verlängert.<br><br>
+                            
                             Eine Abfolge von 3 mal Insert, Delete-Min und einer Delete Operation kann als Erweiterung der bereits bestehenden linearen Kette um ein Element gesehen werden. Im Folgenden wird zu dieser Abfolge nur Erweiterung gesagt.
-                            Die Delete-Min Funktion löscht hierbei also immer die 0 und löst die Consolidate-Funktion aus. Es werden immer die Elemente mit Grad 0 verkettet und darauf hin die beiden Heaps mit Grad 1 kombiniert. Durch das löschen des wegstehenden Elements, bekommt man eine lineare Kette. Wichtig hierbei ist es, dass man mindestens 2 kleinere Elemente, als das kleinste Element in der linearen Kette pro Erweiterung einfügt. Dadurch ist gesichert, dass die bestehende lineare Kette an die neue 2 Elemente-Kette angehängt wird und nicht andersrum. Sonst würde sich die lineare Kette nicht verlängern.
+                            Die Delete-Min Funktion löscht hierbei also immer die -1 und löst die Consolidate-Funktion aus. Es werden immer die Elemente mit Grad 0 verkettet und darauf hin die beiden Heaps mit Grad 1 kombiniert. Durch das löschen des wegstehenden Elements, bekommt man eine lineare Kette. Wichtig hierbei ist es, dass man mindestens 2 kleinere Elemente, als das kleinste Element in der linearen Kette pro Erweiterung einfügt. Dadurch ist gesichert, dass die bestehende lineare Kette an die neue 2 Elemente-Kette angehängt wird und nicht andersrum. Sonst würde sich die lineare Kette nicht verlängern.
                         </div>
                         <h3>Binary Heaps</h3>
                         <div>

@@ -11,10 +11,10 @@
 /**
  * @classdesc
  * Represents a graph.
- * Also acts as namespace for Graph.Node, Graph.Edge as well as static variables and functions.
+ * Also acts as namespace for Heap.Node, Heap.Edge as well as static variables and functions.
  * @constructor
  */
-function Graph() {
+function Heap() {
     //unique id counter for nodes and edges,
     //increased whenever a node or edge is added to the graph.
     this.nodeIds = 1;
@@ -25,14 +25,14 @@ function Graph() {
 }
 
 /**
- * Represents a graph node
+ * Represents a Heap node
  * @constructor
  * @param {number} x - the horizontal position
  * @param {number} y - the vertical position
  * @param {number} id - a unique id
  * @param {number} ele - the number representing the element (key)
  */
-Graph.Node = function (x, y, id, ele) {
+Heap.Node = function (x, y, id, ele) {
     this.x = x;
     this.y = y;
     this.id = id;
@@ -52,7 +52,7 @@ Graph.Node = function (x, y, id, ele) {
     this.state = {};
 };
 
-Graph.Node.prototype.initResources = function (wantedResourceSize) {
+Heap.Node.prototype.initResources = function (wantedResourceSize) {
     var toAdd = 0;
     for (var i = 0, toAdd = wantedResourceSize - this.resources.length; i < toAdd; i++) {
         this.resources.push(Math.round(Math.random() * 100));
@@ -63,17 +63,17 @@ Graph.Node.prototype.initResources = function (wantedResourceSize) {
 
 /**
  * Incoming edges of the node.
- * @return [Graph.Edge]
+ * @return [Heap.Edge]
  */
-Graph.Node.prototype.getInEdges = function () {
+Heap.Node.prototype.getInEdges = function () {
     return this.inEdges.values();
 };
 
 /**
  * Outgoing edges of the node.
- * @return [Graph.Edge]
+ * @return [Heap.Edge]
  */
-Graph.Node.prototype.getOutEdges = function () {
+Heap.Node.prototype.getOutEdges = function () {
     return this.outEdges.values();
 };
 
@@ -82,7 +82,7 @@ Graph.Node.prototype.getOutEdges = function () {
  * @param {boolean} full - wheater to include the id
  * @param {function} [f] - optional resource accessor function
  */
-Graph.Node.prototype.toString = function (full, f) {
+Heap.Node.prototype.toString = function (full, f) {
     var str = "";
     if (full)
         str += this.id + " ";
@@ -91,10 +91,10 @@ Graph.Node.prototype.toString = function (full, f) {
 
 
 /**
- * Represents a graph edge
+ * Represents a Heap edge
  * @constructor
  */
-Graph.Edge = function (s, t, id) {
+Heap.Edge = function (s, t, id) {
     this.start = s;
     this.end = t;
     this.id = id;
@@ -107,7 +107,7 @@ Graph.Edge = function (s, t, id) {
  * Returns a string representation of this edge together with its resources
  * @param {boolean} full wheater to include the start and end node ids in the form start->end
  */
-Graph.Edge.prototype.toString = function (full, f) {
+Heap.Edge.prototype.toString = function (full, f) {
     var str = "";
     if (full)
         str += this.start.id + "->" + this.end.id + " ";
@@ -117,7 +117,7 @@ Graph.Edge.prototype.toString = function (full, f) {
 /**
  * Returns an alternative string representation of this edge
  */
-Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
+Heap.Edge.prototype.toStringAlt = function (nodeLabel) {
     var str = "e=(" + nodeLabel(this.start) + "," + nodeLabel(this.end) + ")";
     return str;
 };
@@ -128,27 +128,27 @@ Graph.Edge.prototype.toStringAlt = function (nodeLabel) {
 //MEMBERS
 
 /**
- * add a node to the graph
+ * add a node to the Heap
  * @param ele {Number|String} new element to be inserted
  */
-Graph.prototype.addNode = function (ele) {
+Heap.prototype.addNode = function (ele) {
     if (!ele) {
         ele = Math.ceil(Math.random() * 100);
     }
     if (this.nodeIds >= 32)//32 is max capacity for nodes
         return;
-    var node = new Graph.Node(0, 0, this.nodeIds++, ele);
+    var node = new Heap.Node(0, 0, this.nodeIds++, ele);
     node.setCoor();
     this.nodes.set(node.id, node);
     node = this.sift(node);
     return node;
 };
 
-Graph.prototype.addLast = function (ele) {
+Heap.prototype.addLast = function (ele) {
     if (!ele) {
         ele = Math.ceil(Math.random() * 100);
     }
-    var node = new Graph.Node(0,0,this.nodeIds++, ele);
+    var node = new Heap.Node(0,0,this.nodeIds++, ele);
     node.setCoor();
     this.nodes.set(node.id, node);
     this.addEdgeToParent(node);
@@ -156,14 +156,14 @@ Graph.prototype.addLast = function (ele) {
 };
 
 
-Graph.prototype.getMin = function () {
+Heap.prototype.getMin = function () {
     if(this.nodeIds===1)return null;
     var node = this.nodes.get(1);
     return node;
 };
 
 
-Graph.prototype.addNodeDirectly = function (node) {
+Heap.prototype.addNodeDirectly = function (node) {
     node.id = this.nodeIds++;
     node.initResources(this.getNodeResourcesSize());
     this.nodes.set(node.id, node);
@@ -171,21 +171,21 @@ Graph.prototype.addNodeDirectly = function (node) {
 };
 
 /**
- * Add an edge to the graph
+ * Add an edge to the Heap
  * @param startId {Number|String} id of start node
  * @param endId {Number|String} id of end node
  */
-Graph.prototype.addEdge = function (startId, endId) {
+Heap.prototype.addEdge = function (startId, endId) {
     var s = this.nodes.get(startId);
     var t = this.nodes.get(endId);
-    var edge = new Graph.Edge(s, t, this.edgeIds++);
+    var edge = new Heap.Edge(s, t, this.edgeIds++);
     edge.start.outEdges.set(edge.id, edge);
     edge.end.inEdges.set(edge.id, edge);
     this.edges.set(edge.id, edge);
     return edge;
 };
 
-Graph.prototype.addEdgeDirectly = function (edge) {
+Heap.prototype.addEdgeDirectly = function (edge) {
     edge.id = this.edgeIds++;
     edge.start.outEdges.set(edge.id, edge);
     edge.end.inEdges.set(edge.id, edge);
@@ -196,7 +196,7 @@ Graph.prototype.addEdgeDirectly = function (edge) {
     return edge;
 };
 
-Graph.prototype.addEdgeToParent = function (node) {
+Heap.prototype.addEdgeToParent = function (node) {
     if (node.id === 1)
         return;
     if ((node.id % 2) === 0) {
@@ -207,7 +207,7 @@ Graph.prototype.addEdgeToParent = function (node) {
     this.addEdge(parentNumber, node.id);
 };
 
-Graph.prototype.addEdgesToChildren = function (node) {
+Heap.prototype.addEdgesToChildren = function (node) {
     if ((node.id * 2) < +this.nodeIds) {
         this.addEdge(node.id, node.id * 2);
     }
@@ -216,17 +216,17 @@ Graph.prototype.addEdgesToChildren = function (node) {
     }
 };
 
-Graph.prototype.decreaseKey = function (decreaseNode, input) {
+Heap.prototype.decreaseKey = function (decreaseNode, input) {
     decreaseNode.ele = input.value;
     this.sift(decreaseNode);
 };
 
-Graph.prototype.recoverEdges = function (node) {
+Heap.prototype.recoverEdges = function (node) {
     this.addEdgeToParent(node);
     this.addEdgesToChildren(node);
 };
 
-Graph.prototype.recoverAllEdges = function () {
+Heap.prototype.recoverAllEdges = function () {
     var count = 1;
     while (count < this.nodeIds) {
         this.addEdgeToParent(this.nodes.get(count));
@@ -234,41 +234,48 @@ Graph.prototype.recoverAllEdges = function () {
     }
 };
 
-Graph.prototype.removeNode = function (id) {
+Heap.prototype.removeNode = function (id) {//decrease-Key -> delete-Min
     this.nodeIds--;
     if (this.nodeIds === 1) {
         this.nodes.remove(id);
         return;
     }
-    if (id !== this.nodeIds) {
-        this.swapNodes(id, this.nodeIds);
+    var input = document.getElementById('decreaseNum');
+    input.value = minInf;
+    this.decreaseKey(this.nodes.get(id),input);
+    input.value = "";
+    var node = this.nodes.get(1);
+    
+    if (1 !== this.nodeIds) {
+        this.swapNodes(1, this.nodeIds);
     }
-    var node = this.nodes.get(this.nodeIds);
-    var that = this;
+    node = this.nodes.get(this.nodeIds);
     this.removeAllEdges(node);
     this.nodes.remove(node.id);
-    if(id!== this.nodeIds){
-        node = this.sift(this.nodes.get(id));
+    if(1 !== +this.nodeIds){
+        node = this.sift(this.nodes.get(1));
     }
     return node;
+    
+    
 };
 
-Graph.prototype.getNextId = function(){
+Heap.prototype.getNextId = function(){
     return this.nodeIds;
 };
 
-Graph.prototype.inkrIds = function(){
+Heap.prototype.inkrIds = function(){
     this.nodeIds++;
     return this.nodeIds;
 };
 
-Graph.prototype.dekrIds = function(){
+Heap.prototype.dekrIds = function(){
     this.nodeIds--;
     return this.nodeIds;
 };
 
 
-Graph.prototype.removeAllEdges = function (node) {
+Heap.prototype.removeAllEdges = function (node) {
     var that = this;
     node.outEdges.forEach(function (key) {
         that.removeEdge(key);
@@ -279,7 +286,7 @@ Graph.prototype.removeAllEdges = function (node) {
 };
 
 
-Graph.prototype.swapNodes = function (id1, id2) {
+Heap.prototype.swapNodes = function (id1, id2) {
     var nodeOne = this.nodes.get(id1);
     var nodeTwo = this.nodes.get(id2);
     this.nodes.remove(nodeOne.id);
@@ -299,13 +306,13 @@ Graph.prototype.swapNodes = function (id1, id2) {
 };
 
 
-Graph.prototype.sift = function (node) {
+Heap.prototype.sift = function (node) {
     node = this.siftUp(node);
     node = this.siftDown(node);
     return node;
 };
 
-Graph.prototype.siftUp = function (node) {
+Heap.prototype.siftUp = function (node) {
     if (node.id === 1)
         return node;
     var parentId;
@@ -322,7 +329,7 @@ Graph.prototype.siftUp = function (node) {
     return node;
 };
 
-Graph.prototype.siftDown = function (node) {
+Heap.prototype.siftDown = function (node) {
     if (node.id * 2 + 1 < +this.nodeIds) {
         var lefChild = this.nodes.get(node.id * 2);
         var rigChild = this.nodes.get(node.id * 2 + 1);
@@ -343,22 +350,22 @@ Graph.prototype.siftDown = function (node) {
     return node;
 };
 
-Graph.prototype.removeEdge = function (id) {
+Heap.prototype.removeEdge = function (id) {
     return this.edges.remove(id);
 };
 
-Graph.prototype.getNodes = function () {
+Heap.prototype.getNodes = function () {
     return this.nodes.values();
 };
 
-Graph.prototype.getEdges = function () {
+Heap.prototype.getEdges = function () {
     return this.edges.values();
 };
 
 /**
  * We allow arbitrary size of resources for each node.
  */
-Graph.prototype.getNodeResourcesSize = function () {
+Heap.prototype.getNodeResourcesSize = function () {
     var max = 0;
     this.nodes.forEach(function (key, node) {
         max = Math.max(max, node.resources.length);
@@ -366,7 +373,7 @@ Graph.prototype.getNodeResourcesSize = function () {
     return max;
 };
 
-Graph.prototype.getEdgeResourcesSize = function () {
+Heap.prototype.getEdgeResourcesSize = function () {
     var max = 0;
     this.edges.forEach(function (key, edge) {
         max = Math.max(max, edge.resources.length);
@@ -374,14 +381,14 @@ Graph.prototype.getEdgeResourcesSize = function () {
     return max;
 };
 
-Graph.prototype.replace = function (oldGraph) {
-    this.nodeIds = oldGraph.nodeIds;
-    this.edgeIds = oldGraph.edgeIds;
-    this.nodes = oldGraph.nodes;
-    this.edges = oldGraph.edges;
+Heap.prototype.replace = function (oldHeap) {
+    this.nodeIds = oldHeap.nodeIds;
+    this.edgeIds = oldHeap.edgeIds;
+    this.nodes = oldHeap.nodes;
+    this.edges = oldHeap.edges;
 };
 
-Graph.prototype.getState = function () {
+Heap.prototype.getState = function () {
     var savedState = {nodes: {}, edges: {}};
     this.nodes.forEach(function (key, node) {
         savedState.nodes[key] = JSON.stringify(node.state);
@@ -392,7 +399,7 @@ Graph.prototype.getState = function () {
     return savedState;
 };
 
-Graph.prototype.setState = function (savedState) {
+Heap.prototype.setState = function (savedState) {
     this.nodes.forEach(function (key, node) {
         node.state = JSON.parse(savedState.nodes[key]);
     });
@@ -408,7 +415,7 @@ Graph.prototype.setState = function (savedState) {
  * Style node or edge resources
  * @static
  */
-Graph.styleResources = function (resources, left, right, f) {
+Heap.styleResources = function (resources, left, right, f) {
     var f = f || function (d) {
         return d;
     };
@@ -419,14 +426,14 @@ Graph.styleResources = function (resources, left, right, f) {
 };
 
 /**
- * Graph serializer static method
- * Serialize a graph with all resources to string, used when downloading a graph.
+ * Heap serializer static method
+ * Serialize a Heap with all resources to string, used when downloading a Heap.
  * @static
- * @param {Graph} [graph] - Graph object. If not given the current Graph.instance is used
- * @return {String} text - sequentialized Graph
+ * @param {Heap} [Heap] - Heap object. If not given the current Heap.instance is used
+ * @return {String} text - sequentialized Heap
  */
-Graph.stringify = function (graph) {
-    var graph = graph || Graph.instance;
+Heap.stringify = function (graph) {
+    var graph = graph || Heap.instance;
     var lines = []; //text.split("\n");
 
     lines.push("% Graph saved at " + new Date());
@@ -456,9 +463,9 @@ Graph.stringify = function (graph) {
  * @param {boolean} animated - if the build should be animated or not
  * @return {Graph} - parsed Graph object
  */
-Graph.parse = function (text, animated) {
+Heap.parse = function (text, animated) {
 
-    var graph = new Graph();
+    var graph = new Heap();
     var lines = text.split("\n");
     // Nach Zeilen aufteilen
     if (lines[0].split(" ")[0] === "%") {//files
@@ -494,23 +501,23 @@ Graph.parse = function (text, animated) {
 };
 
 /**
- * Singleton to have just one Graph instance per app.
+ * Singleton to have just one Heap instance per app.
  */
-Graph.instance = null;
+Heap.instance = null;
 
 /**
  * Add callback functions to be executed after a graph was loaded asynchronically, e.g. to initialize the application
  */
-Graph.addChangeListener = function (callbackFp) {
-    Graph.onLoadedCbFP.push(callbackFp);
+Heap.addChangeListener = function (callbackFp) {
+    Heap.onLoadedCbFP.push(callbackFp);
 };
-Graph.onLoadedCbFP = [];
+Heap.onLoadedCbFP = [];
 
 /**
  * Replace the current graph singleton instance and call the defined callback functions.
  * This function is both called asyncronically from within ajax loading of graphs from servers and from local file uploads.
  */
-Graph.setInstance = function (error, text, filename, exceptionFp, animated) {
+Heap.setInstance = function (error, text, filename, exceptionFp, animated) {
     if (error !== null) {
         exceptionFp ? exceptionFp(error, text, filename) : console.log(error, text, filename);
         return;
@@ -518,8 +525,8 @@ Graph.setInstance = function (error, text, filename, exceptionFp, animated) {
     ;
     var noErrors = false;
     try {
-        Graph.instance = Graph.parse(text, animated);
-        Graph.instance.recoverAllEdges();
+        Heap.instance = Heap.parse(text, animated);
+        Heap.instance.recoverAllEdges();
         document.getElementById("ArrayPre").innerHTML = "Führe eine Operation durch um die Arraydarstellung zu sehen.";
         noErrors = true;
     } catch (ex) {
@@ -529,7 +536,7 @@ Graph.setInstance = function (error, text, filename, exceptionFp, animated) {
             console.log(ex, text, filename);
     }
     if (noErrors)
-        Graph.onLoadedCbFP.forEach(function (fp) {
+        Heap.onLoadedCbFP.forEach(function (fp) {
             fp();
         });
 };
@@ -539,15 +546,15 @@ Graph.setInstance = function (error, text, filename, exceptionFp, animated) {
  * using d3.text instead of raw ajax calls
  * calls setInstance async.
  */
-Graph.loadInstance = function (filename, exceptionFp, animated) {
+Heap.loadInstance = function (filename, exceptionFp, animated) {
     d3.text(filename, function (error, text) {
-        Graph.setInstance(error, text, filename, exceptionFp, animated);
+        Heap.setInstance(error, text, filename, exceptionFp, animated);
     });
 };
 
 
-Graph.buildInstance = function (text, animated) {
-    Graph.setInstance(null, text, "build", null, animated);
+Heap.buildInstance = function (text, animated) {
+    Heap.setInstance(null, text, "build", null, animated);
 };
 
 /**
@@ -555,7 +562,7 @@ Graph.buildInstance = function (text, animated) {
  * using HTML5 FileReader feature
  * calls setInstance async.
  */
-Graph.handleFileSelect = function (evt, exceptionFp) {
+Heap.handleFileSelect = function (evt, exceptionFp) {
     var files = evt.target.files; // FileList object
 
     // Loop through the FileList and render image files as thumbnails.
@@ -575,7 +582,7 @@ Graph.handleFileSelect = function (evt, exceptionFp) {
                 var error = e.target.error;
                 var text = e.target.result;
                 var filename = theFile.name;
-                Graph.setInstance(error, text, filename, exceptionFp)
+                Heap.setInstance(error, text, filename, exceptionFp)
             };
         })(f);
         // Read in the image file as a data URL.
@@ -583,7 +590,7 @@ Graph.handleFileSelect = function (evt, exceptionFp) {
     }
 }
 
-Graph.Node.prototype.setCoor = function () {
+Heap.Node.prototype.setCoor = function () {
     var nx = 0;
     var ny = 0;
     switch (this.id) {

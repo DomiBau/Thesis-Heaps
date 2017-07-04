@@ -1,10 +1,10 @@
 /**
- * A graph editor in a Tab
+ * A heap editor in a Tab
  * @author Adrian Haarbach
  * @augments Tab
  * @class
  */
-function GraphEditorTab(algo,p_tab) {
+function HeapEditorTab(algo,p_tab) {
     Tab.call(this, algo, p_tab);
 
     var that = this;
@@ -22,14 +22,14 @@ function GraphEditorTab(algo,p_tab) {
         $("#tg_select_GraphSelector").on("blur.GraphDrawer",function(){clicked = false;});
         
         //add function to be called after a new graph has been loaded.
-        Graph.addChangeListener(function(){
+        Heap.addChangeListener(function(){
             algo.clear();
             algo.update();
         });
 
         $('#fileDownloader').on('click',function(foo){
             var ahref = $(this);
-            var text = Graph.stringify();
+            var text = Heap.stringify();
             text = "data:text/plain,"+encodeURIComponent(text);
             ahref.prop("href",text);
         });
@@ -46,7 +46,7 @@ function GraphEditorTab(algo,p_tab) {
         }); 
 
         $('#fileUploader').on('change',function(ev){
-            Graph.handleFileSelect(ev,function(errCode,errDescription,filename){
+            Heap.handleFileSelect(ev,function(errCode,errDescription,filename){
                     $('#ta_div_parseError').dialog("open");
                     $('#ta_div_parseErrorText').text(errCode);
                     $('#ta_div_parseErrorFilename').text(filename);
@@ -63,7 +63,7 @@ function GraphEditorTab(algo,p_tab) {
      * @method
      */
     this.activate = function() {
-       if(Graph.instance) algo.update();
+       if(Heap.instance) algo.update();
        Tab.prototype.activate.call(this);
 
     };
@@ -80,12 +80,12 @@ function GraphEditorTab(algo,p_tab) {
 
             //load graph as singleton
             //calls registered event listeners when loaded
-            Graph.loadInstance("graphs-new/"+filename);
+            Heap.loadInstance("graphs-new/"+filename);
         }
         clicked = !clicked;
     };
 }
 
 //Prototypal inheritance
-GraphEditorTab.prototype = Object.create(Tab.prototype);
-GraphEditorTab.prototype.constructor = Tab;
+HeapEditorTab.prototype = Object.create(Tab.prototype);
+HeapEditorTab.prototype.constructor = Tab;

@@ -111,7 +111,7 @@ function svgSerializeAndCrop(svgNode,styles){
   var crop = isDebug();
 
   if(algo && crop){
-    var nodes = Graph.instance.getNodes();
+    var nodes = Heap.instance.getNodes();
 
     var screenCoords = nodes.map(algo.nodePos.bind(algo));
 
@@ -236,12 +236,9 @@ function initializeSiteLayout(){
     $("#tw_Accordion").accordion({heightStyle: "content"});
     
     
-    binaryHeap = new GraphEditor(d3.select("#tg_canvas_graph"));
-    graphEditorTab = new GraphEditorTab(binaryHeap,$("#tab_tg"));
+    binaryHeap = new HeapEditor(d3.select("#tg_canvas_graph"));
+    graphEditorTab = new HeapEditorTab(binaryHeap,$("#tab_tg"));
     graphEditorTab.init();
-    
-    //algorithmTab = new AlgorithmTab(new GraphAlgorithm(d3.select("#ta_canvas_graph"),d3.select("#ta_canvas_graph2")),$("#tab_ta"));
-    //algorithmTab.init();
   
   
     $("#tabs").tabs({
@@ -323,7 +320,6 @@ function initializeSiteLayout(){
    
    svgHack();
    svgGraphCanvasDownloadable();
-   //binaryHeap.updateArray();
 }
 
 
@@ -348,21 +344,7 @@ $(function() {
     initializeSiteLayout();
     $("#year").html(new Date().getFullYear());
 });
-/* //TODO: reenable when menu is readded
-$(document).ready(function() {
-    $("#menu").mmenu({
-       "navbar": {
-          "title": "Übersicht"
-       },
-       "offCanvas": {
-          "zposition": "front"
-       },
-       "counters": true,
-       "slidingSubmenus": true,
-       "classes": "mm-light",
-    });
- });
- */
+
 
 function isDebug(){
   if(getUrlVars()["debug"] == "true"){

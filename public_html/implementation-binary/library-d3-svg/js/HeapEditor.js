@@ -2,17 +2,21 @@ var status = 0;
 var REMOVE_LAST = 1;
 var SIFT_UP = 2;
 var SIFT_DOWN = 3;
+var DEC_SIFT_DEL = 4;
+var SIFT_DEL = 5;
+var DEL = 6;
 var SIFT_DOWN_ALL = 10;
 var FINISHED = 20;
 var nextIdToSift;
 var siftNode = null;
 var animated = false;
 var inAnimation = false;
+var minInf = -8928917577;//Telefonnummer der Mathe-/Informatikfakultät
 
-var GraphEditor = function (svgOrigin) {
-    GraphDrawer.call(this, svgOrigin, null, 0);
+var HeapEditor = function (svgOrigin) {
+    HeapDrawer.call(this, svgOrigin, null, 0);
 
-    this.type = "GraphEditor";
+    this.type = "HeapEditor";
 
     this.svgOrigin
             .on("mousedown", mousedown)
@@ -23,8 +27,7 @@ var GraphEditor = function (svgOrigin) {
 
     this.onNodesEntered = function (selection) {
         selection
-                .on("mousedown", mousedownNode)
-                .on("mouseup", mouseupNode);
+                .on("mousedown", mousedownNode);
     };
 
     this.onNodesUpdated = function (selection) {
@@ -52,28 +55,17 @@ var GraphEditor = function (svgOrigin) {
         that.update();
     };
 
-    this.removeSelected = function () {
+    this.removeSelected = function () {//first decrease-Key to -inf then sift up then remove-min...
         var d = selectedNode;
         var oldId = d.id;
         deselectNode();
         if (animated) {//animated
-            var ids = Graph.instance.dekrIds();
-            var nodes = Graph.instance.nodes;
-            if (ids === 1) {
-                nodes.remove(ids);
-                that.update();
-            } else {
-                var lastNode = oldId === ids;
-                if (!lastNode)this.swapNodes(oldId,ids);
-                var node = nodes.get(oldId);
-                that.update();
-                siftNode = node;
-                this.changeDescriptWindow(REMOVE_LAST);
-                $('#describtionOfOperation').css({'display': "block"});
-                $('#tg_div_statusWindow').css({'display': "none"});
-            }
+            siftNode = d;
+            this.changeDescriptWindow(DEC_SIFT_DEL);
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
         } else {
-            Graph.instance.removeNode(oldId);
+            Heap.instance.removeNode(oldId);
             that.update();
         }
     };
@@ -81,13 +73,13 @@ var GraphEditor = function (svgOrigin) {
     this.insertNode = function(ele) {
         deselectNode();
         if(animated){
-            siftNode = Graph.instance.addLast(ele);
+            siftNode = Heap.instance.addLast(ele);
             this.changeDescriptWindow(SIFT_UP);
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
         } else {
-            var insNode = Graph.instance.addNode(ele);
-            Graph.instance.addEdgeToParent(insNode);
+            var insNode = Heap.instance.addNode(ele);
+            Heap.instance.addEdgeToParent(insNode);
         }
         that.update();
     };
@@ -96,21 +88,26 @@ var GraphEditor = function (svgOrigin) {
         var d = selectedNode;
         deselectNode();      
         if(animated){
+            window.alert(input.value + ", " + d.ele);
             d.ele = input.value;
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
-            this.changeDescriptWindow(SIFT_UP);
+            if(+status === +DEC_SIFT_DEL){
+                this.changeDescriptWindow(SIFT_DEL);
+            }else{
+                this.changeDescriptWindow(SIFT_UP);
+            }
             siftNode = d;
         }else{
-            Graph.instance.decreaseKey(d,input);
+            Heap.instance.decreaseKey(d,input);
         }
         
     };
     
     this.removeLastNode = function(){//nodeIds is already decreased (number of still existing nodes)
-        var node = Graph.instance.nodes.get(Graph.instance.nodeIds);
-        Graph.instance.removeAllEdges(node);
-        Graph.instance.nodes.remove(node.id);
+        var node = Heap.instance.nodes.get(Heap.instance.nodeIds);
+        Heap.instance.removeAllEdges(node);
+        Heap.instance.nodes.remove(node.id);
         this.changeDescriptWindow(SIFT_DOWN);
     };
     
@@ -136,9 +133,23 @@ var GraphEditor = function (svgOrigin) {
                 else this.changeDescriptWindow(FINISHED);
                 if(+status===+FINISHED&&+nextIdToSift>1){
                     nextIdToSift--;
-                    siftNode=Graph.instance.nodes.get(nextIdToSift);
+                    siftNode=Heap.instance.nodes.get(nextIdToSift);
                     this.changeDescriptWindow(SIFT_DOWN_ALL);
                 }
+                break;
+            case +DEC_SIFT_DEL:
+                window.alert(siftNode.ele);
+                var input = document.getElementById('decreaseNum');
+                input.value = +minInf;
+                selectedNode = siftNode;
+                this.decreaseKey(input);
+                input.value = "";
+                break;
+            case +SIFT_DEL:
+                siftNode = this.siftUp(siftNode);
+                break;
+            case +DEL:
+                this.removeMin();
                 break;
         }
         that.update();
@@ -151,10 +162,10 @@ var GraphEditor = function (svgOrigin) {
     
     this.buildHeap = function (text){
         deselectNode();
-        Graph.buildInstance(text,animated);
+        Heap.buildInstance(text,animated);
         if(animated){
-            var nextId = Math.floor((Graph.instance.nodeIds-1)/2);
-            siftNode = Graph.instance.nodes.get(nextId);
+            var nextId = Math.floor((Heap.instance.nodeIds-1)/2);
+            siftNode = Heap.instance.nodes.get(nextId);
             nextIdToSift = nextId;
             this.changeDescriptWindow(SIFT_DOWN_ALL);
             $('#describtionOfOperation').css({'display': "block"});
@@ -188,13 +199,15 @@ var GraphEditor = function (svgOrigin) {
                 inAnimation = true;
                 $('#siftDownHeader').css({'display': "block"});
                 break;
-            /*case :
+            case +DEC_SIFT_DEL:
+                inAnimation = true;
                 break;
-            case :
+            case +SIFT_DEL:
+                $('#siftUpHeader').css({'display': "block"});
                 break;
-            case :
+            case +DEL:
                 break;
-            */
+            
         }
         status = newStatus;
     };
@@ -207,7 +220,7 @@ var GraphEditor = function (svgOrigin) {
     };
 
     this.swapNodes = function (id1, id2) {
-        var nodes = Graph.instance.nodes;
+        var nodes = Heap.instance.nodes;
         var nodeOne = nodes.get(id1);
         var nodeTwo = nodes.get(id2);
         nodes.remove(nodeOne.id);
@@ -219,33 +232,41 @@ var GraphEditor = function (svgOrigin) {
         nodes.set(nodeOne.id, nodeOne);
         nodeOne.setCoor();
         nodeTwo.setCoor();
-        Graph.instance.removeAllEdges(nodeTwo);
-        Graph.instance.recoverEdges(nodeTwo);
-        Graph.instance.removeAllEdges(nodeOne);
-        Graph.instance.recoverEdges(nodeOne);
+        Heap.instance.removeAllEdges(nodeTwo);
+        Heap.instance.recoverEdges(nodeTwo);
+        Heap.instance.removeAllEdges(nodeOne);
+        Heap.instance.recoverEdges(nodeOne);
         return nodeOne;
     };
 
     this.siftUp = function (node) {
         if(node.id === 1){
-            this.changeDescriptWindow(FINISHED);
+            if(+status === +SIFT_DEL){
+                this.changeDescriptWindow(DEL);
+            }else{
+                this.changeDescriptWindow(FINISHED);
+            }
             return node;
         }
         var parentId;
         if (node.id % 2 === 0)parentId = node.id / 2; 
         else parentId = (node.id - 1) / 2;
-        var parent = Graph.instance.nodes.get(parentId);
+        var parent = Heap.instance.nodes.get(parentId);
         if (+node.ele < +parent.ele) {
             node = this.swapNodes(node.id, parent.id);
         }else{
-            this.changeDescriptWindow(FINISHED);
+            if(+status === +SIFT_DEL){
+                this.changeDescriptWindow(DEL);
+            }else{
+                this.changeDescriptWindow(FINISHED);
+            }
         }
         return node;
     };
 
     this.siftDown = function (node) {
-        var nodes = Graph.instance.nodes;
-        if (node.id * 2 + 1 < +Graph.instance.nodeIds) {
+        var nodes = Heap.instance.nodes;
+        if (node.id * 2 + 1 < +Heap.instance.nodeIds) {
             var lefChild = nodes.get(node.id * 2);
             var rigChild = nodes.get(node.id * 2 + 1);
             if (+lefChild.ele <= +rigChild.ele && +lefChild.ele < +node.ele) {
@@ -255,7 +276,7 @@ var GraphEditor = function (svgOrigin) {
             }else{
                 this.changeDescriptWindow(FINISHED);
             }
-        } else if (node.id * 2 < +Graph.instance.nodeIds) {
+        } else if (node.id * 2 < +Heap.instance.nodeIds) {
             var child = nodes.get(node.id * 2);
             if (+child.ele < +node.ele) {
                 node = this.swapNodes(node.id, child.id);
@@ -269,23 +290,51 @@ var GraphEditor = function (svgOrigin) {
 
 
     this.removeMin = function () {
-        var node = Graph.instance.getMin();
+        var node = Heap.instance.getMin();
         if(node===null)return;
-        selectNode(node);
-        this.removeSelected();
+        var d = node;
+        var oldId = d.id;
+        if (animated) {//animated
+            var ids = Heap.instance.dekrIds();
+            var nodes = Heap.instance.nodes;
+            if (ids === 1) {
+                nodes.remove(ids);
+                that.update();
+            } else {
+                var lastNode = oldId === ids;
+                if (!lastNode)this.swapNodes(oldId,ids);
+                var node = nodes.get(oldId);
+                that.update();
+                siftNode = node;
+                this.changeDescriptWindow(REMOVE_LAST);
+                $('#describtionOfOperation').css({'display': "block"});
+                $('#tg_div_statusWindow').css({'display': "none"});
+            }
+        } else {
+            Heap.instance.removeNode(oldId);
+            that.update();
+        }
     };
     
     this.updateArray = function(){
         var str = "[";
-        var nodes = Graph.instance.nodes;
-        var ids = Graph.instance.nodeIds;
-        if(ids>1)str = str + nodes.get(1).ele;
-        for(i = 2; i<ids; i++){
-            str = str + ", " + nodes.get(i).ele;
+        var nodes = Heap.instance.nodes;
+        var ids = Heap.instance.nodeIds;
+        if(ids>1){
+            if(+(nodes.get(1).ele)===+minInf){
+                str = str + "-inf";
+            }else{
+                str = str + nodes.get(1).ele;
+            }
         }
-        /*for(i = ids; i<31; i++){
-            str = str + ",";
-        }*/
+        for(i = 2; i<ids; i++){
+            if(+(nodes.get(i).ele)===+minInf){
+                str = str + ", -inf";
+            }else{
+                str = str + ", " + nodes.get(i).ele;
+            }
+            
+        }
         str = str + "]";
         document.getElementById("ArrayPre").innerHTML = str;
     };
@@ -321,18 +370,6 @@ var GraphEditor = function (svgOrigin) {
         
     };
 
-    /**
-     * End of mouseclick on a node
-     * @method
-     */
-    function mouseupNode() {
-        if (selectedNode) {
-            svgOrigin.create();
-        }
-        hasDragged = false;
-        d3.event.stopPropagation(); //we dont want svg to receive the event
-        that.updateNodes();
-    }
 
     function mousedownNode(d, id) {
         if (selectedNode === d) {// Falls wir wieder auf den selben Knoten geklickt haben, hebe Auswahl auf.
@@ -359,8 +396,8 @@ var GraphEditor = function (svgOrigin) {
 };
 
 //inheritance
-GraphEditor.prototype = Object.create(GraphDrawer.prototype);
-GraphEditor.prototype.constructor = GraphEditor;
+HeapEditor.prototype = Object.create(HeapDrawer.prototype);
+HeapEditor.prototype.constructor = HeapEditor;
 
 //Effective JavaScript, Item 38: Call Superclass Constructors from Subclass Constructors
 //
