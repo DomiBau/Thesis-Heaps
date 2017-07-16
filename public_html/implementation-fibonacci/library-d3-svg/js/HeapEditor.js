@@ -4,6 +4,7 @@ var INSERT = 2;
 var DECREASE = 3;
 var CUTOUT = 4;
 var ONLYCUTOUT = 5;
+var DELETE_MIN = 6;
 var CONSOLIDATE = 10;
 var COMBINE = 11;
 var FINISHED = 20;
@@ -168,7 +169,7 @@ var HeapEditor = function (svgOrigin) {
         var newCutOutNode = null;
         if (!cutOutNode) {
             nextConId = 0;
-            if(status === CUTOUT){
+            if(+status === +CUTOUT){
                 this.changeDescriptWindow(CONSOLIDATE);
                 realCurCost += Heap.instance.mainNodes.length;
             }else{
@@ -192,13 +193,13 @@ var HeapEditor = function (svgOrigin) {
         that.update();
         if (newCutOutNode !== null) {
             cutOutNode = newCutOutNode;
-            if(status===ONLYCUTOUT){
-                this.changeDescriptWindow(ONLYCUTOUT)
+            if(+status===+ONLYCUTOUT){
+                this.changeDescriptWindow(ONLYCUTOUT);
             }else{
                 this.changeDescriptWindow(CUTOUT);
             }
         } else {
-            if(status === CUTOUT){
+            if(+status === +CUTOUT){
                 nextConId = 0;
                 this.changeDescriptWindow(CONSOLIDATE);
                 realCurCost += Heap.instance.mainNodes.length;
@@ -240,7 +241,6 @@ var HeapEditor = function (svgOrigin) {
         }
         Heap.instance.rearrangeNodes();
         that.update();
-        //node.focus = false;
     };
 
     this.combineNodes = function () {
@@ -279,7 +279,6 @@ var HeapEditor = function (svgOrigin) {
     };
 
     this.nextOperation = function () {
-        //this.logMainNodes();
         switch (+status) {
             case + FINISHED:
                 $('#describtionOfOperation').css({'display': "none"});
@@ -294,6 +293,8 @@ var HeapEditor = function (svgOrigin) {
                 realData.shift();
                 realCurCost = 0;
                 Heap.instance.updatePotential();
+                this.disableAllHeader();
+                this.disableAllText();
                 break;
             case + INSERT:
                 $('#insertHeader').css({'display': "none"});
@@ -304,8 +305,6 @@ var HeapEditor = function (svgOrigin) {
                 inAnimation = false;
                 break;
             case + DELETE:
-                $('#deleteHeader').css({'display': "none"});
-                $('#deleteText').css({'display': "none"});
                 this.addChildrenToMainNodes();
                 break;
             case + CONSOLIDATE:
@@ -329,10 +328,35 @@ var HeapEditor = function (svgOrigin) {
             case + COMBINE:
                 this.combineNodes();
                 break;
+            case +DELETE_MIN:
+                this.addChildrenToMainNodes();
+                this.changeDescriptWindow(CONSOLIDATE);
+                break;
         }
         that.update();
     };
-
+    
+    this.disableAllHeader = function () {
+        $('#deleteHeader').css({'display': "none"});
+        $('#decreaseHeader').css({'display': "none"});
+        $('#deleteMinHeader').css({'display': "none"});
+        $('#cutOutHeader').css({'display': "none"});
+        $('#consolidateHeader').css({'display': "none"});
+        $('#combineHeader').css({'display': "none"});
+        $('#finishedHeader').css({'display': "none"});
+    };
+    
+    this.disableAllText = function () {
+        $('#deleteText').css({'display': "none"});
+        $('#decreaseText').css({'display': "none"});
+        $('#deleteMinText').css({'display': "none"});
+        $('#cutOutText').css({'display': "none"});
+        $('#consolidateText').css({'display': "none"});
+        $('#combineText').css({'display': "none"});
+        $('#finishedText').css({'display': "none"});
+        $('#decrease2Text').css({'display': "none"});
+        $('#cutOut2Text').css({'display': "none"});
+    };
 
 
     this.logMainNodes = function () {
@@ -352,10 +376,11 @@ var HeapEditor = function (svgOrigin) {
 
 
     this.changeDescriptWindow = function (newStatus) {
+        this.disableAllText();
         switch (+newStatus) {
             case + FINISHED:
-                $('#firstTest').css({'display': "none"});
-                $('#fourthTest').css({'display': "block"});
+                $('#finishedText').css({'display': "block"});
+                $('#finishedHeader').css({'display': "block"});
                 break;
             case + INSERT:
                 $('#insertHeader').css({'display': "block"});
@@ -366,17 +391,35 @@ var HeapEditor = function (svgOrigin) {
                 $('#deleteText').css({'display': "block"});
                 break;
             case + CONSOLIDATE:
+                $('#combineHeader').css({'display': "none"});
+                $('#consolidateText').css({'display': "block"});
+                $('#consolidateHeader').css({'display': "block"});
                 document.getElementById("descTable").style = "display:default";
                 break;
             case + CUTOUT:
-                $('#cutOutHeader').css({'display': "block"});
-                $('#cutOutText').css({'display': "block"});
+                $('#cutOut2Text').css({'display': "block"});
                 break;
             case + DECREASE:
+                $('#decreaseHeader').css({'display': "block"});
+                $('#decreaseText').css({'display': "block"});
+                $('#finishedHeader').css({'display': "block"});
+                $('#finishedText').css({'display': "block"});
                 break;
             case + COMBINE:
+                document.getElementById('combNode1').innerHTML = combineNodeOne.ele;
+                document.getElementById('combNode2').innerHTML = combineNodeTwo.ele;
+                $('#consolidateText').css({'display': "block"});
+                $('#combineText').css({'display': "block"});
+                $('#combineHeader').css({'display': "block"});
                 break;
             case +ONLYCUTOUT:
+                $('#decreaseHeader').css({'display': "block"});
+                $('#decrease2Text').css({'display': "block"});
+                $('#cutOutHeader').css({'display': "block"});
+                break;
+            case +DELETE_MIN:
+                $('#deleteMinHeader').css({'display': "block"});
+                $('#deleteMinText').css({'display': "block"});
                 break;
         }
         status = newStatus;
@@ -388,8 +431,22 @@ var HeapEditor = function (svgOrigin) {
         if (node === null)
             return;
         selectNode(node);
-        this.removeSelected();
-        that.update();
+        var d = selectedNode;
+        var oldId = d.id;
+        deselectNode();
+        if (animated) {//animated
+            childrenToAdd = d.children;
+            Heap.instance.onlyRemoveNode(d);
+            realCurCost++;
+            that.update();
+            this.changeDescriptWindow(DELETE_MIN);
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
+            inAnimation = true;
+        } else {
+            Heap.instance.removeNode(oldId);
+            that.update();
+        }
     };
 
     this.checkFinished = function () {

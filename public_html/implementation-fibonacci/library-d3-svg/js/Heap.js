@@ -158,9 +158,6 @@ Heap.Edge = function (s, t, id) {
     this.start = s;
     this.end = t;
     this.id = id;
-    this.resources = [];
-
-    this.state = {}; //changes during algorithm runtime
 };
 
 /**

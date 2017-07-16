@@ -14,6 +14,9 @@
         <link rel="stylesheet" type="text/css" href="../library/css/tum-theme2/jquery-ui-1.10.1.custom.min.css" />
         <!--   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"> -->
 
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        
         <!-- LOCAL -->
 
         <script src="../library/js/jquery-1.9.1.min.js"></script>
@@ -59,18 +62,20 @@
                     <div id="te_div_Einfuehrungstext">
 
                         <div id="te_div_beispiel1Container">
-                            <img id="te_img_beispiel1" src="img/UnderConst.PNG" width="350" height="300" alt="const">
-                            <p>Maybe a little example?</p></div>
+                            <img id="te_img_beispiel1" src="img/BinHeapBsp.PNG" width="400" alt="const">
+                            <p>Beispiel eines Binary Heaps inkluisive Arraydarstellung</p></div>
 
                         <h1>Die Binary Heap Datenstruktur</h1>
-                        <h3>Get your attention with this:</h3>
-                        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.<br><br>Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
-                        <br>
+                        
+                        <p>Ein Binary Heap ist eine Datenstruktur die eine Prioritätswarteschlange implementiert. Es ist die wohl bekannteste Art eines Heaps. Durch ihre einfache Implementierung und Arbeitsweise, wird sie oft in Einführungskursen für die Informatik oder die Algorithmik gelehrt.</p>
+                        <h3>Aufbau:</h3>
+                        Ein Binary Heap sieht aus wie ein fast vollständiger Binärbaum, jedoch gilt für jeden Knoten, dass sein Vaterknoten kleiner/gleich und seine beiden Kinder (falls vorhanden) größer/gleich als der Knoten selbst sind.<br><br>
+                        Durch die Eigenschaft, dass der Heap aussieht wie ein Binärbaum, ist es möglich den Heap in einem Array zu speichern, was sehr speichereffizient ist. Die theoretischen Laufzeiten sind verglichen mit anderen Heaps recht schlecht, in der Praxis überzeugt der Binary Heap dennoch durch seine Speichereffizienz, mithilfe derer der Binary Heap sehr gute praktische Laufzeiten erreicht.
                         <div id ="te_div_Entscheidung">
                             <h2>Was möchtest Du zuerst machen?</h2>
                             <button id="te_button_gotoDrawGraph">Die Datenstruktur testen</button> <button id="te_button_gotoIdee">Detaillierte Beschreibungen der Operationen lesen</button>
                         </div>
-                        <p></p>
+                        <p>Es wird empfohlen zuerst die Beschreibungen der Operationen zu lesen und erst anschließend den Heap zu testen. Dabei ist die Wirkungsweise der Operationen klarer und einfacher zu verstehen. Zusätzlich können bei dem Testen des Heaps "Beschreibungen" angeschaltet werden, wodurch jede Operation Schritt-für-Schritt animiert und beschrieben wird.</p>
                         <br style="clear: both;" />
                     </div>
                 </div>
@@ -140,17 +145,22 @@
                         </div>
                         <div id="describtionOfOperation" class="buttonWindow" style="display: none">
                             <div id="buildHeader" style="display: none"><h3>Build</h3></div>
+                            <div id="buildText" style="display: none">Um den Heap zu bauen wurden bereits alle Knoten in der gleichen Reihe wie eingegeben in den Heap gespeichert, jedoch wurde die Heap-Invariante noch nicht hergestellt. Dafür muss auf die ersten $\lfloor n/2\rfloor$-Knoten Sift-Down aufgerufen werden. Es wird dabei bei dem letzten Knoten angefangen.</div>
                             <div id="deleteHeader" style="display: none"><h3>Delete</h3></div>
+                            <div id="deleteText" style="display: none">Um einen Knoten zu löschen, wird der Schlüssel zuerst auf negativ unendlich gesetzt (Decrease-Key) und anschließend das kleinste Element im Heap gelöscht (Delete-Min).</div>
                             <div id="insertHeader" style="display: none"><h3>Insert</h3></div>
+                            <div id="insertText" style="display: none">Das Element wird als letztes Element in den Heap eingefügt. Anschließend wird Sift-Up auf das Element aufgerufen, da es möglicherweise kleiner ist als ihr Vaterknoten.</div>
+                            <div id="decreaseHeader" style="display: none"><h3>Decrease-Key</h3></div>
+                            <div id="decreaseText" style="display: none">Der Schlüssel des Knoten wurde bereits auf den gewünschten Wert gesetzt. Nun muss noch Sift-Up auf den Knoten aufgerufen werden, damit die Heap-Invariante, falls sie verletzt wurde, wiederhergestellt wird.</div>
+                            <div id="deleteMinHeader" style="display: none"><h3>Delete-Min</h3></div>
+                            <div id="deleteMinText" style="display: none">Das kleinste Element wird mit dem letzten Element im Heap getauscht. Anschließend kann das Element gelöscht werden, da es keine Kinder mehr hat. Auf die neue Wurzel muss nun Sift-Down aufgerufen werden, da diese möglicherweise größer ist als ihre Kinder.</div>
                             <div id="siftUpHeader" style="display: none"><h3>Sift Up</h3></div>
                             <div id="siftDownHeader" style="display: none"><h3>Sift Down</h3></div>
+                            <div id="siftUpText" style="display: none">Der Knoten mit Schlüssel <span id="siftUpNode"></span> wird solange im Heap nach oben getauscht bis die Heap-Invariante für den Knoten gilt. Diese besagt, dass der Vaterknoten kleiner/gleich und die beiden Kinder größer/gleich dem Knoten selbst sind.</div>
+                            <div id="siftDownText" style="display: none">Der Knoten mit Schlüssel <span id="siftDownNode"></span> wird solange im Heap nach unten getauscht bis die Heap-Invariante für den Knoten gilt. Diese besagt, dass der Vaterknoten kleiner/gleich und die beiden Kinder größer/gleich dem Knoten selbst sind. Beim Tauschen wird immer das kleiner der beiden Kinder verwendet.</div>
                             <div id="doneHeader" style="display: none"><h3>Fertig</h3></div>
-                            <div id="firstTest" style="display: block">Beschreibung hier</div>
-                            <div id="secondTest" style="display: none">Beschreibung hier</div>
-                            <div id="thirdTest" style="display: none">Beschreibung hier</div>
-                            <div id="fourthTest" style="display: none">Beschreibung hier</div>
-                            <button class="windowButton" id="nextButton">Weiter</button>
-                            
+                            <div id="doneText" style="display: none">Die Operation ist fertiggestellt und Du kannst nun eine andere Operation testen.</div>
+                            <br><button class="windowButton" id="nextButton">Weiter</button>
                         </div>
                     </div>
                 </div>
@@ -159,32 +169,69 @@
                 <!-- TAB Beschreibung der Operationen -->
                 <div id="tab_ti" style="display: none;">
                     <div id="ti_div_Einfuehrungstext">
-                        <div class="BeispielbildContainer">
-                            <p>Beispiel-Bild hier</p>
-                        </div>
-                        <h1>Binary Heaps</h1>
-                        <p><strong>Beschreibung:</strong> was sind Binary Heaps
+                        <!--<div class="BeispielbildContainer">
+                            <p></p>
+                        </div>-->
+                        <p>Binary Heaps sind eine mögliche Implementierung einer Prioritätswarteschlange. Wie für Heaps üblich bestitz ein Binary Heap zwei Invarianten. Die <strong>Form-Invarinate</strong> beschreibt den Aufbau eines Heaps. Der Binary Heap ist stets aufgebaut wie ein fast vollständiger Binärbaum. Die <strong>Heap-Invariante</strong> besagt, dass für jeden Knoten in diesem Baum gilt: Besitzt der Knoten einen Vaterknoten so ist dieser kleiner/gleich als der Knoten selbst. Besitzt der Knoten Kinder so sind diese größer/gleich als der Knoten selbst.
                         </p>
 
-                        <h2>Die Operationen:</h2>
-                        <h3>Sift Up</h3>
-                        Nullam nibh massa, rhoncus vel tortor non, dignissim pulvinar purus. Fusce vulputate libero vitae quam commodo, eu sollicitudin elit pharetra. Cras justo orci, consequat non arcu non, laoreet ultricies ligula. Etiam commodo rhoncus lacus in tempus. Nunc sit amet posuere arcu. Cras porttitor iaculis justo, congue facilisis velit elementum sed. Nullam tortor mi, vestibulum eget pharetra venenatis, mattis a lectus. Nam commodo tortor egestas, mattis augue in, molestie lacus. Praesent facilisis imperdiet turpis, id facilisis neque bibendum convallis.
+                        <h1>Operationen und ihre Laufzeiten:</h1>
+                        <h2>Sift-Up</h2>
+                        Sift-Up ist eine Hilfsfunktion um die Heap-Invariante wiederherzustellen. Dabei wird ein Knoten solange mit dem Vaterknoten getauscht, bis die Heap-Invariante für den Knoten erfüllt ist.
+                        <br><br>
+                        Die worst-case-Laufzeit der Sift-Up-Operation ist $\mathcal{O}(\log(n))$ wobei $n$ die Anzahl der Elemente im Heap ist. Dies folgt aus der Form-Invariante des Heaps. Ein fast vollständiger Binärbaum mit $n$ Elementen hat eine Tiefe von $\log(n)$. Wird demnach ein Element aus der letzten Ebene bis zu Wurzel getauscht, was nur im worst-case der Fall ist, werden $\log(n)$ Täusche durchgeführt. Ein Tausch hat eine Laufzeit von $\mathcal{O}(1)$, wodurch sich die worst-case-Laufzeit von Sift-Up ergibt.
+                        <h2>Sift-Down</h2>
+                        Sift-Down ist ebenfalls eine Hilfsfunktion zum wiederherstellen der Heap-Invariante. Dabei wird ein Knoten solange mit dem kleineren Kind getauscht, bis die Heap-Invariante für den Knoten erfüllt ist.
+                        <br><br>
+                        Sift-Down hat genau wie Sift-Up eine worst-case-Laufzeit von $\mathcal{O}(\log(n))$. Der Beweis ist analog zu dem Beweis von Sift-Up. 
+                        <h2>Insert</h2>
+                        Um ein Element in den Heap einzufügen, wird das Element zuerst als letztes Element im Heap eingefügt und anschließend Sift-Up auf den Knoten aufgerufen, da möglicherweise der Schlüssel des Vaters größer ist als der Schlüssel des neuen Elements.
+                        <br><br>
+                        Insert hat eine Laufzeit von $\mathcal{O}(\log(n))$, da das einfügen des Elementes am Ende des Heap in konstanter Zeit ausgeführt werden kann. Es folgt noch die Sift-Up-Operation, welche $\mathcal{O}(\log(n))$ Zeit benötigt.
+                        <h2>Delete-Min</h2>
+                        Delete-Min löscht das kleinste Element aus der Datenstruktur, indem zuerst die Wurzel (kleinstes Element) mit dem letzten Element getauscht wird. Danach wird das kleinste Element gelöscht. Da es keine Kinder mehr hat, muss kein Knoten erneut an den Heap verbunden werden. Zuletzt wird Sift-Down auf die neue Wurzel aufgeruft, weil die Kinder eventuell kleinere Schlüssel haben als die neue Wurzel.
+                        <br><br>
+                        Das Tauschen der zwei Elemente zu Beginn benötigt konstant viel Zeit. Das anschließende Sift-Down benötigt $\mathcal{O}(\log(n))$ Zeit. Demnach hat auch Delete-Min eine worst-case-Laufzeit von $\mathcal{O}(\log(n))$.
+                        <h2>Decrease-Key</h2>
+                        Um den Schlüssel eines Elementes zu verringern, wird zuerst einfach der Schlüssel des Elements auf den gewünschten Wert gesetzt und anschließend muss Sift-Up auf den Knoten aufgerufen werden, da der Schlüssel eventuell kleiner geworden ist als der Schlüssel des Vaterknotens.
+                        <br><br>
+                        Den Schlüssel auf den gewünschten Wert zu setzen benötigt konstant viel Zeit. Es folgt wieder mal ein Sift-Up, welches $\mathcal{O}(\log(n))$ Zeit benötigt, wodurch Decrease-Key eine worst-case-Laufzeit von $\mathcal{O}(\log(n))$ hat.
+                        <h2>Delete</h2>
+                        Um ein beliebiges Element zu löschen, wird auf den Knoten des Elements zuerst Decrease-Key aufgerufen, wodurch der Schlüssel des Elementes auf negativ unendlich bzw. einen hinreichend kleinen Wert verringert und zusätzlich an die Wurzel des Baumes getauscht wird. Danach wird Delete-Min auf den Heap aufgerufen, was das gewünschte Element aus der Datenstruktur löscht.
+                        <br><br>
+                        Delete wird mit einer Decrease-Key- und einer Delete-Min-Operation realisiert. Demnach gilt für die worst-case-Laufzeit von Delete $\mathcal{O}(\log(n))+\mathcal{O}(\log(n))=\mathcal{O}(\log(n))$
+                        <h2>Build</h2>
+                        Um einen neuen Heap aus einer Menge von Elementen zu erstellen, werden die Elemente ohne Veränderung der Reihenfolge in einem Heap gespeichert. Anschließend wird auf die ersten $\lfloor n/2\rfloor$-Elemente Sift-Down aufgerufen. Dabei wird bei dem Element begonnen, welches sich am weitesten hinten befindet.
+                        <br><br>
+                        Sei $t=\lfloor\log{}n\rfloor$ die Tiefe des Heaps gemessen in Kanten, so sind die Kosten einer Sift-Down Operation, die auf einen Knoten in Level $\ell$ aufgerufen wird, in $\mathcal{O}(t-\ell)$. Zudem folgt aus der Form-Invariante, dass es in Level $\ell$ höchstens $2^\ell$ Elemente gibt. Man kann demnach für jedes betrachtete Element, das sich auf Ebene $\ell$ befindet, die Sift-Down-Kosten mit $(t-\ell)$ darstellen. Die folgende Formel summiert die worst-case-Laufzeit der einzelnen Ebenen auf. Es gilt 
+                        $$\sum_{0\leq \ell &lt t}2^\ell(t-l) = 2^t\sum_{0\leq \ell &lt t}\frac{t-\ell}{2^{t-\ell}} = 2^t\sum_{\ell\leq j\leq t}\frac{j}{2^j}\in \mathcal{O}(n).$$
+                        Somit ist die worst-case-Laufzeit von Build in $\mathcal{O}(n)$.
                         <br>
-                        <h3>Sift Down</h3>
-                        Nullam nibh massa, rhoncus vel tortor non, dignissim pulvinar purus. Fusce vulputate libero vitae quam commodo, eu sollicitudin elit pharetra. Cras justo orci, consequat non arcu non, laoreet ultricies ligula. Etiam commodo rhoncus lacus in tempus. Nunc sit amet posuere arcu. Cras porttitor iaculis justo, congue facilisis velit elementum sed. Nullam tortor mi, vestibulum eget pharetra venenatis, mattis a lectus. Nam commodo tortor egestas, mattis augue in, molestie lacus. Praesent facilisis imperdiet turpis, id facilisis neque bibendum convallis.
                         <br>
-                        <h3>Insert</h3>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quam lectus, sollicitudin sit amet sodales quis, tincidunt id lectus. Phasellus tempus sit amet erat vitae iaculis. Sed eu ex ut quam imperdiet bibendum quis nec enim. Quisque eleifend nunc ut aliquet imperdiet. Ut a nunc gravida, lacinia sapien vitae, consequat augue. Vestibulum nisi lorem, accumsan at tempus a, pellentesque nec mi. Nulla lobortis orci non elit dictum facilisis.
-                        <br>
-                        <h3>Delete</h3>
-                        Ut dapibus nibh arcu, sit amet ornare nulla lobortis sed. Curabitur mollis eget urna eget sodales. Cras lacus felis, congue nec tristique et, rhoncus nec lorem. Cras laoreet porttitor dapibus. Nam eu massa id dolor vulputate suscipit et vitae odio. Sed semper dictum tincidunt. Nunc non vestibulum massa, vel rhoncus erat. Nunc condimentum, risus quis tincidunt porta, arcu tellus sollicitudin nulla, vel semper quam risus sed odio. Etiam ac bibendum eros. Sed elementum, mauris ac malesuada commodo, turpis odio maximus massa, eget lacinia odio ex quis diam. Cras eget mi sit amet risus mollis ullamcorper eget in elit. Cras gravida urna erat, vitae pellentesque nisl blandit et. Donec mi sapien, iaculis at elit sit amet, consequat blandit metus.
-                        <br>
-                        <h3>Delete-Min</h3>
-                        Nunc erat augue, scelerisque non consequat et, ultrices eget neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus fringilla feugiat molestie. Donec ultrices tincidunt turpis in ultrices. Nulla varius blandit suscipit. Proin facilisis aliquet efficitur. In ullamcorper augue neque, non sagittis sem tempor at. Sed ligula ipsum, suscipit eget dui a, vulputate euismod erat. Proin sollicitudin eu felis commodo placerat. Nunc nec risus velit. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-                        <br>
-                        <h3>Decrease-Key</h3>
-                        Nullam nibh massa, rhoncus vel tortor non, dignissim pulvinar purus. Fusce vulputate libero vitae quam commodo, eu sollicitudin elit pharetra. Cras justo orci, consequat non arcu non, laoreet ultricies ligula. Etiam commodo rhoncus lacus in tempus. Nunc sit amet posuere arcu. Cras porttitor iaculis justo, congue facilisis velit elementum sed. Nullam tortor mi, vestibulum eget pharetra venenatis, mattis a lectus. Nam commodo tortor egestas, mattis augue in, molestie lacus. Praesent facilisis imperdiet turpis, id facilisis neque bibendum convallis.
-                        <br>
+                        <h2>Zusammenfassung</h2>
+                        Es ergeben sich zusammengefasst folgende worst-case-Laufzeiten.
+                        <table align="center" width="20%">
+                            <tr>
+                                <td><strong>Insert:</strong></td>
+                                <td>$\mathcal{O}(\log(n))$</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delete-Min:</strong></td>
+                                <td>$\mathcal{O}(\log(n))$</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Decrease-Key:</strong></td>
+                                <td>$\mathcal{O}(\log(n))$</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delete:</strong></td>
+                                <td>$\mathcal{O}(\log(n))$</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Build:</strong></td>
+                                <td>$\mathcal{O}(n)$</td>
+                            </tr>
+                        </table><br>
                     </div>
                 </div>
 
@@ -192,25 +239,21 @@
                 <!-- TAB Weiteres -->
                 <div id="tab_tw" style="display: none;">
                     <div id="tw_Accordion">
-                        <h3>Pseudocode</h3>
+                        <!--<h3>Pseudocode</h3>
                         <div>
                             <pre><code>like this?</code></pre>
                             <hr>
                             <div id=tw_div_statusPseudocode>
                             </div>
-                        </div>
+                        </div>-->
                         <h3>Fibonacci Heaps</h3>
                         <div>
                             Hier kannst Du auch Fibonacci Heaps anschauen:
                             ---- Link zu den Fibonacci Heaps ----
                         </div>
-                        <h3>Anything else?</h3>
+                        <h3>Literatur</h3>
                         <div>
-                            here?
-                        </div>
-                        <h3>References</h3>
-                        <div>
-                            Related work?
+                            Thomas H.. Cormen, Leiserson, C. E., Rivest, R. L., & Stein, C. (2001). Introduction to algorithms (Vol. 6). Cambridge: MIT press.<br><br>
                         </div>
                     </div>
                 </div>

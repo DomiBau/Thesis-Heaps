@@ -77,6 +77,8 @@ var HeapEditor = function (svgOrigin) {
             this.changeDescriptWindow(SIFT_UP);
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
+            $('#insertText').css({'display': "block"});
+            $('#insertHeader').css({'display': "block"});
         } else {
             var insNode = Heap.instance.addNode(ele);
             Heap.instance.addEdgeToParent(insNode);
@@ -88,7 +90,6 @@ var HeapEditor = function (svgOrigin) {
         var d = selectedNode;
         deselectNode();      
         if(animated){
-            window.alert(input.value + ", " + d.ele);
             d.ele = input.value;
             $('#describtionOfOperation').css({'display': "block"});
             $('#tg_div_statusWindow').css({'display': "none"});
@@ -111,11 +112,31 @@ var HeapEditor = function (svgOrigin) {
         this.changeDescriptWindow(SIFT_DOWN);
     };
     
+    
+    this.changeAnimated = function(){
+        animated = !animated;
+    };
+    
+    this.buildHeap = function (text){
+        deselectNode();
+        Heap.buildInstance(text,animated);
+        if(animated){
+            var nextId = Math.floor((Heap.instance.nodeIds-1)/2);
+            siftNode = Heap.instance.nodes.get(nextId);
+            nextIdToSift = nextId;
+            this.changeDescriptWindow(SIFT_DOWN_ALL);
+            $('#describtionOfOperation').css({'display': "block"});
+            $('#tg_div_statusWindow').css({'display': "none"});
+        }
+        that.update();
+    };
+    
     this.nextOperation = function() {
         switch(+status){
             case +FINISHED:
                 inAnimation = false;
                 this.disableAllHeader();
+                this.disableAllText();
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 break;
@@ -138,7 +159,6 @@ var HeapEditor = function (svgOrigin) {
                 }
                 break;
             case +DEC_SIFT_DEL:
-                window.alert(siftNode.ele);
                 var input = document.getElementById('decreaseNum');
                 input.value = +minInf;
                 selectedNode = siftNode;
@@ -156,56 +176,59 @@ var HeapEditor = function (svgOrigin) {
     };
     
     
-    this.changeAnimated = function(){
-        animated = !animated;
-    };
-    
-    this.buildHeap = function (text){
-        deselectNode();
-        Heap.buildInstance(text,animated);
-        if(animated){
-            var nextId = Math.floor((Heap.instance.nodeIds-1)/2);
-            siftNode = Heap.instance.nodes.get(nextId);
-            nextIdToSift = nextId;
-            this.changeDescriptWindow(SIFT_DOWN_ALL);
-            $('#describtionOfOperation').css({'display': "block"});
-            $('#tg_div_statusWindow').css({'display': "none"});
-        }
-        that.update();
-    };
-    
-    
     
     this.changeDescriptWindow = function (newStatus) {
-        switch (newStatus){
-            case FINISHED:
+        //this.disableAllText();
+        switch (+newStatus){
+            case +FINISHED:
+                $('#siftDownHeader').css({'display': "none"});
+                $('#siftDownText').css({'display': "none"});
                 $('#doneHeader').css({'display': "block"});
+                $('#doneText').css({'display': "block"});
                 break;
-            case SIFT_UP:
+            case +SIFT_UP:
+                document.getElementById("siftUpNode").innerHTML = siftNode.ele;
                 inAnimation = true;
                 $('#siftUpHeader').css({'display': "block"});
-                $('#firstTest').css({'display': "none"});
-                $('#secondTest').css({'display': "block"});
+                $('#siftUpText').css({'display': "block"});
                 break;
-            case SIFT_DOWN:
+            case +SIFT_DOWN:
+                document.getElementById("siftDownNode").innerHTML = siftNode.ele;
                 inAnimation = true;
                 $('#siftDownHeader').css({'display': "block"});
+                $('#siftDownText').css({'display': "block"});
                 break;
-            case REMOVE_LAST:
+            case +REMOVE_LAST:
                 inAnimation = true;
-                $('#deleteHeader').css({'display': "block"});
+                $('#deleteMinHeader').css({'display': "block"});
+                $('#deleteMinText').css({'display': "block"});
                 break;
-            case SIFT_DOWN_ALL:
+            case +SIFT_DOWN_ALL:
+                $('#doneHeader').css({'display': "none"});
+                $('#doneText').css({'display': "none"});
                 inAnimation = true;
+                document.getElementById("siftDownNode").innerHTML = siftNode.ele;
+                $('#buildHeader').css({'display': "block"});
+                $('#buildText').css({'display': "block"});
                 $('#siftDownHeader').css({'display': "block"});
+                $('#siftDownText').css({'display': "block"});
                 break;
             case +DEC_SIFT_DEL:
+                $('#deleteHeader').css({'display': "block"});
+                $('#deleteText').css({'display': "block"});
+                $('#decreaseHeader').css({'display': "block"});
+                $('#decreaseText').css({'display': "block"});
                 inAnimation = true;
                 break;
             case +SIFT_DEL:
                 $('#siftUpHeader').css({'display': "block"});
+                $('#siftUpText').css({'display': "block"});
                 break;
             case +DEL:
+                $('#siftUpHeader').css({'display': "none"});
+                $('#siftUpText').css({'display': "none"});
+                $('#deleteMinHeader').css({'display': "block"});
+                $('#deleteMinText').css({'display': "block"});
                 break;
             
         }
@@ -217,6 +240,21 @@ var HeapEditor = function (svgOrigin) {
         $('#siftDownHeader').css({'display': "none"});
         $('#deleteHeader').css({'display': "none"});
         $('#siftUpHeader').css({'display': "none"});
+        $('#buildHeader').css({'display': "none"});
+        $('#insertHeader').css({'display': "none"});
+        $('#deleteMinHeader').css({'display': "none"});
+        $('#decreaseHeader').css({'display': "none"});
+    };
+    
+    this.disableAllText = function(){
+        $('#doneText').css({'display': "none"});
+        $('#siftDownText').css({'display': "none"});
+        $('#deleteText').css({'display': "none"});
+        $('#siftUpText').css({'display': "none"});
+        $('#buildText').css({'display': "none"});
+        $('#insertText').css({'display': "none"});
+        $('#deleteMinText').css({'display': "none"});
+        $('#decreaseText').css({'display': "none"});
     };
 
     this.swapNodes = function (id1, id2) {

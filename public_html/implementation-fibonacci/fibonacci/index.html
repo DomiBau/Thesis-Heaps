@@ -13,7 +13,10 @@
 
         <link rel="stylesheet" type="text/css" href="../library/css/tum-theme2/jquery-ui-1.10.1.custom.min.css" />
         <!--   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"> -->
-
+        
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});</script>
+        <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+        
         <!-- LOCAL -->
 
         <script src="../library/js/jquery-1.9.1.min.js"></script>
@@ -60,18 +63,19 @@
                     <div id="te_div_Einfuehrungstext">
 
                         <div id="te_div_beispiel1Container">
-                            <img id="te_img_beispiel1" src="img/UnderConst.PNG" width="350" height="300" alt="const">
-                            <p>Maybe a little example?</p></div>
+                            <img id="te_img_beispiel1" src="img/FibHeapBsp.PNG" width="300" alt="bsp">
+                            <p>Ein möglicher Fibonacci Heap</p></div>
 
                         <h1>Die Fibonacci Heap Datenstruktur</h1>
-                        <h3>Get your attention with this:</h3>
-                        <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.<br><br>Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.<br><br>Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+                        Ein Fibonacci Heap ist eine Datenstruktur die eine Prioritätswarteschlange implementiert. Die von Michael L. Fredman und  Robert E. Tarjan entwickelten Fibonacci Heaps haben sehr gute theoretische Laufzeiten. Dennoch sind sie in der Praxis vergleichsweise langsamer als andere Heaps, welche in der Theorie schlechter Laufzeiten aufweisen, da ihre Speichereffizienz relativ schlecht ist. Daraus entstehen Cache-Misses, welche die Laufzeit einer Operation stark beeinträchtigen. Den Namen verdanken diese Heaps dem Einsatz der Fibonacci-Folge bei der amortisierten Laufzeitanalyse.
+                        <h3>Aufbau:</h3>
+                        <p>Fibonacci Heaps bestehen aus einer Wurzelliste, welche alle Wurzeln der in dem Heap befindlichen Bäume beinhaltet. Diese Wurzelliste wird in diesem Applet als gestrichelte Linie visualisiert. Die Bäume sind stets geordent. Dies bedeutet, dass Der Vaterknoten jedes Knotens kleiner/gleich und die Kinder alle größer/gleich sind als der Knoten selbst.</p>
                         <br>
                         <div id ="te_div_Entscheidung">
                             <h2>Was möchtest Du zuerst machen?</h2>
                             <button id="te_button_gotoDrawGraph">Die Datenstruktur testen</button> <button id="te_button_gotoIdee">Detaillierte Beschreibungen der Operationen lesen</button>
                         </div>
-                        <p></p>
+                        <p>Es wird empfohlen zuerst die Beschreibungen der Operationen zu lesen und erst anschließend den Heap zu testen. Dabei ist die Wirkungsweise der Operationen klarer und einfacher zu verstehen. Zusätzlich können bei dem Testen des Heaps "Beschreibungen" angeschaltet werden, wodurch jede Operation Schritt-für-Schritt animiert und beschrieben wird.</p>
                         <br style="clear: both;" />
                     </div>
                 </div>
@@ -200,7 +204,7 @@
                                 </tr>
                                 <tr>
                                     <td>Reelle Kosten</td>
-                                    <td style="color: #00c532">grüne Balken</td>
+                                    <td style="color: #00c532">grüne Säulen</td>
                                     <td>rechts</td>
                                 </tr>
                                 <tr>
@@ -215,16 +219,20 @@
                         <div id="describtionOfOperation" class="buttonWindow" style="display: none">
                             <div id="insertHeader" style="display: none"><h3>Insert</h3></div>
                             <div id="deleteHeader" style="display: none"><h3>Delete</h3></div>
-                            <div id="deleteMinHeader" style="display: none"><h3>Delete-Min</h3></div>
                             <div id="decreaseHeader" style="display: none"><h3>Decrease-Key</h3></div>
+                            <div id="deleteMinHeader" style="display: none"><h3>Delete-Min</h3></div>
                             <div id="cutOutHeader" style="display: none"><h3>Ausschneiden</h3></div>
                             <div id="consolidateHeader" style="display: none"><h3>Consolidate</h3></div>
                             <div id="insertText" style="display: none">Dein Element mit dem Schlüssel <span id="insertedEl"></span> wurde in die Liste der Heaps als einzelner Heap eingefügt. Es muss nichts weiter gemacht werden.</div>
-                            <div id="deleteText" style="display: none">Das Element wurde bereits aus der Grafik gelöscht. Falls das Element ein Knoten über sich hatte, welcher nicht der oberste Knoten im Heap war, wurde dieser markiert, oder wird im Folgenden ausgeschnitten. Als nächster Schritt werden (wenn vorhanden) die Kinder des gelöschten Knoten in die Liste der Heaps eingefügt. Anschließend wird noch ein Consolidate durchgeführt.</div>
-                            <div id="deleteMinText" style="display: none">Das kleinste Element wurde bereits aus der Grafik gelöscht. Im Folgenden werden die Kinder des gelöschten Element in die Liste der Heaps eingefügt. Zur Fertigstellung der </div>
-                            <div id="decreaseText" style="display: none">This is just a fourth Test!</div>
-                            <div id="cutOutText" style="display: none">Da das Element über dem entfernten Element markiert war wird es ausgeschnitten. Das bedeutet, dass das Element von seinem parent getrennt und in die Liste der Heaps eingefügt wird. Dieser Prozess führt sich nach oben fort bis man entweder bei der Wurzel des Heaps, oder man bei einem unmarkierten Knoten angekommen ist. Dieser unmarkierte Knoten wird, falls es sich nicht um die Wurzel handelt, markiert.</div>
-                            <div id="consolidateText" style="display: none">This is just a fourth Test!</div>
+                            <div id="deleteText" style="display: none">Das Element wurde bereits aus der Grafik gelöscht. Falls das Element ein Knoten über sich hatte, welcher nicht der oberste Knoten im Baum war, wird dieser markiert werden, oder wird im Folgenden ausgeschnitten. Als nächster Schritt werden (wenn vorhanden) die Kinder des gelöschten Knoten in die Liste der Heaps eingefügt. Anschließend wird der Heap Konsolidiert. Delete kann als Ausführung von Decrease-Key und Delete-Min gesehen werden.</div>
+                            <div id="deleteMinText" style="display: none">Das kleinste Element wurde bereits aus der Grafik gelöscht. Im Folgenden werden die Kinder des gelöschten Element in die Liste der Heaps eingefügt. Zur Fertigstellung der Operation wird anschließend der Heap Konsilidiert.</div>
+                            <div id="decreaseText" style="display: none">Das Element wurde auf den gewünschten Wert gesetzt. Ist das Element immer noch größer als der Vaterknoten ist die Operation zu Ende. Wurde das Element hingegen kleiner als der Vaterknoten wird das Element im Folgenden ausgeschnitten.</div>
+                            <div id="decrease2Text" style="display: none">Das Element wurde kleiner als der Vaterknoten, weswegen es ausgeschnitten werden muss. Das bedeutet, dass das Element von seinem parent getrennt und in die Liste der Heaps eingefügt wird. Dieser Prozess führt sich nach oben fort bis man entweder bei der Wurzel des Heaps, oder man bei einem unmarkierten Knoten angekommen ist. Dieser unmarkierte Knoten wird, falls es sich nicht um die Wurzel handelt, markiert.</div>
+                            <div id="cutOutText" style="display: none">Das Element muss ausgeschnitten werden. Das bedeutet, dass das Element von seinem parent getrennt und in die Liste der Heaps eingefügt wird. Dieser Prozess führt sich nach oben fort bis man entweder bei der Wurzel des Heaps, oder man bei einem unmarkierten Knoten angekommen ist. Dieser unmarkierte Knoten wird, falls es sich nicht um die Wurzel handelt, markiert.</div>
+                            <div id="cutOut2Text" style="display: none">Nun wird der Knoten über dem gelöschten Element markiert falls er unmarkiert war, oder er wird ausgeschnitten falls er bereits markiert war. Wird er ausgeschnitten so wird das Element von seinem parent getrennt und in die Liste der Heaps eingefügt wird. Dieser Prozess führt sich nach oben fort bis man entweder bei der Wurzel des Heaps, oder man bei einem unmarkierten Knoten angekommen ist. Dieser unmarkierte Knoten wird, falls es sich nicht um die Wurzel handelt, markiert.</div>
+                            <div id="consolidateText" style="display: none">Das Konsolidieren des Heaps wird realisiert, indem alle Wurzeln auf ihren Grad überprüft werden und falls es Wurzeln mit demselben Grad gibt, werden diese Bäume vereinigt. Dabei werden die Wurzel der Reihe nach inspiziert und in die Stelle eines Arrays gespeichert, welche den Grad der jewiligen Wurzel repräsentiert. Wird eine Wurzel mit demselben Grad gefunden werden die beiden Wurzeln vereinigt und die neue Wurzel wird ebenfalls in das Array gespeichert oder mit einer Wurzel desselben Grades vereinigt.</div>
+                            
+                            
                             <br><br>
                             <table class="descWinTable" align="center" id="descTable" style="display: none"  width="80%">
                                 <tr>
@@ -253,8 +261,9 @@
                                 </tr>
                             </table>
                             <div id="combineHeader" style="display: none"><h3>Kombinieren</h3></div>
-                            <div id="combineText" style="display: none">This is just a fourth Test!</div>
-                            <div id="doneHeader" style="display: none"><h3>Fertig</h3></div>
+                            <div id="combineText" style="display: none">Es wurden zwei Wurzeln mit demselben Grad gefunden welche nun vereinigt werden. Die Wurzeln haben die Schlüssel <span id="combNode1"></span> und <span id="combNode2"></span>.</div>
+                            <div id="finishedHeader" style="display: none"><h3>Fertig</h3></div>
+                            <div id="finishedText" style="display: none">Die Operation ist fertig durchgeführt und Du kannst nun weitere Operationen testen.</div>
                             <br>
                             <br>
                             <button class="windowButton" id="nextButton">Weiter</button>
@@ -343,26 +352,119 @@
                 <!-- TAB Beschreibung des Heaps -->
                 <div id="tab_ti" style="display: none;">
                     <div id="ti_div_Einfuehrungstext">
-                        <div class="BeispielbildContainer">
-                            <p>Beispiel-Bild hier</p>
-                        </div>
-                        <h1>Fibonacci Heaps</h1>
-                        <p><strong>Beschreibung:</strong> was sind Fibonacci Heaps
+                        <!--<div class="BeispielbildContainer">
+                            <p></p>
+                        </div>-->
+                        <p>Fibonacci Heaps sind eine mögliche Implementierung einer Prioritätswarteschlange mit sehr guten theoretischen Laufzeiten. Wie alle Heap gibt es für den Fibonacci Heap ebenfalls zwei Invarianten. Die <strong>Form-Invarinate</strong> beschreibt den Aufbau eines Heaps. Der Fibonacci Heap besteht aus einer Wurzelliste, weldche alle Wurzeln der Bäume des Heaps beinhaltet. Die <strong>Heap-Invariante</strong> besagt, dass in einem Baum in der Wurzelliste für jeden Knoten gilt: Besitzt der Knoten einen Vaterknoten so ist dieser kleiner als der Knoten selbst. Besitzt der Knoten Kinder so ist jedes Kind größer als der Knoten selbst. Die Reihenfolge von gleichwertigen Elemeten ist nicht definiert und es ist somit egal welches Element Vater und welches Element Kind ist.
                         </p>
 
-                        <h2>Die Operationen:</h2>
-                        <h3>Insert</h3>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam quam lectus, sollicitudin sit amet sodales quis, tincidunt id lectus. Phasellus tempus sit amet erat vitae iaculis. Sed eu ex ut quam imperdiet bibendum quis nec enim. Quisque eleifend nunc ut aliquet imperdiet. Ut a nunc gravida, lacinia sapien vitae, consequat augue. Vestibulum nisi lorem, accumsan at tempus a, pellentesque nec mi. Nulla lobortis orci non elit dictum facilisis.
+                        <h1>Operationen:</h1>
+                        <h2>Insert</h2>
+                        Insert fügt ein Element in die Datenstruktur ein. Es wird eine Wurzel als einelementiger Baum in die Wurzelliste eingefügt. Dabei werden keine Bäume vereinigt. Die worst-case-Laufzeit beträgt \(\mathcal{O}(1)\).
                         <br>
-                        <h3>Delete</h3>
-                        Ut dapibus nibh arcu, sit amet ornare nulla lobortis sed. Curabitur mollis eget urna eget sodales. Cras lacus felis, congue nec tristique et, rhoncus nec lorem. Cras laoreet porttitor dapibus. Nam eu massa id dolor vulputate suscipit et vitae odio. Sed semper dictum tincidunt. Nunc non vestibulum massa, vel rhoncus erat. Nunc condimentum, risus quis tincidunt porta, arcu tellus sollicitudin nulla, vel semper quam risus sed odio. Etiam ac bibendum eros. Sed elementum, mauris ac malesuada commodo, turpis odio maximus massa, eget lacinia odio ex quis diam. Cras eget mi sit amet risus mollis ullamcorper eget in elit. Cras gravida urna erat, vitae pellentesque nisl blandit et. Donec mi sapien, iaculis at elit sit amet, consequat blandit metus.
+                        <h2>Delete-Min</h2>
+                        Delete-Min löscht das Element mit dem kleinsten Schlüssel aus dem Heap. Anschließend wird der Heap konsolidiert.
+                        
+                        Es werden zuerst alle Kinder des kleinsten Elementes in die Wurzelliste zusammen mit deren Nachfolgern aufgenommen. Danach wird das kleinste Element durch Anpassung der Pointer aus der Wurzelliste entfernt. Es folgt eine Anpassung des Min-Pointers, damit dieser nun auf das Element mit dem momentan kleinsten Schlüssel zeigt. Die anschließende Konsolidierung des Heaps, mithilfe der Funktion Consolidate, macht die Delete-Min Operation zu einer vergleichsweisen teuren Operation.
+                        <br><br>
+                        Consolidate:<br>
+                        Consolidate traversiert die Wurzelliste und speichert sich die Wurzeln in einem Array nach dem Grad ab. Dabei wird eine Wurzel mit Grad 0 an die Stelle 0 im Array gespeichert. Wird eine Wurzel gefunden, die denselben Grad besitzt wie eine bereits abgespeicherte Wurzel, so werden die von den Wurzeln repräsentierten Bäume vereinigt. Dabei wird die Wurzel mit dem größeren Schlüssel ein Kind der Wurzel mit dem kleineren Schlüssel. Dadurch wird der Grad der neuen Wurzel um Eins erhöht. Wurde zuvor schon eine Wurzel mit demselben Grad gefunden wie die Wurzel des neu zusammengefassten Baumes, werden diese ebenfalls nach derselben Regel vereinigt, usw. Somit gibt es nach der Konsolidierung des Heaps keine zwei Wurzeln mit demselben Grad.
+                        <br><br>Sei $D(n)$ der maximal mögliche Grad eines Knotens in einem Fibonacci Heap in Abhängigkeit von der Anzahl der Elemente $n$. Später wird noch bewiesen, dass $D(n)\in \mathcal{O}(\log{}n)$ gilt. Zudem sei $r$ die Anzahl der Bäume im Heap. Die worst-case-Laufzeit von Delete-Min beträgt dann $\mathcal{O}(D(n)+r)$.
                         <br>
-                        <h3>Delete-Min</h3>
-                        Nunc erat augue, scelerisque non consequat et, ultrices eget neque. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus fringilla feugiat molestie. Donec ultrices tincidunt turpis in ultrices. Nulla varius blandit suscipit. Proin facilisis aliquet efficitur. In ullamcorper augue neque, non sagittis sem tempor at. Sed ligula ipsum, suscipit eget dui a, vulputate euismod erat. Proin sollicitudin eu felis commodo placerat. Nunc nec risus velit. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+                        <h2>Decrease-Key</h2>
+                        Decrease-Key verringert den Schlüssel eines Elementes in der Datenstruktur. Dazu wird ein Zeiger auf das Element benötigt. Falls die Heap Invariante verletzt wird, wird das betroffene Element aus dem Baum entfernt. Dabei ist jedoch zusätzlich zu beachten, ob es sich bei dem Vaterknoten des Elementes um einen markierten Knoten handelt.
+                        
+                        Falls die Heap Invariante nach Änderung des Schlüssels immer noch erfüllt ist, so ist die Funktion fertig. Wird jedoch die Invariante verletzt, so wird das geänderte Element samt seinen Kindern aus dem Baum entfernt und in die Wurzelliste eingefügt. Handelte es sich bei dem Vaterknoten des entfernten Knoten um einen unmarkierten Knoten, so wird dieser markiert und die Funktion stoppt. Ist der Vaterknoten des geänderten Knotens hingegen markiert, so wird zusätzlich dieser Knoten aus dem Baum geschnitten und ohne Markierung in die Wurzelliste eingefügt. Ebenso verfährt man mit dem Vaterknoten dieses Knotens. Ist dieser markiert, so schneidet man ihn aus dem Baum, und er verliert seine Markierung. Ist er unmarkiert, so markiert man diesen und stoppt. Damit wird solange fortgefahren, bis man an einen unmarkierten Knoten gelangt. Wurzeln werden hierbei jedoch nicht markiert. Außerdem verliert ein Knoten seine Markierung, wenn dieser zur Wurzel wird. Diese Markierungen und wie mit ihnen umgegangen wird, sind essentiell für die amortisierte Laufzeitanalyse. 
+                        
+                        <br><br>Sei $\ell$ die Anzahl der Schnitte, dann hat Decrease-Key eine worst-case-Laufzeit in $\mathcal{O}(\ell)$.
                         <br>
-                        <h3>Decrease-Key</h3>
-                        Nullam nibh massa, rhoncus vel tortor non, dignissim pulvinar purus. Fusce vulputate libero vitae quam commodo, eu sollicitudin elit pharetra. Cras justo orci, consequat non arcu non, laoreet ultricies ligula. Etiam commodo rhoncus lacus in tempus. Nunc sit amet posuere arcu. Cras porttitor iaculis justo, congue facilisis velit elementum sed. Nullam tortor mi, vestibulum eget pharetra venenatis, mattis a lectus. Nam commodo tortor egestas, mattis augue in, molestie lacus. Praesent facilisis imperdiet turpis, id facilisis neque bibendum convallis.
+                        <h2>Delete</h2>
+                        Die Delete-Funktion soll ein beliebiges Element aus dem Heap löschen. Dies wird realisiert, indem auf das Element zuerst Decrease-Key mit einem Wert von negativ-unendlich beziehungsweise einem hinreichend kleinen Wert aufgerufen wird. Anschließend die Delete-Min-Operation durchgeführt. Da das gesuchte Element mit einem hinreichend kleinen Wert sicher das kleinste Element im Heap ist, wird eben dieses Element gelöscht. Ein hinreichend kleiner Wert ist jeder Wert der kleiner ist als das Minimum. Da nach beiden Operationen die Invarianten durch die Operationen selbst wiederhergestellt werden, gelten die Invarianten nach Delete ebenfalls.
+                        
+                        <br><br>Es gilt für die worst-case-Laufzeit von Delete $\mathcal{O}(\ell)+\mathcal{O}(D(n)+(r+l))=\mathcal{O}(\ell+D(n)+(r+l))$ wobei $\ell$ die Anzahl der Schnitte in der Decrease-Key-Operation sind, $D(n)$ der maximal mögliche Grad eines Knotens in einem Fibonacci Heap mit $n$ Elementen und $r$ die Anzahl der Bäume im Heap vor der Operation.
                         <br>
+                        <h1>Amortisierte Laufzeiten:</h1>
+                        Die amortisierten Laufzeiten ergeben sich wie folgt:
+                        <table align="center" width="20%">
+                            <tr>
+                                <td><strong>Insert:</strong></td>
+                                <td>\(\mathcal{O}(1)\)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delete-Min:</strong></td>
+                                <td>\(\mathcal{O}(1)\)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Decrease-Key:</strong></td>
+                                <td>\(\mathcal{O}(\log(n))\)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Delete:</strong></td>
+                                <td>\(\mathcal{O}(\log(n))\)</td>
+                            </tr>
+                        </table><br>
+                        Im Folgenden werden die amortisierten Laufzeiten bewiesen. Dafür wird die amortisierte Analyse mithilfe einer Potenzialfunktion durchgeführt.<br><br>
+                        Sei \(H\) der betrachtete Heap, \(m(H)\) die Anzahl der markierten Knoten in Heap \(H\) und \(r(H)\) die Anzahl der Wurzeln in der Wurzelliste von \(H\). Die Potenzialfunktion \(\Phi\) ist definiert als
+                        $$\Phi (H) = r(H) +2\cdot m(H).$$
+                        Sei $H$ der Heap vor einer Operation und $H'$ der Heap nach der Operation. Zudem seien $c$ die reellen Kosten der Operation, so hat diese amortisierte Kosten $c'$ in der Höhe von
+                        $$c'=c+(\Phi (H') -\Phi (H)).$$
+                        Die Potenzialfunktion ist stets nichtnegativ und nur bei einem leeren Heap nimmt $\Phi(H)$ den Wert $0$ an.
+                        
+                        <h2>Insert</h2>
+                        Es werden keine Knoten markiert. Daher gilt $m(H)=m(H')$. Die Anzahl der Bäume im Heap erhöht sich um $1$. Es folgt $t(H)+1=t(H')$.
+                        Somit gilt für die amortisierten Kosten $c'$ von Insert
+                        $$c' = \mathcal{O}(1) + (r(H)+1+2\cdot m(H))-(r(H)+2\cdot m(H))=\mathcal{O}(1)+1=\mathcal{O}(1).$$
+                        Die amortisierte Laufzeit von Insert ist demnach $\mathcal{O}(1)$.
+                        
+                        <h2>Delete-Min</h2>
+                        Es werden erneut keine Knoten markiert. Daher gilt $m(H)=m(H')$. Die Anzahl der Bäume im Heap erhöhen sich höchstens um den maximal möglichen Grad $D(n)$. Für die amortisierte Laufzeit $c'$ ergibt sich daher
+                        $$c' = \mathcal{O}(D(n)+r(H))+((D(n)+1)+2\cdot m(H))-(r(H)+2\cdot m(H)) = \mathcal{O}(D(n))+\mathcal{O}(r(H))-r(H) = \mathcal{O}(D(n)).$$
+                        Später wird bewiesen dass $D(n)\in \mathcal{O}(\log(n))$ gilt, womit die amortisierte Laufzeit von Delete-Min $\mathcal{O}(\log(n))$ beträgt.
+                        
+                        <h2>Decrease-Key</h2>
+                        Für jeden Schnitt verliert ein Knoten seine Markierung und zuletzt wird eventuell ein unmarkierter Knoten markiert. Sei $\ell$ die Anzahl der Schnitte gilt demnach für die markierten Knoten im Heap $m(H')\leq m(H)-\ell+1$. Die Anzahl der Bäume im Heap wird um $\ell$ erhöht, wodurch $r(H') = r(H)+\ell$ gilt.
+                        Es folgt für die amortisierte Laufzeit von Decrease-Key 
+                        $$c'=\mathcal{O}(\ell)+((r(H)+\ell)+2\cdot (m(H)-\ell+1))-(r(H)+2\cdot m(H))= \mathcal{O}(\ell) + 2 -\ell = \mathcal{O}(1).$$
+                        
+                        <h2>Delete</h2>
+                        Die amortisierte Laufzeit setzt sich, wie schon bei der worst-case-Laufzeit, aus der Summe der beiden (amortisierten) Laufzeiten von Decrease-Key und Delete-Min. Somit liegt die amortisierte Laufzeit von Delete in
+                        $$\mathcal{O}(1)+\mathcal{O}(\log{}n)=\mathcal{O}(\log{}n).$$
+                        <br><br><br>
+                        <h2>Maximal möglicher Grad</h2>
+                        Es bleibt zu zeigen, dass $D(n)\in \mathcal{O}(\log(n))$ gilt.
+                        
+                        Was genau gezeigt werden soll ist, dass $D(n)\leq \lfloor \log_{\phi}n\rfloor$ gilt, wobei $\phi = (1+\surd{5})/2 = 1,61803\dots$ der Goldene Schnitt und damit die positive Nullstelle der Gleichung $x^2=x+1$ ist.<br>
+                        Sei $x$ ein Knoten im Heap, so ist $size(x)$ definiert als die Anzahl der Knoten im Teilbaum, welcher die Wurzel $x$ hat, wobei $x$ mitgezählt wird. Daher folgt, dass $size(x)\geq 1$ gilt.<br>
+                        Sei $g(x)$ der Grad des Knotens $x$. Dann soll im Folgenden gezeigt werden, dass $size(x)$ exponentiell abhängig von $g(x)$ ist.<br><br>
+                        Sei $x$ ein beliebiger Knoten in einem Fibonacci Heap und $g(x) = k$, womit der Knoten $x$ genau $k$ Kinder hat, die im Folgenden mit $y_1, y_2,\dots,y_k$ referenziert werden. Dabei gilt, dass diese in der gleichen Reihenfolge indexiert sind, in der sie an $x$ gehängt wurden. Es sei $y_1$ das erste Kind von $x$ und $y_k$ das $k$-te Kind von $x$. Dann soll $g(y_1)\geq 0$ und $g(y_i)\geq i-2$, für $i\in {2,3,\dots,k}$, gelten.
+                        <br>Die Ungleichung $g(y_1)\geq 0$ gilt offensichtlich. Für ein $i\geq 2$ gilt, dass als $y_i$ Kind von $x$ wurde hatte $x$ schon mindestens die Kinder $y_1,y_2,\dots,y_{i-1}$, da Consolidate nur Bäume vereinigt, wenn sie den gleichen Grad haben. Es folgt, dass $g(x)\geq i-1$ sein musste, und somit musste ebenfalls $g(y_i)\geq i-1$ gelten. Hätte $y_i$ seitdem mehr als ein Kind verloren, wäre es nach dem ersten Kind markiert und nach dem zweiten Kind auf dem Teilbaum von $x$ ausgeschnitten worden. Demnach gilt $g(y_i)\geq i-2$.<br><br>
+                        An dieser Stelle kommt die Fibonacci-Folge ins Spiel. Sie ist wie folgt definiert.
+                        $$F_k =\begin{cases}
+                                0&if~k=0,\\
+                                1&if~k=1,\\
+                                F_{k-1}+F_{k-2}&if~k\geq 2.
+                        \end{cases}$$
+                        Die Fibonacci-Folge kann auch über $F_{k+2}=1+\sum_{i=0}^{k}F_i$, wobei $k\geq 0$, ausgedrückt werden.<br>
+                        Als nächstes zu zeigen ist, dass für $k\geq 0$, die Ungleichung $F_{k+2}\geq \phi^k$ gilt. Es folgt eine Induktion über $k$.<br><br>
+                        Sei $k=0$ gilt $F_2=1=\phi^0$.<br>
+                        Sei $k=1$ gilt $F_3=2>1,7>\phi^1$.<br>
+                        Es wird angenommen, dass für ein $k\geq 2$ und jedes $i\in {0,1,\dots,k-1}$ die Ungleichung $F_{i+2}>\phi^i$ gilt.<br>
+                        Es ergibt sich für $F_{k+2}$
+                        $$F_{k+2} = F_{k+1}+F_{k}\geq \phi^{k-1}+\phi^{k-2}=\phi^{k-2}\cdot(\phi + 1) = \phi^{k-2}\cdot\phi^2=\phi^k.$$
+                        Die Umformung $\phi^{k-2}\cdot(\phi + 1) = \phi^{k-2}\cdot\phi^2$ gilt, da $\phi$ die positive Nullstelle der Gleichung $x^2=x+1$ ist.<br><br>
+                        Bisher fehlt jegliche Verbindung der Größe eines Teilbaumes zu den Fibonacci-Zahlen und somit dem goldenen Schnitt. Diese Verbindung wird im Folgenden aufgestellt.<br>
+                        Sei $x$ erneut ein beliebiger Knoten in einem Fibonacci Heap und $g(x)=k$. Zu zeigen ist, dass $size(x)\geq F_{k+2}\geq \phi^k$ gilt.<br>
+                        Sei $s_k$ die minimale Größe eines Teilbaumes, dessen Wurzel Grad $k$ hat. Es gilt $s_0=1$, $s_1=2$ und $s_k\leq size(x)$. Der Wert von $s_k$ steigt monoton mit $k$ an, da das Hinzufügen von Kindern die Größe des Teilbaumes nicht verringern kann. Sei $z$ ein Knoten mit Grad $k$ und $size(z)=s_k$. Da $size(x)$ mindestens den Wert von $s_k$ hat, wird im Folgenden eine untere Schranke für $s_k$ und somit auch für $size(x)$ berechnet. Die Kinder $y_1, y_2,\dots,y_k$ von $z$ werden in der Reihenfolge, in der sie Kinder von $z$ wurden, indexiert. Es gilt $size(y_1)\geq 1$ und somit gilt
+                        $$size(x) \geq s_{k}\geq 2+\sum_{i=2}^{k} s_{g(y_{i})}\geq 2+\sum_{i=2}^{k} s_{i-2}.$$
+                        Es folgt eine Induktion über $k$, um zu zeigen, dass $s_k\geq F_{k+2}$ gilt.<br><br>
+                        Sei $k=0$ gilt $s_0=1=F_2$.<br>
+                        Sei $k=1$ gilt $s_1=2=F_3$.<br>
+                        Es wird angenommen, dass für $k\geq 2$ und $i\in {0,1,\dots,k-1}$, die Ungleichung $s_i\geq F_{i+2}$ gilt.<br><br>
+                        Für $s_k$ gilt 
+                        $$s_k \geq 2+\sum_{i=2}^k s_{i-2}\geq 2+\sum_{i=2}^k F_i= 1+\sum_{i=0}^k F_i=F_{k+2}\geq \phi^k.$$
+                        Somit gilt $size(x)\geq s_k\geq F_{k+2}\geq\phi^k.$<br><br>
+                        Sei $x$ wieder ein beliebiger Knoten aus einem $n$-elementigen Fibonacci Heap mit dem Grad $g(x) = k$. Nach Lemma \ref{lem:SizeGEPhi^k} gilt $n\geq size(x)\geq \phi^k$. Mit dem Logarithmus zu Basis $\phi$ gilt demnach $\log_{\phi}{n}\geq k$. Da der Grad $k$ eine ganze Zahl ist, gilt sogar $k\leq \lfloor \log_{\phi}{n}\rfloor$. Somit gilt für den maximalen Grad $D(n)$ für einen beliebigen Knoten in einem $n$-elemetigen Fibonacci Heap $D(n)\in \mathcal{O}(\log{n})$.<br><br>
+                        Demnach sind die oben genannten amortisierten Laufzeiten richtig.
                     </div>
                 </div>
 
@@ -371,12 +473,12 @@
                 <!-- TAB Weiteres -->
                 <div id="tab_tw" style="display: none;">
                     <div id="tw_Accordion">
-                        <h3>Pseudocode</h3>
+                        <!--<h3>Pseudocode</h3>
                         <div>
                             <pre><code>like this?</code></pre>
                             <div id=tw_div_statusPseudocode>
                             </div>
-                        </div>
+                        </div>-->
                         <h3>Lösung der Aufgabe</h3>
                         <div>
                             Eine mögliche Lösung der Aufgabe ist:<br>
@@ -400,7 +502,7 @@
                             <img src="img/exSolSvg2.svg" alt="Aufgabe 2.Teil"/>
                             <img src="img/exSolSvg2Arrow.svg" alt="Aufgabe 2.Teil Arrow"/>
                             <img src="img/exSolSvg3.svg" alt="Aufgabe 3.Teil"/><br>
-                            Dabei wird die Lineare Kette um ein Element verlängert.<br><br>
+                            Dabei wird die vorhandene lineare Kette um ein Element verlängert.<br><br>
                             
                             Eine Abfolge von 3 mal Insert, Delete-Min und einer Delete Operation kann als Erweiterung der bereits bestehenden linearen Kette um ein Element gesehen werden. Im Folgenden wird zu dieser Abfolge nur Erweiterung gesagt.
                             Die Delete-Min Funktion löscht hierbei also immer die -1 und löst die Consolidate-Funktion aus. Es werden immer die Elemente mit Grad 0 verkettet und darauf hin die beiden Heaps mit Grad 1 kombiniert. Durch das löschen des wegstehenden Elements, bekommt man eine lineare Kette. Wichtig hierbei ist es, dass man mindestens 2 kleinere Elemente, als das kleinste Element in der linearen Kette pro Erweiterung einfügt. Dadurch ist gesichert, dass die bestehende lineare Kette an die neue 2 Elemente-Kette angehängt wird und nicht andersrum. Sonst würde sich die lineare Kette nicht verlängern.

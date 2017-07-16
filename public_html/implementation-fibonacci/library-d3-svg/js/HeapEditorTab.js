@@ -1,6 +1,5 @@
 /**
  * A Heap editor in a Tab
- * @author Adrian Haarbach
  * @augments Tab
  * @class
  */
