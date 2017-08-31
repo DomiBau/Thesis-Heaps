@@ -96,7 +96,7 @@ Heap.Node.prototype.getOutEdges = function () {
  * @param {boolean} full - wheater to include the id
  * @param {function} [f] - optional resource accessor function
  */
-Heap.Node.prototype.toString = function (full) {
+Heap.Node.prototype.toString = function () {
     var str = "";
     if (this.min)
         str += "Min";
@@ -146,7 +146,7 @@ Heap.Node.prototype.setCoor = function (that, offset, start) {
         }
         newOffset -= 35;
     }
-    return offset + newOffset + 35;
+    return (offset + newOffset + 35);
 };
 
 
@@ -189,7 +189,6 @@ Heap.Edge.prototype.toStringAlt = function (nodeLabel) {
  * @param ele {Number|String} new element to be inserted
  */
 Heap.prototype.addNode = function (ele) {
-            
     numOperation++;
     if (!ele) {
         ele = Math.ceil(Math.random() * 100);
@@ -322,7 +321,7 @@ Heap.prototype.recoverEdges = function (node) {
 
 Heap.prototype.recoverAllEdges = function () {//add Edge to parent for every Node
     var count = 1;
-    while (count < this.nodeIds) {
+    while (+count < +this.nodeIds) {
         this.addEdgeToParent(this.nodes.get(count));
         count++;
     }
@@ -349,7 +348,7 @@ Heap.prototype.removeNode = function (id) {
         node.parent.degree--;
     }
     var length = node.children.length;
-    for (var j = 0; j < length; j++) {
+    for (var j = 0; j < +length; j++) {
         this.addToMainNodes(node.children[0]);
     }
     this.removeAllEdges(node);
@@ -376,6 +375,9 @@ Heap.prototype.onlyRemoveNode = function (node) {
         this.numMainNodes--;
         var index = this.mainNodes.indexOf(node);
         this.mainNodes.splice(index, 1);
+    }
+    for(var i = 0;i<node.children.length;i++){
+        node.children[i].parent=null;
     }
     this.numNodes--;
     this.removeAllEdges(node);
@@ -407,7 +409,7 @@ Heap.prototype.consolidate = function () {
     consLength = this.mainNodes.length;
     realCurCost += consLength;
     consCount = 0;
-    while (consCount < consLength) {
+    while (+consCount < +consLength) {
         var curNode = this.mainNodes[consCount];
         map = this.mapHandling(map, curNode);
         consCount++;
@@ -495,10 +497,20 @@ Heap.prototype.cutOut = function (node) {
     }
 };
 
-
+Heap.prototype.mainToString = function(){
+    var str = "[";
+    var noderinos = this.mainNodes;
+    for(var i = 0; i<noderinos.length; i++){
+        str+=noderinos[i].ele;
+        str+=",";
+    }
+    str+="]";
+    console.log(str);
+};
 
 
 Heap.prototype.rearrangeNodes = function () {
+    this.mainToString();
     this.updateMinPointer();
     this.markedNodes = 0;
     this.numMainNodes = 0;
@@ -521,14 +533,13 @@ Heap.prototype.rearrangeNodes = function () {
         //data.pop();
         this.rearrangeNodes();
     } else
-    if (squeeze && mainNodeDistance > startDistance) {
+    if (squeeze && +mainNodeDistance > +startDistance) {
         lockDistance = false;
         mainNodeDistance = mainNodeDistance / 2;
         maxMainNodes = Math.floor(700 / mainNodeDistance) * 2;
         this.rearrangeNodes();
     } else {
     }
-
 };
 
 

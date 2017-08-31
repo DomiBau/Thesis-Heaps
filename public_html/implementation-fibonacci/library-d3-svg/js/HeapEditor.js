@@ -118,8 +118,8 @@ var HeapEditor = function (svgOrigin) {
             var child = childrenToAdd[i];
             child.parent = null;
             Heap.instance.addToMainNodes(child);
-            Heap.instance.rearrangeNodes();
         }
+        Heap.instance.rearrangeNodes();
         that.update();
         this.changeDescriptWindow(CUTOUT);
     };
@@ -317,6 +317,8 @@ var HeapEditor = function (svgOrigin) {
                 this.animatedCutOut();
                 break;
             case + DECREASE:
+                this.disableAllHeader();
+                this.disableAllText();
                 $('#describtionOfOperation').css({'display': "none"});
                 $('#tg_div_statusWindow').css({'display': "block"});
                 realData.push(realCurCost);
@@ -330,6 +332,7 @@ var HeapEditor = function (svgOrigin) {
                 break;
             case +DELETE_MIN:
                 this.addChildrenToMainNodes();
+                nextConId=0;
                 this.changeDescriptWindow(CONSOLIDATE);
                 break;
         }
@@ -428,12 +431,13 @@ var HeapEditor = function (svgOrigin) {
 
     this.removeMin = function () {
         var node = Heap.instance.getMin();
-        if (node === null)
+        console.log(node.ele);
+        if (!node){
             return;
-        selectNode(node);
-        var d = selectedNode;
-        var oldId = d.id;
+        }
         deselectNode();
+        var d = node;
+        var oldId = d.id;
         if (animated) {//animated
             childrenToAdd = d.children;
             Heap.instance.onlyRemoveNode(d);
@@ -452,11 +456,11 @@ var HeapEditor = function (svgOrigin) {
     this.checkFinished = function () {
         var done = true;
         var nodes = Heap.instance.mainNodes;
-        if (nodes.length !== 1) {
+        if (+nodes.length !== 1) {
             done = false;
         }
         for (var i = 0; i < 3; i++) {
-            if (nodes && nodes.length > 0) {
+            if (nodes && +nodes.length > 0) {
                 if (nodes[0].children.length !== 1 || nodes[0].marked) {
                     done = false;
                 }
@@ -465,8 +469,8 @@ var HeapEditor = function (svgOrigin) {
                 done = false;
             }
         }
-        if (nodes && nodes.length > 0) {
-            if (nodes[0].children.length !== 0 || nodes[0].marked) {
+        if (nodes && +nodes.length > 0) {
+            if (+nodes[0].children.length !== 0 || nodes[0].marked) {
                 done = false;
             }
         }
@@ -474,7 +478,7 @@ var HeapEditor = function (svgOrigin) {
             $('#exerciseWindow').css({'display': "none"});
             $('#gratulationWindow').css({'display': "block"});
         } else
-        if (+usedExcerciseOperations > +maxExerciseOperations) {
+        if (+usedExcerciseOperations >= +maxExerciseOperations) {
             $('#exerciseWindow').css({'display': "none"});
             $('#youLostWindow').css({'display': "block"});
             inAnimation = true;
