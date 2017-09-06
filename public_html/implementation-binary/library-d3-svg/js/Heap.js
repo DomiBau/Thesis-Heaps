@@ -157,7 +157,7 @@ Heap.prototype.addLast = function (ele) {
 
 
 Heap.prototype.getMin = function () {
-    if(this.nodeIds===1)return null;
+    if(+this.nodeIds===1)return null;
     var node = this.nodes.get(1);
     return node;
 };
@@ -197,9 +197,9 @@ Heap.prototype.addEdgeDirectly = function (edge) {
 };
 
 Heap.prototype.addEdgeToParent = function (node) {
-    if (node.id === 1)
+    if (+node.id === +1)
         return;
-    if ((node.id % 2) === 0) {
+    if (+(node.id % 2) === +0) {
         parentNumber = node.id / 2;
     } else {
         parentNumber = (node.id - 1) / 2;
@@ -208,10 +208,10 @@ Heap.prototype.addEdgeToParent = function (node) {
 };
 
 Heap.prototype.addEdgesToChildren = function (node) {
-    if ((node.id * 2) < +this.nodeIds) {
+    if (+(node.id * 2) < +this.nodeIds) {
         this.addEdge(node.id, node.id * 2);
     }
-    if (((node.id * 2) + 1) < +this.nodeIds) {
+    if (+((node.id * 2) + 1) < +this.nodeIds) {
         this.addEdge(node.id, node.id * 2 + 1);
     }
 };
@@ -228,7 +228,7 @@ Heap.prototype.recoverEdges = function (node) {
 
 Heap.prototype.recoverAllEdges = function () {
     var count = 1;
-    while (count < this.nodeIds) {
+    while (+count < +this.nodeIds) {
         this.addEdgeToParent(this.nodes.get(count));
         count++;
     }
@@ -236,7 +236,7 @@ Heap.prototype.recoverAllEdges = function () {
 
 Heap.prototype.removeNode = function (id) {//decrease-Key -> delete-Min
     this.nodeIds--;
-    if (this.nodeIds === 1) {
+    if (+this.nodeIds === 1) {
         this.nodes.remove(id);
         return;
     }
@@ -246,7 +246,7 @@ Heap.prototype.removeNode = function (id) {//decrease-Key -> delete-Min
     input.value = "";
     var node = this.nodes.get(1);
     
-    if (1 !== this.nodeIds) {
+    if (1 !== +this.nodeIds) {
         this.swapNodes(1, this.nodeIds);
     }
     node = this.nodes.get(this.nodeIds);
@@ -313,10 +313,10 @@ Heap.prototype.sift = function (node) {
 };
 
 Heap.prototype.siftUp = function (node) {
-    if (node.id === 1)
+    if (+node.id === +1)
         return node;
     var parentId;
-    if (node.id % 2 === 0) {
+    if (+node.id % 2 === +0) {
         parentId = node.id / 2;
     } else {
         parentId = (node.id - 1) / 2;
@@ -593,7 +593,7 @@ Heap.handleFileSelect = function (evt, exceptionFp) {
 Heap.Node.prototype.setCoor = function () {
     var nx = 0;
     var ny = 0;
-    switch (this.id) {
+    switch (+this.id) {
         case 1:
             nx = 350;
             ny = 550;

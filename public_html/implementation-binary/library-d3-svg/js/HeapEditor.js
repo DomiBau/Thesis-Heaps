@@ -287,8 +287,12 @@ var HeapEditor = function (svgOrigin) {
             return node;
         }
         var parentId;
-        if (node.id % 2 === 0)parentId = node.id / 2; 
-        else parentId = (node.id - 1) / 2;
+        if (+node.id % 2 === +0){
+            parentId = node.id / 2;
+        } 
+        else {
+            parentId = (node.id - 1) / 2;
+        }
         var parent = Heap.instance.nodes.get(parentId);
         if (+node.ele < +parent.ele) {
             node = this.swapNodes(node.id, parent.id);
@@ -304,7 +308,7 @@ var HeapEditor = function (svgOrigin) {
 
     this.siftDown = function (node) {
         var nodes = Heap.instance.nodes;
-        if (node.id * 2 + 1 < +Heap.instance.nodeIds) {
+        if (+node.id * 2 + 1 < +Heap.instance.nodeIds) {
             var lefChild = nodes.get(node.id * 2);
             var rigChild = nodes.get(node.id * 2 + 1);
             if (+lefChild.ele <= +rigChild.ele && +lefChild.ele < +node.ele) {
@@ -314,7 +318,7 @@ var HeapEditor = function (svgOrigin) {
             }else{
                 this.changeDescriptWindow(FINISHED);
             }
-        } else if (node.id * 2 < +Heap.instance.nodeIds) {
+        } else if (+node.id * 2 < +Heap.instance.nodeIds) {
             var child = nodes.get(node.id * 2);
             if (+child.ele < +node.ele) {
                 node = this.swapNodes(node.id, child.id);
@@ -329,7 +333,9 @@ var HeapEditor = function (svgOrigin) {
 
     this.removeMin = function () {
         var node = Heap.instance.getMin();
-        if(node===null)return;
+        if(!node){
+            return;
+        }
         var d = node;
         var oldId = d.id;
         if (animated) {//animated
@@ -358,14 +364,14 @@ var HeapEditor = function (svgOrigin) {
         var str = "[";
         var nodes = Heap.instance.nodes;
         var ids = Heap.instance.nodeIds;
-        if(ids>1){
+        if(+ids>1){
             if(+(nodes.get(1).ele)===+minInf){
                 str = str + "-inf";
             }else{
                 str = str + nodes.get(1).ele;
             }
         }
-        for(i = 2; i<ids; i++){
+        for(i = 2; +i<+ids; i++){
             if(+(nodes.get(i).ele)===+minInf){
                 str = str + ", -inf";
             }else{
