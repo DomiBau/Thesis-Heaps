@@ -62,6 +62,9 @@ var HeapEditor = function (svgOrigin) {
                         return const_Colors.NodeFilling;
                     }
                 });
+                
+        
+        //the following markers are the arrows on the left and right side of a main node
         selection.selectAll(".markerLeft")
                 .attr("d", function (d) {
                     if (d.isMain) {
@@ -93,7 +96,7 @@ var HeapEditor = function (svgOrigin) {
         that.update();
     };
 
-    this.removeSelected = function () {
+    this.removeSelected = function () {//removes the selected node... To remove a given node select it (with selectNode(node)) and then call this function
         var d = selectedNode;
         var oldId = d.id;
         deselectNode();
@@ -113,7 +116,7 @@ var HeapEditor = function (svgOrigin) {
         }
     };
 
-    this.addChildrenToMainNodes = function () {
+    this.addChildrenToMainNodes = function () {//if a node is deleted the children of the node are added to the main nodes with this function
         for (var i = 0; i < childrenToAdd.length; i++) {
             var child = childrenToAdd[i];
             child.parent = null;
@@ -124,7 +127,7 @@ var HeapEditor = function (svgOrigin) {
         this.changeDescriptWindow(CUTOUT);
     };
 
-    this.insertNode = function (ele) {
+    this.insertNode = function (ele) {//inserts a new node with the given element in the Heap
         deselectNode();
         document.getElementById('insertedEl').innerHTML = ele;
         if (animated) {
@@ -139,7 +142,7 @@ var HeapEditor = function (svgOrigin) {
         that.update();
     };
 
-    this.decreaseKey = function (input) {
+    this.decreaseKey = function (input) {//changes the element of a node to a smaller value
         var d = selectedNode;
         deselectNode();
         if (animated) {
@@ -165,7 +168,7 @@ var HeapEditor = function (svgOrigin) {
     };
 
 
-    this.animatedCutOut = function () {
+    this.animatedCutOut = function () {//cuts out nodes using the scheme of the fibonacci heap. This function is especially for the step-by-step visualisation
         var newCutOutNode = null;
         if (!cutOutNode) {
             nextConId = 0;
@@ -210,7 +213,7 @@ var HeapEditor = function (svgOrigin) {
     };
 
 
-    this.animatedConsolidate = function () {
+    this.animatedConsolidate = function () {//consolidates the fibonacci heap in the step-by-step visualisation with the help of combineNodes()
         var node = Heap.instance.getIdInMainNodes(nextConId);
         if (!node) {
             this.changeDescriptWindow(FINISHED);
@@ -243,7 +246,7 @@ var HeapEditor = function (svgOrigin) {
         that.update();
     };
 
-    this.combineNodes = function () {
+    this.combineNodes = function () {//combines the two nodes which are stored in combineNodeOne and combineNodeTwo. The smaller elements becomes the parent of the bigger one
         var child = combineNodeOne;
         var parent = combineNodeTwo;
         if (+combineNodeOne.ele < +combineNodeTwo.ele) {
@@ -278,6 +281,12 @@ var HeapEditor = function (svgOrigin) {
         that.update();
     };
 
+
+/*
+ * 
+ * clicking the "Weiter" button in the step-by-step visualisation starts this function. 
+ * Depending on the status variable this function starts a different function for the current situation.
+ */
     this.nextOperation = function () {
         switch (+status) {
             case + FINISHED:
@@ -339,7 +348,7 @@ var HeapEditor = function (svgOrigin) {
         that.update();
     };
     
-    this.disableAllHeader = function () {
+    this.disableAllHeader = function () {//Vanishes all headers in the step-by-step descriptionwindow
         $('#deleteHeader').css({'display': "none"});
         $('#decreaseHeader').css({'display': "none"});
         $('#deleteMinHeader').css({'display': "none"});
@@ -349,7 +358,7 @@ var HeapEditor = function (svgOrigin) {
         $('#finishedHeader').css({'display': "none"});
     };
     
-    this.disableAllText = function () {
+    this.disableAllText = function () {//Vanishes all texts in the step-by-step descriptionwindow
         $('#deleteText').css({'display': "none"});
         $('#decreaseText').css({'display': "none"});
         $('#deleteMinText').css({'display': "none"});
@@ -362,7 +371,7 @@ var HeapEditor = function (svgOrigin) {
     };
 
 
-    this.logMainNodes = function () {
+    this.logMainNodes = function () {//Only for debug purpose
         var nodes = Heap.instance.mainNodes;
         var str = "["
         for (var i = 0; i < nodes.length; i++) {
@@ -372,13 +381,13 @@ var HeapEditor = function (svgOrigin) {
         console.log(str);
     };
 
-    this.changeAnimated = function () {
+    this.changeAnimated = function () {//changes the stored boolean variable, which indicates if the next operation should be step-by-step (true) or all-in-one (false) visualisated, to the opposite.
         animated = !animated;
     };
 
 
 
-    this.changeDescriptWindow = function (newStatus) {
+    this.changeDescriptWindow = function (newStatus) {//changes the headers and texts in the descriptionwindow such that only the current move is descripted and the window is not full of texts
         this.disableAllText();
         switch (+newStatus) {
             case + FINISHED:
@@ -429,9 +438,8 @@ var HeapEditor = function (svgOrigin) {
     };
 
 
-    this.removeMin = function () {
+    this.removeMin = function () {//removes the node with the smallest element
         var node = Heap.instance.getMin();
-        console.log(node.ele);
         if (!node){
             return;
         }
@@ -453,7 +461,7 @@ var HeapEditor = function (svgOrigin) {
         }
     };
 
-    this.checkFinished = function () {
+    this.checkFinished = function () {//checks if the task in the exercisetab is accomplished
         var done = true;
         var nodes = Heap.instance.mainNodes;
         if (+nodes.length !== 1) {
@@ -498,7 +506,7 @@ var HeapEditor = function (svgOrigin) {
     };
 
 
-    var deselectNode = function () {
+    var deselectNode = function () {//deselects the selected node if there is any and makes the DeleteMenu disappear
         if (selectedNode !== null) {
             selectedNode = null;
         }
@@ -508,7 +516,7 @@ var HeapEditor = function (svgOrigin) {
         $("#DeleteMenuEx").css({'display': "none"});
     };
 
-    var selectNode = function (selection) {
+    var selectNode = function (selection) {//selectes the node on which was clicked and lets the DeleteMenu appear next to the selected node
         if (!inAnimation && !inExercise) {
             selectedNode = selection;
             var x = selectedNode.x + "px";

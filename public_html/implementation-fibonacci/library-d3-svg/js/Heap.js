@@ -96,7 +96,7 @@ Heap.Node.prototype.getOutEdges = function () {
  * @param {boolean} full - wheater to include the id
  * @param {function} [f] - optional resource accessor function
  */
-Heap.Node.prototype.toString = function () {
+Heap.Node.prototype.toString = function () {//the returned value is displayed on top of the Node
     var str = "";
     if (this.min)
         str += "Min";
@@ -212,14 +212,14 @@ Heap.prototype.addNode = function (ele) {
 };
 
 
-Heap.prototype.updatePotential = function () {
+Heap.prototype.updatePotential = function () {//updates the potentialfunction with the help of the function updateFunction()
     this.potential = this.numMainNodes + 2 * this.markedNodes;
     data.shift();
     data.push(this.potential);
     this.updateFunction();
 };
 
-Heap.prototype.updateFunction = function () {
+Heap.prototype.updateFunction = function () {//updates the Graph on the right side of the test-tab
     var str = "";
     var cur = data[0];
     str += "M " + funcSvgMargin.left + "," + (funcSvgMargin.top + funcSvgHeight - (funcSvgHeight / funcYRange) * cur) + " ";
@@ -497,7 +497,7 @@ Heap.prototype.cutOut = function (node) {
     }
 };
 
-Heap.prototype.mainToString = function(){
+Heap.prototype.mainToString = function(){//Debug only
     var str = "[";
     var noderinos = this.mainNodes;
     for(var i = 0; i<noderinos.length; i++){
@@ -510,7 +510,6 @@ Heap.prototype.mainToString = function(){
 
 
 Heap.prototype.rearrangeNodes = function () {
-    this.mainToString();
     this.updateMinPointer();
     this.markedNodes = 0;
     this.numMainNodes = 0;

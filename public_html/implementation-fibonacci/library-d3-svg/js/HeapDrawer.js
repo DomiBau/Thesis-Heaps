@@ -84,6 +84,9 @@ HeapDrawer = function(svgOrigin,extraMargin,transTime){
 
     var transTime = 250;
 
+
+    //Initiate the svg of the Heap
+    
     var extraMargin = extraMargin || {};
 
     var xRange = +svgOrigin.attr("width") || 400;
@@ -301,10 +304,6 @@ HeapDrawer = function(svgOrigin,extraMargin,transTime){
         var selt = selection;//.transition().duration(1000);
         selt.selectAll("line")
             .each(lineAttribs);
-//             .style("opacity",1e-6)
-//             .transition()
-//             .duration(750)
-//             .style("opacity",1);
             
         var res = selt.selectAll("text.resource");
 
@@ -380,7 +379,7 @@ HeapDrawer.prototype.nodeText = function(d){
 };
 
 /**
- * Displays inside of a node (typically its id)
+ * Displays inside of a node (typically its ele)
  */
 HeapDrawer.prototype.nodeLabel = function(d){
     return d.ele;
@@ -398,7 +397,9 @@ HeapDrawer.prototype.nodeX = function(d){
 HeapDrawer.prototype.nodeY = function(d){
     return d.y;
 };
-HeapDrawer.prototype.nodePos = function(d){
+
+
+HeapDrawer.prototype.nodePos = function(d){//returnes the position of the node
     var obj = {};
     obj.x = this.x(this.nodeX(d));
     obj.y = this.y(this.nodeY(d));
